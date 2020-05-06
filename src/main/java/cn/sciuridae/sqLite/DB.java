@@ -4,6 +4,7 @@ import cn.sciuridae.bean.Group;
 import cn.sciuridae.bean.FightStatue;
 import cn.sciuridae.bean.teamMember;
 import com.forte.qqrobot.sender.MsgSender;
+import org.sqlite.SQLiteException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,7 +40,7 @@ public class DB {
                     "                       userQQ varchar(20),\n" + //qq号
                     "                       id integer,\n" + //所属工会主键
                     "                      name varchar(20),\n" + //昵称
-                    "                       power boolean,\n" +//1 管理员
+                    "                       power boolean\n" +//1 管理员
                     "                       );\n" +
                     "                    CREATE TABLE if not exists knife(\n" +
                     "                       knifeQQ varchar(20),\n" +//出刀人qq
@@ -50,7 +51,7 @@ public class DB {
                     "                    CREATE TABLE if not exists tree(\n" +
                     "                       userId varchar(20),\n" +
                     "                       date varchar(8),\n" +
-                    "                       isTree boolean,\n" +
+                    "                       isTree boolean);\n" +
                     "CREATE TABLE if not exists progress(\n" +
                     "                       groupid varchar(20), \n" +//工会qq
                     "                        id int, \n" +//工会主键
@@ -70,13 +71,14 @@ public class DB {
     //删除上一天未出完的刀
     public Map<String, LinkedList<String>> clearTree(){
         String sql;
-        LocalDateTime localDateTime = LocalDateTime.now();
+        Date date =new  Date();
+        LocalDateTime localDateTime =LocalDateTime.now();
         HashMap<String,LinkedList<String>> map=new HashMap<>();
         if(localDateTime.getHour()<knifeFrash){
             localDateTime=localDateTime.plusDays(-1);
         }
         SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
-        sql="select userId groupid from tree, _group,teamMember where teamMember.id=_group.id and tree.userQQ=teamMember.userId and date<\""+df.format(localDateTime)+"\"";
+        sql="select userId groupid from tree, _group,teamMember where teamMember.id=_group.id and tree.userId=teamMember.userQQ and date<\""+df.format(date)+"\"";
         try {
             RowMapper<String[]>  rowMapper=new RowMapper<String[]>() {
                 @Override
@@ -89,7 +91,7 @@ public class DB {
             };
             ArrayList<String[]> strings=(ArrayList<String[]>)h.executeQuery(sql,rowMapper);
             if(strings!=null) {  //有人挂树
-                sql = "delete from tree where date<\"" + df.format(localDateTime) + "\"";
+                sql = "delete from tree where date<\"" + df.format(date) + "\"";
                 h.executeUpdate(sql);//删了树
                 for(String[] strings1:strings){
                     try {
@@ -101,6 +103,8 @@ public class DB {
                     }
                 }
             }
+        } catch (SQLiteException exceptione){
+
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -110,16 +114,22 @@ public class DB {
     }
 
     //建团
-    public synchronized int  creatGroup(Group group){
+    public synchronized int  creatGroup(Group group,String masterName){
         String sql="select name from teamMember where userQQ="+group.getGroupMasterQQ();
+        RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("id");
         try {
             String i=h.executeQuery(sql,String.class);
             return 0;//已经有一个社团了
         } catch (SQLException e) {
             //没有找到
-            String sql1="insert into _group values(null,"+group.getGroupid()+","+group.getGroupName()+","+group.getGroupMasterQQ()+","+group.getCreateDate()+")";
+            String sql1="insert into _group values(null,\""+group.getGroupid()+"\",\""+group.getGroupName()+"\",\""+group.getGroupMasterQQ()+"\",\""+group.getCreateDate()+"\")";
             try {
+                System.out.println(sql1);
                 h.executeUpdate(sql1);
+                sql1="select id from _group where groupid=\""+group.getGroupid()+"\"";
+                int i=h.executeQuery(sql1,rowMapper).get(0);
+                teamMember teamMember=new teamMember(group.getGroupMasterQQ(),true,i, masterName);
+                joinGroup(teamMember,group.getGroupName());//把团长加进去，默认创的人是团长
                 return 1;//创建成功
             } catch (SQLException e1) {
                 e1.printStackTrace();
@@ -132,46 +142,85 @@ public class DB {
             e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
+        }catch (NullPointerException e){
+            e.printStackTrace();
         }
         return -1;
     }
-    //加团
-    public synchronized int joinGroup(teamMember teamMember ,String groupNum){
-        String sql="select name from teamMember where userQQ="+teamMember.getUserQQ();//是否已经进过社团
-        String sql1="select id from _group where groupid="+groupNum;//找社团主键
+
+    public synchronized int  creatGroup(Group group,String masterName,teamMember teamMember){
+        String sql="select name from teamMember where userQQ="+group.getGroupMasterQQ();
+        RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("id");
         try {
             String i=h.executeQuery(sql,String.class);
-            return 0;//已经有社团不允许再进
+            return 0;//已经有一个社团了
+        } catch (SQLException e) {
+            //没有找到
+            String sql1="insert into _group values(null,\""+group.getGroupid()+"\",\""+group.getGroupName()+"\",\""+group.getGroupMasterQQ()+"\",\""+group.getCreateDate()+"\")";
+            try {
+                System.out.println(sql1);
+                h.executeUpdate(sql1);
+                sql1="select id from _group where groupid=\""+group.getGroupid()+"\"";
+                int i=h.executeQuery(sql1,rowMapper).get(0);
+                teamMember teamMember1=new teamMember(group.getGroupMasterQQ(),true,i, masterName);
+                joinGroup(teamMember1,group.getGroupName());//把团长加进去，默认创的人是团长
+                teamMember.setId(i);
+                joinGroup(teamMember,group.getGroupName());
+                return 1;//创建成功
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
-        } catch (SQLException e) {
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    //加团
+    public synchronized int joinGroup(teamMember teamMember ,String groupName){
+        String sql="select name from teamMember where userQQ=\""+teamMember.getUserQQ()+"\"";//是否已经进过社团
+        String sql1="select id from _group where groupName=\""+groupName+"\"";//找社团主键
+        RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("id");
+        RowMapper<Integer> rowMapper1= (rs, index) -> rs.getInt("count(*)");
+        RowMapper<String> rowMapper2= (rs, index) -> rs.getString("name");
+        try {
+            List<String> i=h.executeQuery(sql,rowMapper2);
+            i.size();
+            return 0;//已经有社团不允许再进
+        } catch (NullPointerException e) {
             try {
-                Integer i=h.executeQuery(sql1,Integer.class);
-                String sql3="select count(*) from teamMember where id="+i;
-                int j=h.executeQuery(sql3,Integer.class);
-                if(j>29){
+                List<Integer> i = h.executeQuery(sql1, rowMapper);
+                String sql3 = "select count(*) from teamMember where id=" + i.get(0);
+                List<Integer> j = h.executeQuery(sql3, rowMapper1);
+                if (j.get(0) > 29) {
                     return 1;//人满了不能进
                 }
-                String sql2="insert into teamMember values(" +
-                        teamMember.getUserQQ()+","
-                        +i+","
-                        +teamMember.getName()+","
-                        +teamMember.isPower()+","
-                        +")";
+                String sql2 = "insert into teamMember values(\"" +
+                        teamMember.getUserQQ() + "\","
+                        + i + ",\""
+                        + teamMember.getName() == null ? "null" : teamMember.getName() + "\","
+                        + teamMember.isPower() + ","
+                        + ")";
                 h.executeUpdate(sql2);//插入表中占个坑
                 return 2;
             } catch (SQLException e1) {
                 e1.printStackTrace();
             } catch (ClassNotFoundException e1) {
                 e1.printStackTrace();
-            } catch (IllegalAccessException e1) {
-                e1.printStackTrace();
-            } catch (InstantiationException e1) {
-                e1.printStackTrace();
+            }catch (NullPointerException e2){
+                return 3;//没有这个社团
             }
-        } catch (ClassNotFoundException e) {
+        }catch (ClassNotFoundException e) {
+                e.printStackTrace();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;

@@ -3,10 +3,10 @@ package cn.sciuridae.bean;
 public class teamMember {
     private String userQQ;//组员qq
     private boolean power;//权限 1为管理员
-    private String id;//工会id
+    private Integer id;//工会id 主键
     private String name;//组员游戏昵称
 
-    public teamMember(String userQQ, boolean power, String id, String name) {
+    public teamMember(String userQQ, boolean power, Integer id, String name) {
         this.userQQ = userQQ;
         this.power = power;
         this.id = id;
@@ -29,11 +29,11 @@ public class teamMember {
         this.power = power;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

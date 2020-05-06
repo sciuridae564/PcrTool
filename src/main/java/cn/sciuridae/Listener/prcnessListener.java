@@ -11,6 +11,7 @@ import com.forte.qqrobot.anno.depend.Beans;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.sender.MsgSender;
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,41 +28,69 @@ public class prcnessListener {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), helpMsg);
     }
 
+    /**
+     * 格式 #建会@机器人 工会名 自己的游戏名字（没有@工会长默认创建者为工会长）
+     * @param msg
+     * @param sender
+     */
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#建会.*" ,at = true)
     public void createGroup(GroupMsg msg, MsgSender sender){
         robotQQ= msg.getThisCode();
         String str=msg.getMsg();
-        str.replaceAll(" ", "");
         int atNum=searchAtNumber(str);
-        String groupMasterQQ;
-        String groupName;
-        if(atNum>2){
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), helpMsg);
-            return;
-        }else if(atNum==1){//只有at了机器人
-            groupMasterQQ=msg.getQQ();
-        }else {//有at其他人
-            groupMasterQQ=getAtNumber(str,robotQQ);
-        }
-        System.out.println(msg);
-        groupName=str.substring(3).replaceAll("\\[.*]","");
+        String groupMasterQQ=null;
+        String groupName=null;
+        String gameName=null;
+        String[] strings=msg.getMsg().split(" +");
+
         Date date=new Date();
         SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
         Group group=new Group();
         group.setCreateDate(df.format(date));
         group.setGroupid(msg.getGroupCode());
-        group.setGroupName(groupName);
-        group.setGroupMasterQQ(groupMasterQQ);
 
-        //System.out.println(group);
+        //暂时不支持替别人建会
+        if(strings.length>4){
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
+            return;
+        }
+        try {
+            gameName=strings[3];//会长名字
+            if(atNum>2){
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
+                return;
+            }else if(atNum==1){//只有at了机器人
+                groupMasterQQ=msg.getQQ();
+                groupName=strings[2];//工会名字
+                group.setGroupName(groupName);
+                group.setGroupMasterQQ(groupMasterQQ);
+                DB.Instance.creatGroup(group,gameName);
+
+            }
+//            else {//有at其他人
+//                groupMasterQQ=strings[4].substring(10,strings[4].indexOf("]"));
+//                groupName=strings[2];//工会名字
+//                group.setGroupName(groupName);
+//                group.setGroupMasterQQ(groupMasterQQ);
+//                gameName=null;
+//                teamMember teamMember=new teamMember(msg.getQQCode(),false,null,strings[3]);
+//                System.out.println(group); System.out.println(gameName);System.out.println(teamMember);
+//                //DB.Instance.creatGroup(group,gameName,teamMember);
+//            }
+        }catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
+        }
+
+
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#入会.*" ,at = true)
     public void getGroup(GroupMsg msg, MsgSender sender){
         teamMember teamMember=new teamMember(msg.getQQCode(),false,null, getVar(msg.getMsg()));
-
+        System.out.println("teammember"+teamMember);
         switch (DB.Instance.joinGroup(teamMember,msg.getGroupCode())){
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);//错误
@@ -73,7 +102,10 @@ public class prcnessListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), isFullGroup);//工会满员
                 break;
             case 2:
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), isFullGroup);//成功加入
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), successJoinGroup);//成功加入
+                break;
+            case 3:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), noThisGroup);//成功加入
                 break;
         }
     }
