@@ -1,10 +1,9 @@
 package cn.sciuridae.sqLite;
 
 import cn.sciuridae.bean.Group;
-import cn.sciuridae.bean.Knife;
 import cn.sciuridae.bean.FightStatue;
 import cn.sciuridae.bean.teamMember;
-import com.sun.rowset.internal.Row;
+import com.forte.qqrobot.sender.MsgSender;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,36 +30,33 @@ public class DB {
             h= new SqliteHelper("root.db");
             String initTable="CREATE TABLE if not exists _group(\n" +
                     "                       id integer PRIMARY KEY AUTOINCREMENT,\n" +
-                    "                       groupid varchar(20),\n" +
-                    "                       groupName varchar(20),\n" +
-                    "                       groupMasterQQ varchar(20),\n" +
-                    "                       createDate varchar(8)\n" +
+                    "                       groupid varchar(20),\n" +//工会所在qq群
+                    "                       groupName varchar(20),\n" +//工会名
+                    "                       groupMasterQQ varchar(20),\n" +//会长qq
+                    "                       createDate varchar(8)\n" + //工会创建时间
                     "                    );\n" +
                     "                    CREATE TABLE if not exists teamMember(\n" +
-                    "                       userQQ varchar(20),\n" +
-                    "                       id integer,\n" +
-                    "                      name varchar(20),\n" +
-                    "                       power boolean,\n" +
-                    "                       FOREIGN KEY(id) REFERENCES _group(id)\n" +
+                    "                       userQQ varchar(20),\n" + //qq号
+                    "                       id integer,\n" + //所属工会主键
+                    "                      name varchar(20),\n" + //昵称
+                    "                       power boolean,\n" +//1 管理员
                     "                       );\n" +
                     "                    CREATE TABLE if not exists knife(\n" +
-                    "                       knifeQQ varchar(20),\n" +
-                    "                       no integer,\n" +
-                    "                       hurt integer,\n" +
-                    "                       date varchar(8)\n" +
+                    "                       knifeQQ varchar(20),\n" +//出刀人qq
+                    "                       no integer,\n" +  //周目+几王
+                    "                       hurt integer,\n" + //伤害
+                    "                       date varchar(8)\n" +//时间
                     "                       );\n" +
                     "                    CREATE TABLE if not exists tree(\n" +
                     "                       userId varchar(20),\n" +
                     "                       date varchar(8),\n" +
                     "                       isTree boolean,\n" +
-                    "                       no integer,\n" +
-                    "                    FOREIGN KEY(userId) REFERENCES teamMember(userQQ));\n"+
                     "CREATE TABLE if not exists progress(\n" +
-                    "                       groupid varchar(20),--工会所在qq群号\n" +
-                    "                        id int,--工会名\n" +
-                    "                       loop int ,--周目数\n" +
-                    "                       serial int,--几王\n" +
-                    "                       Remnant int--现在的王残余血量\n" +
+                    "                       groupid varchar(20), \n" +//工会qq
+                    "                        id int, \n" +//工会主键
+                    "                       loop int , \n" +//周目
+                    "                       serial int, \n" +//几王
+                    "                       Remnant int \n" +//剩余血量
                     "                    );";
 
             h.executeUpdate(initTable);
@@ -259,61 +255,8 @@ public class DB {
         }
         return -1;
     }
-    //被救下树,返还一刀
-    public synchronized int outTree(Knife knife){
-        String sql="select groupid from teamMember,_group where teamMember.id=_group.id and teamMember.userQQ="+knife.getKnifeQQ()+";";//找这个人在哪个工会把工会所有的都救下树
 
-        try {
-            String i=h.executeQuery(sql,String.class);//找到被救的工会名
-            if(i==null){
-                return 0;//这就妹救人
-            }
-            String sql1="delete from tree where userId in (select userQQ from teamMember where id="+i+" ) ";
-            outKnife(knife);//记上成绩
 
-            //然后救人
-            h.executeUpdate(sql1);
-            return 1;//救人了
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-    //自己打完力,是交成绩的friend
-    public synchronized int outKnife(Knife knife){
-        String sql="select isTree from tree where userId= "+knife.getKnifeQQ();
-        String sql4="select no from tree where userId= "+knife.getKnifeQQ();
-        String sql1="delete from tree where userId= "+knife.getKnifeQQ();
-        RowMapper<>
-        try {
-            boolean i=h.executeQuery(sql,boolean.class);//在不在树上
-            int j=h.executeQuery(sql4,int.class);//打的是几王
-            h.executeUpdate(sql1);//删了上树的证据
-            String date=new SimpleDateFormat(dateFormat).format(new Date());
-            String sql2="insert into knife values("+knife.getKnifeQQ()+","+j+","+knife.getHurt()+","+date+")";
-            h.executeUpdate(sql2);//改为上成绩榜的证据
-            if(i){
-                return 2;//自救成功
-            }else{
-                return 1;//正常打
-            }
-        } catch (SQLException e) {
-            return 0;//妹打就报成功了
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
 
     //找找今天还有哪个小朋友没有出刀
     public synchronized String searchVoidKnife(String QQ){
@@ -464,58 +407,74 @@ public class DB {
      * @param QQ 出刀人的qq
      * @return
      */
-    public synchronized int hurtfight(String QQ,int hurt){
-
-        int _return=-1;
+    public synchronized void hurtfight(String QQ,int hurt,MsgSender sender){
         StringBuilder stringBuilder=new StringBuilder("select loop,serial,Remnant,teamMember.id  from teamMember ,progress where userQQ=\"");
         stringBuilder.append(QQ).append("\" and progress.id=teamMember.id");
+        StringBuilder tips=new StringBuilder();
         RowMapper<Integer[]> rowMapper= (rs, index) -> {
             Integer[] i=new Integer[3];
             i[0]=rs.getInt("loop");i[1]=rs.getInt("serial");i[2]=rs.getInt("Remnant");i[3]=rs.getInt("teamMember.id");
             return i;
-        };
-
-        RowMapper<Integer> rowMapper1= (rs, index) -> {
-            int i;
-            i=rs.getInt("loop");
-            return i;
-        };
+        };//获取boss属性
+        RowMapper<String> rowMapper1= (rs, index) -> rs.getString("userId");//获取被救下来人的qq号
+        RowMapper<String> rowMapper2= (rs, index) -> rs.getString("groupid");//获取通知的群号
         try {
-            List<Integer[]> list=h.executeQuery(stringBuilder.toString(),rowMapper);
+            List<Integer[]> list=h.executeQuery(stringBuilder.toString(),rowMapper);//获取现在boss的生命，周目
             if(list!=null){
                 //下树
                 stringBuilder.delete(0,stringBuilder.length());
                 stringBuilder.append("delete from tree where userId=\""+QQ+"\"");
                 h.executeUpdate(stringBuilder.toString());
 
-                //更新血量
+                //找这个工会的群号
+                stringBuilder.delete(0,stringBuilder.length());
+                stringBuilder.append("select groupid from _group where id=").append(list.get(0)[3]);
+                List<String> list2=h.executeQuery(stringBuilder.toString(),rowMapper2);
+                String groupQQ=list2.get(0);
+
+                //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
                 int hurt_active;
                 if(list.get(0)[3]-hurt>0){
                     hurt_active=hurt;
                     stringBuilder.delete(0,stringBuilder.length());
-                    stringBuilder.append("update progress set ").append("Remnant=").append(hurt_active).append(" where id=\"").append(list.get(0)[3]).append("\"");
-                    _return=1;//没打穿boss
+                    stringBuilder.append("update progress set ").append("Remnant=").append(hurt_active).append(" where id=\"").append(list.get(0)[0]*10+list.get(0)[1]).append("\"");
+                    h.executeUpdate(stringBuilder.toString());
+                    //没打穿boss
                 }else {
                     hurt_active=-1;//伤害打穿了，进入下一模式
                     list.get(0)[1]=list.get(0)[1]==5?1:list.get(0)[1]+1;
                     list.get(0)[0]=list.get(0)[1]==5?list.get(0)[0]+1:list.get(0)[0];
                     stringBuilder.delete(0,stringBuilder.length());
-                    stringBuilder.append("update progress set loop= ").append(list.get(0)[1]).append(",serial=").append(list.get(0)[1]).append(",Remnant=").append(hurt_active).append(" where id=\"").append(list.get(0)[3]).append("\"");
-                    _return=2;//这刀打爆了boss
-                }
-                h.executeUpdate(stringBuilder.toString());
+                    stringBuilder.append("update progress set loop= ").append(list.get(0)[1]).append(",serial=").append(list.get(0)[1]).append(",Remnant=").append(hurt_active).append(" where id=\"").append(list.get(0)[0]*10+list.get(0)[1])     .append("\"");
+                    h.executeUpdate(stringBuilder.toString());
+                    //进入救树模式
+                    stringBuilder.delete(0,stringBuilder.length());
+                    stringBuilder.append("select userId from tree where  userId in(select userQQ from teamMember where id="+list.get(0)[3]+")");
+                    List<String> list1=h.executeQuery(stringBuilder.toString(),rowMapper1);
 
+                    tips.append("下树啦，下树啦");
+                    for(String s:list1){
+                        tips.append("[CA:at,qq=").append(s).append("] ");
+                    }
+
+                    stringBuilder.delete(0,stringBuilder.length());
+                    stringBuilder.append("delete from tree where  userId in(select userQQ from teamMember where id="+list.get(0)[3]+")");
+                    h.executeUpdate(stringBuilder.toString());
+                    //这刀打爆了boss
+                }
                 //交成绩
                 stringBuilder.delete(0,stringBuilder.length());
                 stringBuilder.append("insert into knife values(" + QQ + ",").append(list.get(0)[1] + list.get(0)[0] * 10).append(",").append(hurt_active).append(",\"").append( new SimpleDateFormat(dateFormat).format(new Date())).append("\")");
                 h.executeUpdate(stringBuilder.toString());
+                tips.append("已交刀,[CQ:at,qq=").append(QQ).append("]");
+                sender.SENDER.sendGroupMsg(groupQQ,tips.toString());//将救下树的人通知
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return _return;
+
     }
 
     /**

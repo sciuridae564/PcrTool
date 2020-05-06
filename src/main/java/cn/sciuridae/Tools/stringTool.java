@@ -48,4 +48,10 @@ public class stringTool {
         String work=msg.replace(" ","");
         return work.substring(work.indexOf(']')+1);
     }
+
+    public static int getHurt(String s){
+        String work=s.replace(" ","");
+        int i=Integer.parseInt(work.substring(work.indexOf(']')+1));
+        return i;
+    }
 }

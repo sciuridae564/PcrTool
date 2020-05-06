@@ -15,9 +15,7 @@ import com.forte.qqrobot.sender.MsgSender;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static cn.sciuridae.Tools.stringTool.getAtNumber;
-import static cn.sciuridae.Tools.stringTool.getVar;
-import static cn.sciuridae.Tools.stringTool.searchAtNumber;
+import static cn.sciuridae.Tools.stringTool.*;
 import static cn.sciuridae.constant.*;
 
 @Beans
@@ -157,22 +155,9 @@ public class prcnessListener {
         if(fightStatue!=null) {//没有工会boss进度数据
             int no = fightStatue.getLoop() * 10 + fightStatue.getSerial();
             try {
-                Knife knife = new Knife(msg.getQQCode(), no, Integer.parseInt(getVar(msg.getMsg())), date);
-                int i=DB.Instance.outKnife(knife);
+
+                 DB.Instance.hurtfight(msg.getQQCode(),getHurt(msg.getMsg()),sender);
                 fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
-                switch (i){
-                    case -1:
-                        break;
-                    case 0:
-                        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没开始为什么就交刀惹\n");
-                        return;
-                    case 1:
-                        stringBuilder.append("出完一刀记得喝杯水\n");
-                        break;
-                    case 2:
-                        stringBuilder.append("恭喜自救成功\n");
-                        break;
-                }
                 stringBuilder.append("现在boss状态\n周目:").append(fightStatue.getLoop()).append("\n").append(fightStatue.getSerial()).append("王\n");
                 if(fightStatue.getRemnant()==-1){
                     stringBuilder.append("血量：未录入");
@@ -187,7 +172,6 @@ public class prcnessListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没开始为什么就交刀惹");
         }
     }
-
 
 
 
