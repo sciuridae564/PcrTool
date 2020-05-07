@@ -67,6 +67,5 @@ public class RunApplication implements CoolQHttpApp {
 
 
 
-
     }
 }

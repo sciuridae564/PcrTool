@@ -18,11 +18,6 @@ public class testListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#测试.*" ,at = true)
     public void testListen1(GroupMsg msg, MsgSender sender) {
-        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
-        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-
-        for (String s : strings) {
-            System.out.println(s);
-        }
+        System.out.println("测试");
     }
 }
