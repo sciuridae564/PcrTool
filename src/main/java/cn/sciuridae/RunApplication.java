@@ -5,14 +5,21 @@ import com.forte.component.forcoolqhttpapi.CoolQHttpApp;
 import com.forte.component.forcoolqhttpapi.CoolQHttpApplication;
 import com.forte.component.forcoolqhttpapi.CoolQHttpConfiguration;
 import com.forte.qqrobot.SimpleRobotApplication;
+import com.forte.qqrobot.beans.messages.result.GroupList;
+import com.forte.qqrobot.beans.messages.result.GroupMemberList;
+import com.forte.qqrobot.beans.messages.result.inner.Group;
+import com.forte.qqrobot.beans.messages.result.inner.GroupMember;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static cn.sciuridae.constant.clearTree;
+import static cn.sciuridae.constant.pcrGroupMap;
 
 @SimpleRobotApplication(resources = "/conf.properties")
 public class RunApplication implements CoolQHttpApp {
@@ -46,6 +53,20 @@ public class RunApplication implements CoolQHttpApp {
                 stringBuilder.delete(0,stringBuilder.length());
             }
         }
+
+
+        //获取所有群成员
+        pcrGroupMap = new HashMap<>();
+        GroupList groups = sender.GETTER.getGroupList();
+        for (Group group : groups.getList()) {
+            GroupMemberList groupMember = sender.GETTER.getGroupMemberList(group.getCode());
+            for (GroupMember s : groupMember) {
+                pcrGroupMap.put(s.getQQ(), s.getName());
+            }
+        }
+
+
+
 
     }
 }

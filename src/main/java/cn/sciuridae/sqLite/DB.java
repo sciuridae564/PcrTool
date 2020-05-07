@@ -208,7 +208,7 @@ public class DB {
                 String sql2 = "insert into teamMember(userQQ,id,name,power) values(\"" +
                         teamMember.getUserQQ() + "\","
                         + i.get(0) + ",\""
-                        + (teamMember.getName() == null ? "null" : teamMember.getName()) + "\","
+                        + (teamMember.getName() == null ? "佑树" : teamMember.getName()) + "\","
                         + (teamMember.isPower() ? 1 : 0)
                         + ")";
                 h.executeUpdate(sql2);//插入表中占个坑
@@ -227,6 +227,8 @@ public class DB {
         }
         return -1;
     }
+
+
     //退团
     public synchronized int outGroup(String userQQ) {
         String sql1 = "select id from teamMember where userQQ=\"" + userQQ + "\"";//找社团主键
@@ -634,5 +636,45 @@ public class DB {
     public int getBossHpLimit(int ser) {
         return BossHpLimit[ser];
     }
+
+    /**
+     * 权限验证
+     *
+     * @return
+     */
+    public boolean powerCheck(String QQ, String groupQQ) {
+        String sql = "select power from teamMember ,_group where userQQ=\"" + QQ + "\" and groupid=\"" + groupQQ + "\" and teamMember.id=_group.id";
+        RowMapper<Boolean> rowMapper = (rs, index) -> rs.getBoolean("power");
+        try {
+            return h.executeQuery(sql, rowMapper).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return false;
+    }
+
+    /**
+     * 解散工会
+     *
+     * @param groupQQ
+     */
+    public void dropGroup(String groupQQ) {
+        String sql = "delete from teamMember where id =(select id from _group where groupid=\"" + groupQQ + "\")";
+        String sql1 = "delete from _group where groupid = \"" + groupQQ + "\"";
+
+        try {
+            h.executeUpdate(sql, sql1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
 
