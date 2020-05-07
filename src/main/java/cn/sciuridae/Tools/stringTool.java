@@ -50,8 +50,14 @@ public class stringTool {
     }
 
     public static int getHurt(String s){
-        String work=s.replace(" ","");
-        int i=Integer.parseInt(work.substring(work.indexOf(']')+1));
+        String work = s.replaceAll(" +", "");
+        int i;
+        if (s.charAt(s.length() - 1) != 'w' || s.charAt(s.length() - 1) != 'W') {
+            i = Integer.parseInt(work.substring(3));
+        } else {
+            i = Integer.parseInt(work.substring(3), work.length() - 1);
+        }
+
         return i;
     }
 }

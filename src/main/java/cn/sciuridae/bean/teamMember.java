@@ -6,6 +6,7 @@ public class teamMember {
     private Integer id;//工会id 主键
     private String name;//组员游戏昵称
 
+
     public teamMember(String userQQ, boolean power, Integer id, String name) {
         this.userQQ = userQQ;
         this.power = power;

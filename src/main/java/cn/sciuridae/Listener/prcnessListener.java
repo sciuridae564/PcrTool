@@ -89,8 +89,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#入会.*" ,at = true)
     public void getGroup(GroupMsg msg, MsgSender sender){
-        teamMember teamMember=new teamMember(msg.getQQCode(),false,null, getVar(msg.getMsg()));
-        System.out.println("teammember"+teamMember);
+        teamMember teamMember = new teamMember(msg.getQQCode(), false, null, getVar(msg.getMsg()));
         switch (DB.Instance.joinGroup(teamMember,msg.getGroupCode())){
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);//错误
@@ -120,6 +119,9 @@ public class prcnessListener {
             case 0:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), successOutGroup);
                 break;
+            case 1:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), noGroupOutGroup);
+                break;
         }
     }
 
@@ -127,7 +129,7 @@ public class prcnessListener {
     @Filter(value = "#查刀.*"  )
     public void searchVoidKnife(GroupMsg msg, MsgSender sender){
 
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.getInstance().searchVoidKnife(msg.getGroupCode()));
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.getInstance().searchVoidKnife(msg.getQQCode()));
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -135,12 +137,7 @@ public class prcnessListener {
     public void getKnife(GroupMsg msg, MsgSender sender){
         FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
         if(fightStatue!=null){
-            int no=fightStatue.getLoop()*10+fightStatue.getSerial();
-            if(fightStatue.getRemnant()==-1){
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "怪物还没有录入血量惹，快上游戏看一下鸭");
-                return;
-            }
-            switch (DB.getInstance().joinTree(msg.getQQCode(),no,msg.getGroupCode())){
+            switch (DB.getInstance().joinTree(msg.getQQCode())) {
                 case -1:
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "好像出了点什么状况");
                     break;
@@ -148,10 +145,10 @@ public class prcnessListener {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(),"¿,他群间谍发现，建议rbq一周" );
                     break;
                 case 2:
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(),"¿,打咩，没有第二棵树能上了" );
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,打咩，还在出刀这么又出刀了");
                     break;
                 case 3:
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(),"已挂东南枝" );
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已出刀");
                     break;
             }
         }else {
@@ -198,6 +195,7 @@ public class prcnessListener {
                 }
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
             } catch (NumberFormatException e) {
+                e.printStackTrace();
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), commandError);
             }
         }else {
@@ -205,6 +203,45 @@ public class prcnessListener {
         }
     }
 
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#开始会战.*")
+    public void startFight(GroupMsg msg, MsgSender sender) {
+        int i = DB.Instance.startFight(msg.getGroupCode(), msg.getQQCode());
+        switch (i) {
+            case -1:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
+                break;
+            case 0://数据库离还没建这个工会或者没这权限
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+                break;
+            case 1://成功开始
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), SuccessStartFight);
+                break;
+            case 2://已经开始
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), StartFightStartDouble);
+                break;
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#结束会战.*")
+    public void endFight(GroupMsg msg, MsgSender sender) {
+        int i = DB.Instance.endFight(msg.getGroupCode(), msg.getQQCode());
+        switch (i) {
+            case -1:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
+                break;
+            case 0://数据库离还没建这个工会或者没这权限
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+                break;
+            case 1://成功结束
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), SuccessEndFight);
+                break;
+            case 2://会战没开启
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), EngFightStartDouble);
+                break;
+        }
+    }
 
 
 }
