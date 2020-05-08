@@ -9,6 +9,7 @@ import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.anno.depend.Beans;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.sender.MsgSender;
@@ -33,6 +34,12 @@ public class prcnessListener {
     @Filter(value = "#帮助.*" ,at = true)
     public void testListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), helpMsg);
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = "#帮助")
+    public void testListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, helpMsg);
     }
 
     /**

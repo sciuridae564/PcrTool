@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 
 import static cn.sciuridae.constant.clearTree;
 import static cn.sciuridae.constant.pcrGroupMap;
+import static cn.sciuridae.constant.successJoinGroup;
 
 @SimpleRobotApplication(resources = "/conf.properties")
 public class RunApplication implements CoolQHttpApp {
@@ -29,9 +30,10 @@ public class RunApplication implements CoolQHttpApp {
     }
 
     public void before(CoolQHttpConfiguration configuration) {
-        configuration.setJavaPort(15514);
-        configuration.setLocalServerPort(5700);
-        configuration.setServerPath("/coolq");
+        System.out.println(configuration.getJavaPort());
+//        configuration.setJavaPort(15514);
+//        configuration.setLocalServerPort(5700);
+//        configuration.setServerPath("/coolq");
         DB db =DB.getInstance();
         db.init();
 

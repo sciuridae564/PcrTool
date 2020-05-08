@@ -30,7 +30,14 @@ public class constant {
             "机器人回复：啪噼切泼啦哩...\n" +
             "上个命令的反向操作[翻译切噜 要翻译的那句话]\n" +
             "例 翻译切噜 啪噼切泼啦哩...\n" +
-            "机器人回复：列克星敦是世界的主宰\n";
+            "机器人回复：列克星敦是世界的主宰\n" +
+            "抽十发白金池子[十连]\n" +
+            "抽十发松鼠up池子[up十连]\n" +
+            "喊老婆[老婆 @机器人]\n" +
+            "抽300发白金池子[井]\n" +
+            "抽300发松鼠池子[up井]\n";
+
+
     public static final String coolQAt="[CQ:at,";
     public static final String createGroupMuchAt="建团指令中的@人数太多力，究竟哪个是团长呢";
     public static String robotQQ= "0";//机器人qq
