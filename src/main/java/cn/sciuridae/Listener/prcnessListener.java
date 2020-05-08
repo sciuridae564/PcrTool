@@ -716,4 +716,60 @@ public class prcnessListener {
 
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
     }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = ".*老婆.*", at = true)
+    public void kimo(GroupMsg msg, MsgSender sender) {
+        Random random = new Random();
+        random.setSeed(new Date().getTime());
+
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), kimo_Definde[random.nextInt(kimo_Definde.length)]);
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "切噜.*")
+    public void qielu(GroupMsg msg, MsgSender sender) {
+        String needTran = msg.getMsg().replaceAll(" +", "");
+        if (needTran.length() > 2) {
+            needTran = needTran.substring(2);
+            byte[] bytes = needTran.getBytes();
+            StringBuilder tranled = new StringBuilder();
+
+            for (int i = 0; i < bytes.length; i++) {
+                int[] cache = spiltByte(bytes[i] < 0 ? -bytes[i] + 127 : bytes[i]);
+                tranled.append(QieLU[cache[0]]);
+                tranled.append(QieLU[cache[1]]);
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), tranled.toString());
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要翻译的语句哎");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "翻译切噜.*")
+    public void reqielu(GroupMsg msg, MsgSender sender) {
+        String needTran = msg.getMsg().replaceAll(" +", "");
+        needTran = needTran.replaceAll(",", "%%");
+        needTran = needTran.replaceAll("扣", "扣扣");
+        needTran = needTran.substring(4);
+        if (needTran.length() > 0) {
+            ArrayList<Byte> bytes = new ArrayList<Byte>();
+            //防止前面和最后出现"，"这个不和谐因素
+            char[] cache = new char[2];
+            int q, w;
+            for (int i = 0; i < needTran.length(); i += 4) {
+                cache[0] = needTran.charAt(i + 2);
+                cache[1] = needTran.charAt(i + 3);
+                q = reQieLU.get(String.valueOf(cache));
+                cache[0] = needTran.charAt(i);
+                cache[1] = needTran.charAt(i + 1);
+                w = reQieLU.get(String.valueOf(cache));
+                bytes.add(respiltByte(q, w));
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), String.valueOf(getChars(bytes.toArray(new Byte[bytes.size()]))));
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要翻译的语句哎");
+        }
+    }
 }

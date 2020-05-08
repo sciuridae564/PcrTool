@@ -2,6 +2,10 @@ package cn.sciuridae.Tools;
 
 import javax.swing.plaf.basic.BasicBorders;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+
 import static cn.sciuridae.constant.coolQAt;
 
 public class stringTool {
@@ -59,5 +63,43 @@ public class stringTool {
         }
 
         return i;
+    }
+
+    //将byte(8位)分割成俩4位
+    public static int[] spiltByte(byte b) {
+        int i[] = new int[2];
+        i[1] = b / 16;
+        i[0] = (b - i[1] * 16);
+        return i;
+    }
+
+    //将byte(8位)分割成俩4位
+    public static int[] spiltByte(int b) {
+        int i[] = new int[2];
+        i[1] = b / 16;
+        i[0] = (b - i[1] * 16);
+        return i;
+    }
+
+    //将byte(8位)分割成俩4位
+    public static byte respiltByte(int b, int c) {
+        return (byte) ((b * 16 + c) > 127 ? 127 - (b * 16 + c) : b * 16 + c);
+    }
+
+    public static char[] getChars(Byte[] bytes) {
+        byte[] b = toPrimitives(bytes);
+        Charset cs = Charset.forName("UTF-8");
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+        bb.put(b).flip();
+        CharBuffer cb = cs.decode(bb);
+        return cb.array();
+    }
+
+    static byte[] toPrimitives(Byte[] oBytes) {
+        byte[] bytes = new byte[oBytes.length];
+        for (int i = 0; i < oBytes.length; i++) {
+            bytes[i] = oBytes[i];
+        }
+        return bytes;
     }
 }

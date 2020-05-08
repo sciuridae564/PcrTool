@@ -24,7 +24,13 @@ public class constant {
             "开始进行会战，[#开始会战]\n" +
             "注意：需为工会长\n" +
             "结束会战，[#结束会战]\n" +
-            "注意：需为工会长\n";
+            "注意：需为工会长\n" +
+            "将一句话翻译成切噜语（不完善）[切噜 要翻译的那句话]\n" +
+            "例 切噜 列克星敦是世界的主宰\n" +
+            "机器人回复：啪噼切泼啦哩...\n" +
+            "上个命令的反向操作[翻译切噜 要翻译的那句话]\n" +
+            "例 翻译切噜 啪噼切泼啦哩...\n" +
+            "机器人回复：列克星敦是世界的主宰\n";
     public static final String coolQAt="[CQ:at,";
     public static final String createGroupMuchAt="建团指令中的@人数太多力，究竟哪个是团长呢";
     public static String robotQQ= "0";//机器人qq
@@ -65,4 +71,27 @@ public class constant {
     public static final String[] two_plus = {"真阳", "栞", "香织", "铃"};
     public static final String[] one_plus = {"莉玛"};
     public static HashMap<String, String> pcrGroupMap;//启用prc群里的qq号：昵称映射表
+    public static final String[] kimo_Definde = {"hentai，谁是你老婆啦", "死肥宅一边玩去啦，不要打扰我", "本小姐不想理你，并向你扔了一只胖次",
+            "无应答......", "嗷呜%_%", "谁是你老婆啦，哼"};
+    public static final String[] QieLU = {"切噜", "切哩", "切吉", "噜拉", "啪噜", "切璐", "扣", "啦哩", "啦嘟", "切泼", "啪噼", ",", "嚕嚕", "啰哩", "切拉", "切噼"};
+    public static HashMap<String, Integer> reQieLU = new HashMap<>();
+
+    static {
+        reQieLU.put("切噜", 0);
+        reQieLU.put("切哩", 1);
+        reQieLU.put("切吉", 2);
+        reQieLU.put("噜拉", 3);
+        reQieLU.put("啪噜", 4);
+        reQieLU.put("切璐", 5);
+        reQieLU.put("扣扣", 6);
+        reQieLU.put("啦哩", 7);
+        reQieLU.put("啦嘟", 8);
+        reQieLU.put("切泼", 9);
+        reQieLU.put("啪噼", 10);
+        reQieLU.put("%%", 11);
+        reQieLU.put("嚕嚕", 12);
+        reQieLU.put("啰哩", 13);
+        reQieLU.put("切拉", 14);
+        reQieLU.put("切噼", 15);
+    }
 }
