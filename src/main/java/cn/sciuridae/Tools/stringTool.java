@@ -53,15 +53,34 @@ public class stringTool {
         return work.substring(work.indexOf(']')+1);
     }
 
-    public static int getHurt(String s){
+    /**
+     * 将传入的字符转换成伤害值
+     *
+     * @param s
+     * @param flag 1为自己出刀2为代刀
+     * @return
+     */
+    public static int getHurt(String s, int flag) {
         String work = s.replaceAll(" +", "");
-        int i;
-        if (s.charAt(s.length() - 1) != 'w' || s.charAt(s.length() - 1) != 'W') {
-            i = Integer.parseInt(work.substring(3));
-        } else {
-            i = Integer.parseInt(work.substring(3), work.length() - 1);
+        int i = 0;
+        switch (flag) {
+            case 1:
+                if (s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W') {
+                    i = Integer.parseInt(work.substring(3));
+                } else {
+                    System.out.println();
+                    i = Integer.parseInt(work.substring(3, work.length() - 1)) * 10000;
+                }
+                break;
+            case 2:
+                if (s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W') {
+                    i = Integer.parseInt(work.substring(work.indexOf("]") + 1));
+                } else {
+                    System.out.println();
+                    i = Integer.parseInt(work.substring(work.indexOf("]" + 1), work.length() - 1)) * 10000;
+                }
+                break;
         }
-
         return i;
     }
 

@@ -35,7 +35,21 @@ public class constant {
             "抽十发松鼠up池子[up十连]\n" +
             "喊老婆[老婆 @机器人]\n" +
             "抽300发白金池子[井]\n" +
-            "抽300发松鼠池子[up井]\n";
+            "抽300发松鼠池子[up井]\n" +
+            "*撤回成员的出刀记录[撤刀 出刀编号]\n" +
+            "ps:出刀编号可用查已出刀命令查看\n" +
+            "查看当日已出刀信息[查已出刀 （@要查的那个人）]\n" +
+            "ps：后面不加@则默认查当日全部已出刀情况\n" +
+            "*代替成员出刀[代刀 @那个人 伤害值]\n" +
+            "ps：和交刀命令一样，可以不用出刀直接交刀\n" +
+            "*调整boss的周目，血量，第几个[调整boss状态 （调整后的）周目 几王 血量]\n" +
+            "例：调整boss状态 2 4 2554\n" +
+            "结果：将boss调整到二周目 4王位 2554血量剩余\n" +
+            "查看已加入工会 的成员列表[工会成员列表]\n" +
+            "查看工会一些基本信息[工会信息]\n" +
+            "*更改工会名字[改工会名 更改后的工会名]\n" +
+            "更改自己的名字[改名 更改后的名字]" +
+            "*设置一个人为管理员 [设置管理 @那个人]";
 
 
     public static final String coolQAt="[CQ:at,";
@@ -58,6 +72,7 @@ public class constant {
     public static final String noThisGroup="啊咧咧，这个工会好像还没有建立呢";
     public static final String allVoidKnife = " 全员懒狗，一个刀都没出";
     public static final String notBossOrNotDate = " 还没开启工会战";
+    public static final String noFindTheOne = "没有找到这个人，是不是还没有入会？";
     public static final int[] BossHpLimit = {6000000, 8000000, 10000000, 12000000, 20000000};//各个boss的血量上限
     public static final String notPower = "得工会管理员才可以惹";
     public static final String SuccessStartFight = "会战开始惹";

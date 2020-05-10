@@ -2,9 +2,11 @@ package cn.sciuridae.sqLite;
 
 import cn.sciuridae.bean.Group;
 import cn.sciuridae.bean.FightStatue;
+import cn.sciuridae.bean.Knife;
 import cn.sciuridae.bean.teamMember;
 import com.forte.qqrobot.sender.MsgSender;
 import com.sun.rowset.internal.Row;
+import jdk.nashorn.internal.ir.BaseNode;
 import org.sqlite.SQLiteException;
 
 import java.sql.ResultSet;
@@ -46,7 +48,8 @@ public class DB {
                     "                       knifeQQ varchar(20),\n" +//出刀人qq
                     "                       no integer,\n" +  //周目+几王
                     "                       hurt integer,\n" + //伤害
-                    "                       date varchar(8)\n" +//时间
+                    "                       date varchar(8),\n" +//时间
+                    "                       complete boolean\n" +//是否是完整一刀（打爆boss的刀不算完整一刀
                     "                       );\n" +
                     "                    CREATE TABLE if not exists tree(\n" +
                     "                       userId varchar(20),\n" +
@@ -68,12 +71,16 @@ public class DB {
         }
     }
 
-    //删除上一天未出完的刀
-    public Map<String, LinkedList<String>> clearTree(){
+    /**
+     * 删除上一天未出完的刀
+     *
+     * @return <群qq，未出完刀的qq>
+     */
+    public Map<String, List<String>> clearTree() {
         String sql;
         Date date =new  Date();
         LocalDateTime localDateTime =LocalDateTime.now();
-        HashMap<String,LinkedList<String>> map=new HashMap<>();
+        HashMap<String, List<String>> map = new HashMap<>();
         if(localDateTime.getHour()<knifeFrash){
             localDateTime=localDateTime.plusDays(-1);
         }
@@ -495,6 +502,7 @@ public class DB {
         StringBuilder stringBuilder=new StringBuilder("select loop,serial,Remnant,teamMember.id  from teamMember ,progress where userQQ=\"");
         stringBuilder.append(QQ).append("\" and progress.id=teamMember.id");
         StringBuilder tips=new StringBuilder();
+        boolean complete;
         RowMapper<Integer[]> rowMapper= (rs, index) -> {
             Integer[] i = new Integer[4];
             i[0] = rs.getInt("loop");
@@ -507,17 +515,23 @@ public class DB {
         RowMapper<String> rowMapper2= (rs, index) -> rs.getString("groupid");//获取通知的群号
         try {
             List<Integer[]> list=h.executeQuery(stringBuilder.toString(),rowMapper);//获取现在boss的生命，周目
+
+            //找这个工会的群号
+            String string = "select groupid from _group where id=" + list.get(0)[3];
+            List<String> list2 = h.executeQuery(string, rowMapper2);
+            String groupQQ = list2.get(0);
+
+            //查询这个人出没出完三刀
+            if (!ningpeichudaoma(QQ)) {
+                sender.SENDER.sendGroupMsg(groupQQ, "已经出完三刀惹");
+                return;
+            }
+
             if(list!=null){
                 //下树
                 stringBuilder.delete(0,stringBuilder.length());
                 stringBuilder.append("delete from tree where userId=\""+QQ+"\"");
                 h.executeUpdate(stringBuilder.toString());
-
-                //找这个工会的群号
-                stringBuilder.delete(0,stringBuilder.length());
-                stringBuilder.append("select groupid from _group where id=").append(list.get(0)[3]);
-                List<String> list2=h.executeQuery(stringBuilder.toString(),rowMapper2);
-                String groupQQ=list2.get(0);
 
                 //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
                 int hurt_active;
@@ -526,6 +540,7 @@ public class DB {
                     stringBuilder.delete(0,stringBuilder.length());
                     stringBuilder.append("update progress set ").append("Remnant=").append(list.get(0)[2] - hurt).append(" where id=").append(list.get(0)[3]).append("");
                     h.executeUpdate(stringBuilder.toString());
+                    complete = true;
                     //没打穿boss
                 }else {
                     hurt_active = list.get(0)[2];//伤害打穿了，进入下一模式
@@ -542,18 +557,21 @@ public class DB {
 
                     tips.append("下树啦，下树啦");
                     for(String s:list1){
-                        tips.append("[CA:at,qq=").append(s).append("] ");
+                        tips.append("[CQ:at,qq=").append(s).append("] ");
                     }
+                    sender.SENDER.sendGroupMsg(groupQQ, tips.toString());//将救下树的人通知
 
                     stringBuilder.delete(0,stringBuilder.length());
                     stringBuilder.append("delete from tree where  userId in(select userQQ from teamMember where id="+list.get(0)[3]+")");
                     h.executeUpdate(stringBuilder.toString());
+                    complete = false;
                     //这刀打爆了boss
                 }
                 //交成绩
                 stringBuilder.delete(0,stringBuilder.length());
-                stringBuilder.append("insert into knife values(" + QQ + ",").append(list.get(0)[1] + list.get(0)[0] * 10).append(",").append(hurt_active).append(",\"").append( new SimpleDateFormat(dateFormat).format(new Date())).append("\")");
+                stringBuilder.append("insert into knife values(" + QQ + ",").append(list.get(0)[1] + list.get(0)[0] * 10).append(",").append(hurt_active).append(",\"").append(new SimpleDateFormat(dateFormat).format(new Date())).append("\"," + (complete ? 1 : 0) + ")");
                 h.executeUpdate(stringBuilder.toString());
+                tips.delete(0, tips.length());
                 tips.append("已交刀,[CQ:at,qq=").append(QQ).append("]");
                 sender.SENDER.sendGroupMsg(groupQQ,tips.toString());//将救下树的人通知
             }
@@ -588,7 +606,7 @@ public class DB {
                 for (String s:list){
                     hashMaps.put(s,0);
                 }
-                sql="select hurt,knifeQQ  from knife where knifeQQ in ("+"select userQQ from teamMember where id=(select id from userQQ=\""+QQ+"\") and date=\""+new SimpleDateFormat(dateFormat).format(new Date())+"\")";
+                sql = "select hurt,knifeQQ  from knife where complete=1 and knifeQQ in (" + "select userQQ from teamMember where id=(select id from userQQ=\"" + QQ + "\") and date=\"" + new SimpleDateFormat(dateFormat).format(new Date()) + "\")";
                 List<String[]> list1=h.executeQuery(sql,req1);
                 for(String[] strings:list1) {
                     hashMaps.put(strings[0], hashMaps.get(hashMaps) + 1);
@@ -675,6 +693,256 @@ public class DB {
         }
     }
 
+    /**
+     * 改自己名字
+     *
+     * @param QQ
+     * @return
+     */
+    public String changeName(String QQ, String newName) {
+        String tips = "好像还没有加入过工会哎";
+        String sql = "select name from teamMember where userQQ=\"" + QQ + "\"";
+        RowMapper<String> rowMapper = (rs, index) -> rs.getString("name");
 
+        try {
+            String name = h.executeQuery(sql, rowMapper).get(0);
+            String sql_changeName = "update teamMember set name=\"" + newName + "\" where userQQ=\"" + QQ + "\"";
+            h.executeUpdate(sql_changeName);
+
+            tips = "改名成功，原名：" + name + "\n现在为：" + newName;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return tips;
+    }
+
+    /**
+     * 改工会名字
+     *
+     * @param
+     * @return
+     */
+    public String changeGroupName(String GroupQQ, String newGroupName) {
+        String tips = "还没有建立工会呢";
+        String sql = "select groupName from _group where groupid=\"" + GroupQQ + "\"";
+        RowMapper<String> rowMapper = (rs, index) -> rs.getString("groupName");
+
+        try {
+            String name = h.executeQuery(sql, rowMapper).get(0);
+            String sql_changeName = "update _group set groupName=\"" + newGroupName + "\" where groupid=\"" + GroupQQ + "\"";
+            h.executeUpdate(sql_changeName);
+
+            tips = "改名成功，原名：" + name + "\n现在为：" + newGroupName;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return tips;
+    }
+
+    public String groupStatue(String groupQQ) {
+        String tips = "还没有建立工会呢";
+        ;
+        String sql = "select * from _group where groupid=\"" + groupQQ + "\"";
+        RowMapper<Group> groupId = (rs, index) -> {
+            Group group = new Group(rs.getInt("id"), rs.getString("groupid"), rs.getString("groupName"), rs.getString("groupMasterQQ"), rs.getString("createDate"));
+            return group;
+        };
+
+        try {
+            Group group = h.executeQuery(sql, groupId).get(0);
+            tips = "工会名称：" + group.getGroupName() + "\n工会会长qq：" + group.getGroupMasterQQ() + "\n工会创建时间：" + group.getCreateDate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+        }
+        return tips;
+
+    }
+
+    public List<teamMember> groupMemberList(String groupQQ) {
+        List<teamMember> members = null;
+        String sql = "select id from _group where groupid=\"" + groupQQ + "\"";
+        RowMapper<Integer> groupId = (rs, index) -> rs.getInt("id");
+        RowMapper<teamMember> memebers = (rs, index) -> {
+            teamMember teamMember = new teamMember(rs.getString("userQQ"), rs.getBoolean("power"), null, rs.getString("name"));
+            return teamMember;
+        };
+        try {
+            int id = h.executeQuery(sql, groupId).get(0);
+            String searchGroupList = "select userQQ,name,power from teamMember where id=" + id;
+            members = h.executeQuery(searchGroupList, memebers);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+        return members;
+    }
+
+    /**
+     * 查询出刀情况
+     *
+     * @param QQ      和群qq择一使用
+     * @param GroupQQ
+     * @param time
+     * @return
+     */
+    public List<Knife> searchKnife(String QQ, String GroupQQ, String time) {
+        System.out.println("start");
+        StringBuilder sql = new StringBuilder();
+        if (QQ != null) {
+            sql.append("select knife.rowid , knife.* from knife where knifeQQ=\"");
+            sql.append(QQ).append("\"");
+        } else {
+            sql.append("select knife.rowid , knife.* from knife join teamMember on knife.knifeQQ=teamMember.userQQ join _group on _group.id=teamMember.id \n" + "where _group.groupid=\"").append(GroupQQ).append("\"");
+        }
+        if (time != null) {
+            sql.append(" and knife.date=\"").append(time).append("\"");
+        }
+        RowMapper<Knife> knifes = (rs, index) -> {
+            Knife knife = new Knife(rs.getString("knifeQQ"), rs.getInt("no"), rs.getInt("hurt"), rs.getString("date"), rs.getBoolean("complete"), rs.getInt("rowid"));
+            return knife;
+        };
+        List<Knife> list = null;
+        System.out.println("end");
+        try {
+            list = h.executeQuery(sql.toString(), knifes);
+            System.out.println(list.size());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return list;
+
+    }
+
+
+    public String searchName(String QQ) {
+        String sql = "select name from teamMember where userQQ=\"" + QQ + "\"";
+        RowMapper<String> rowMapper = new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int index) throws SQLException {
+                return rs.getString("name");
+            }
+        };
+        String name = null;
+        try {
+            name = h.executeQuery(sql, rowMapper).get(0);
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return name;
+    }
+
+    /**
+     * @param loop
+     * @param serial
+     * @param Remnant
+     * @return true为没有变周目，没有撸在上树的人
+     */
+    public boolean changeBoss(String groupQQ, int loop, int serial, int Remnant) {
+        String selectBoss = "select loop,serial from progress where groupid=\"" + groupQQ + "\"";
+        String changeBoss = "update progress set loop=" + loop + ",serial=" + serial + ",Remnant=" + Remnant + " where groupid=\"" + groupQQ + "\"";
+        boolean is = false;
+        RowMapper<FightStatue> rowMapper = (rs, index) -> {
+            FightStatue fightStatue = new FightStatue(rs.getInt("loop"), rs.getInt("serial"), 1);
+            return fightStatue;
+        };
+
+        try {
+            FightStatue fightStatue = h.executeQuery(selectBoss, rowMapper).get(0);
+            if (fightStatue.getLoop() == loop && fightStatue.getSerial() == serial) {//变周目时会把所有人撸下来
+                is = true;
+            } else {
+                String getGroupId = "delete from tree where userId in ( select userId from teamMember join _group on teamMember.id=_group.id where _group.groupid=\"" + groupQQ + "\")";
+                h.executeUpdate(getGroupId);
+                is = false;
+            }
+            h.executeUpdate(changeBoss);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return is;
+    }
+
+    public boolean deleteKnife(int id) {
+        String sql = "delete from knife where rowid=" + id;
+        int i = 0;
+        try {
+            i = h.executeUpdate(sql);
+            System.out.println(i);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return i == 1;
+    }
+
+    //检查这个qq号是否出过三刀了
+    public boolean ningpeichudaoma(String QQ) {
+        String sql = "select complete from knife where knifeQQ =\"" + QQ + "\" and " + "date=\"" + new SimpleDateFormat(dateFormat).format(new Date()) + "\"";
+        RowMapper<Boolean> rowMapper = (rs, index) -> rs.getBoolean("complete");
+        try {
+            List<Boolean> knifes = h.executeQuery(sql, rowMapper);
+            int sum = 0;
+            for (Boolean b : knifes) {
+                if (b) {
+                    sum++;
+                }
+            }
+            if (sum > 2) {
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+        }
+        return true;
+    }
+
+    /**
+     * 设置工会管理员
+     *
+     * @param Tragit  将要获得权限的qq
+     * @param groupQQ 群qq
+     * @return
+     */
+    public int setAdmin(String Tragit, String groupQQ) {
+        String sql = "update teamMember set power=1 where userQQ=\"" + Tragit + "\"";
+
+        try {
+            int i = h.executeUpdate(sql);
+            return i;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
 

@@ -1,0 +1,36 @@
+Manifest-Version: 1.0
+Class-Path: lib\spring-boot-1.5.9.RELEASE.jar lib\spring-core-4.3.13.R
+ ELEASE.jar lib\simple-robot-core-1.9.0.jar lib\logback-classic-1.1.11
+ .jar lib\httpcore-4.4.8.jar lib\jul-to-slf4j-1.7.25.jar lib\console-p
+ lus-1.2.1.jar lib\spring-web-4.3.13.RELEASE.jar lib\simple-plusutils-
+ 1.3.1.jar lib\spring-context-4.3.13.RELEASE.jar lib\commons-codec-1.1
+ 0.jar lib\spring-boot-autoconfigure-1.5.9.RELEASE.jar lib\mchange-com
+ mons-java-0.2.11.jar lib\jackson-core-2.8.10.jar lib\annotations-13.0
+ .jar lib\slf4j-api-1.7.25.jar lib\tomcat-embed-el-8.5.23.jar lib\spri
+ ng-webmvc-4.3.13.RELEASE.jar lib\jackson-databind-2.8.10.jar lib\spri
+ ng-boot-starter-logging-1.5.9.RELEASE.jar lib\c3p0-0.9.5.2.jar lib\co
+ mponent-forcoolqhttpapi-0.9.0-BETA-1.9.jar lib\logback-core-1.1.11.ja
+ r lib\HikariCP-java6-2.3.13.jar lib\jboss-logging-3.3.1.Final.jar lib
+ \spring-expression-4.3.13.RELEASE.jar lib\snakeyaml-1.17.jar lib\comm
+ ons-collections-3.2.2.jar lib\validation-api-1.1.0.Final.jar lib\log4
+ j-over-slf4j-1.7.25.jar lib\sqlite-jdbc-3.21.0.1.jar lib\spring-boot-
+ starter-web-1.5.9.RELEASE.jar lib\kotlin-stdlib-1.3.70.jar lib\jcl-ov
+ er-slf4j-1.7.25.jar lib\fastjson-1.2.54.jar lib\spring-boot-starter-1
+ .5.9.RELEASE.jar lib\httpclient-4.4.1.jar lib\spring-aop-4.3.13.RELEA
+ SE.jar lib\spring-aspects-5.2.3.RELEASE.jar lib\spring-context-suppor
+ t-5.2.3.RELEASE.jar lib\spring-aop-5.2.3.RELEASE.jar lib\spring-expre
+ ssion-5.2.3.RELEASE.jar lib\spring-instrument-5.2.3.RELEASE.jar lib\s
+ pring-beans-5.2.3.RELEASE.jar lib\spring-jms-5.2.3.RELEASE.jar lib\sp
+ ring-jdbc-5.2.3.RELEASE.jar lib\spring-messaging-5.2.3.RELEASE.jar li
+ b\spring-oxm-5.2.3.RELEASE.jar lib\spring-orm-5.2.3.RELEASE.jar lib\s
+ pring-context-5.2.3.RELEASE.jar lib\commons-logging-1.2.jar lib\aopal
+ liance-1.0.jar lib\spring-tx-5.2.3.RELEASE.jar lib\spring-core-5.2.3.
+ RELEASE.jar lib\spring-test-5.2.3.RELEASE.jar lib\quartz-2.3.0.jar li
+ b\mod-cqcodeutils-1.0-1.11.jar lib\spring-boot-starter-tomcat-1.5.9.R
+ ELEASE.jar lib\jackson-annotations-2.8.0.jar lib\tomcat-embed-core-8.
+ 5.23.jar lib\hibernate-validator-5.3.6.Final.jar lib\commons-beanutil
+ s-1.9.3.jar lib\tomcat-annotations-api-8.5.23.jar lib\spring-beans-4.
+ 3.13.RELEASE.jar lib\classmate-1.3.4.jar lib\commons-io-2.6.jar lib\t
+ omcat-embed-websocket-8.5.23.jar lib\kotlin-stdlib-common-1.3.70.jar
+Main-Class: cn.sciuridae.RunApplication
+

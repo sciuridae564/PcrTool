@@ -9,39 +9,45 @@ import com.forte.qqrobot.beans.messages.result.GroupList;
 import com.forte.qqrobot.beans.messages.result.GroupMemberList;
 import com.forte.qqrobot.beans.messages.result.inner.Group;
 import com.forte.qqrobot.beans.messages.result.inner.GroupMember;
+import com.forte.qqrobot.exception.BotVerifyException;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
 
 import static cn.sciuridae.constant.clearTree;
 import static cn.sciuridae.constant.pcrGroupMap;
 import static cn.sciuridae.constant.successJoinGroup;
 
+//@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @SimpleRobotApplication(resources = "/conf.properties")
 public class RunApplication implements CoolQHttpApp {
     public static void main(String[] arpg){
+
+        //SpringApplication.run(RunApplication.class,arpg);
+
         CoolQHttpApplication application = new CoolQHttpApplication();
-        application.run(new RunApplication());
+        try {
+            application.run(RunApplication.class);
+        } catch (BotVerifyException e) {
+            System.out.println("没开cqhttp插件吗？，或者是没有配置cqhttp？启动失败惹");
+            Scanner scanner = new Scanner(System.in);
+            scanner.next();
+        }
+
     }
 
     public void before(CoolQHttpConfiguration configuration) {
-        System.out.println(configuration.getJavaPort());
-//        configuration.setJavaPort(15514);
-//        configuration.setLocalServerPort(5700);
-//        configuration.setServerPath("/coolq");
         DB db =DB.getInstance();
         db.init();
-
     }
 
     public void after(CQCodeUtil cqCodeUtil, MsgSender sender) {
         constant.robotQQ=sender.GETTER.getLoginQQInfo().getQQ();//获取机器人qq
-        Map<String, LinkedList<String>> map=DB.Instance.clearTree();
+        Map<String, List<String>> map = DB.Instance.clearTree();
         //如果有强制下树的人员
         if(!map.isEmpty()){
             StringBuilder stringBuilder=new StringBuilder();
@@ -66,7 +72,6 @@ public class RunApplication implements CoolQHttpApp {
                 pcrGroupMap.put(s.getQQ(), s.getName());
             }
         }
-
 
 
     }

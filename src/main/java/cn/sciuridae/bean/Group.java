@@ -9,6 +9,16 @@ public class Group {
     private String groupMasterQQ;
     private String createDate;
 
+    public Group(int id, String groupid, String groupName, String groupMasterQQ, String createDate) {
+        this.id = id;
+        this.groupid = groupid;
+        this.groupName = groupName;
+        this.groupMasterQQ = groupMasterQQ;
+        this.createDate = createDate;
+    }
+
+    public Group() {
+    }
 
     public String getGroupid() {
         return groupid;
