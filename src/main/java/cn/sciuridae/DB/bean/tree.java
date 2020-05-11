@@ -1,4 +1,4 @@
-package cn.sciuridae.bean;
+package cn.sciuridae.DB.bean;
 
 //说是树表其实是把正在出刀的人都集中在这里了
 public class tree {

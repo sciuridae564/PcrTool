@@ -1,9 +1,8 @@
-package cn.sciuridae.timeJob;
+package cn.sciuridae.CoolQ.timeJob;
 
-import cn.sciuridae.sqLite.DB;
+import cn.sciuridae.DB.sqLite.DB;
 import com.forte.qqrobot.anno.timetask.CronTask;
 import com.forte.qqrobot.sender.MsgSender;
-import com.forte.qqrobot.sender.Senderable;
 import com.forte.qqrobot.timetask.TimeJob;
 import com.forte.qqrobot.utils.CQCodeUtil;
 

@@ -1,6 +1,4 @@
-package cn.sciuridae.bean;
-
-import java.util.Date;
+package cn.sciuridae.DB.bean;
 
 public class Group {
     private int id;//主键

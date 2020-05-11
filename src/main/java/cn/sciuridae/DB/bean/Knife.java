@@ -1,4 +1,4 @@
-package cn.sciuridae.bean;
+package cn.sciuridae.DB.bean;
 
 //其实是已经出完刀的刀表
 public class Knife {

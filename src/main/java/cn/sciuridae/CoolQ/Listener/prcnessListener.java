@@ -1,10 +1,7 @@
-package cn.sciuridae.Listener;
+package cn.sciuridae.CoolQ.Listener;
 
-import cn.sciuridae.bean.FightStatue;
-import cn.sciuridae.bean.Group;
-import cn.sciuridae.bean.Knife;
-import cn.sciuridae.bean.teamMember;
-import cn.sciuridae.sqLite.DB;
+import cn.sciuridae.DB.bean.*;
+import cn.sciuridae.DB.sqLite.DB;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.anno.depend.Beans;
@@ -14,16 +11,11 @@ import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
-import com.forte.qqrobot.utils.CQUtils;
-import com.simplerobot.modules.utils.KQCode;
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
-import sun.reflect.generics.tree.Tree;
-import sun.util.resources.cldr.haw.CalendarData_haw_US;
 
-import javax.swing.*;
-import javax.transaction.TransactionRequiredException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.FileHandler;
 
 import static cn.sciuridae.Tools.stringTool.*;
 import static cn.sciuridae.constant.*;
@@ -104,12 +96,13 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#批量入会.*", at = true)
+    @Filter(value = "#批量入会.*")
     public void getGroups(GroupMsg msg, MsgSender sender) {
         if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
             int[] sum = {0, 0, 0};//已有工会，成功入会,错误未加入
+
             ArrayList<String> have = new ArrayList<>();
             ArrayList<String> success = new ArrayList<>();
             ArrayList<String> error = new ArrayList<>();
@@ -133,17 +126,17 @@ public class prcnessListener {
                 }
             }
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("本次操作，成功入会：").append(sum[1]).append("人\n");
+            stringBuilder.append("本次操作，成功入会：").append(sum[1]).append("人");
             for (String s : success) {
-                stringBuilder.append("CQ:at.qq=").append(s).append("]");
+                stringBuilder.append("[CQ:at,qq=").append(s).append("]");
             }
-            stringBuilder.append("已有工会：").append(sum[0]).append("人\n");
+            stringBuilder.append("\n已有工会：").append(sum[0]).append("人");
             for (String s : have) {
-                stringBuilder.append("CQ:at.qq=").append(s).append("]");
+                stringBuilder.append("[CQ:at,qq=").append(s).append("]");
             }
-            stringBuilder.append("错误未加入：").append(sum[2]).append("人\n");
+            stringBuilder.append("\n错误未加入：").append(sum[2]).append("人\n");
             for (String s : error) {
-                stringBuilder.append("CQ:at.qq=").append(s).append("]");
+                stringBuilder.append("[CQ:at,qq=").append(s).append("]");
             }
 
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
@@ -195,14 +188,14 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#未出刀.*")
+    @Filter(value = "#未出刀")
     public void searchVoidKnife(GroupMsg msg, MsgSender sender){
 
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.getInstance().searchVoidKnife(msg.getQQCode()));
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#出刀.*" )
+    @Filter(value = "#出刀")
     public void getKnife(GroupMsg msg, MsgSender sender){
         FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
         if(fightStatue!=null){
@@ -226,7 +219,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#上树.*" )
+    @Filter(value = "#上树")
     public void getTree(GroupMsg msg, MsgSender sender){
         switch (DB.Instance.trueTree(msg.getQQCode(),msg.getGroupCode())){
             case -1:
@@ -270,9 +263,13 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#开始会战.*")
+    @Filter(value = "#开始会战")
     public void startFight(GroupMsg msg, MsgSender sender) {
-        int i = DB.Instance.startFight(msg.getGroupCode(), msg.getQQCode());
+        String time = msg.getMsg().replaceAll(" +", "").substring(5);
+        System.out.println(time);
+        int i = 0;
+
+        i = DB.Instance.startFight(msg.getGroupCode(), msg.getQQCode(), time);
         switch (i) {
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
@@ -286,11 +283,18 @@ public class prcnessListener {
             case 2://已经开始
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), StartFightStartDouble);
                 break;
+            case 3:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例  20:05:12");
+                break;
+            case 4:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功预约，会战即将开始");
+                break;
         }
+
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#结束会战.*")
+    @Filter(value = "#结束会战")
     public void endFight(GroupMsg msg, MsgSender sender) {
         int i = DB.Instance.endFight(msg.getGroupCode(), msg.getQQCode());
         switch (i) {
@@ -317,7 +321,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "up十连.*")
+    @Filter(value = "up十连")
     public void Gashapon(GroupMsg msg, MsgSender sender) {
 
         Random random = new Random();
@@ -376,7 +380,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "十连.*")
+    @Filter(value = "十连")
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
@@ -798,13 +802,13 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "工会信息.*")
+    @Filter(value = "工会信息")
     public void GroupNameStatue(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.Instance.groupStatue(msg.getGroupCode()));
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "工会成员列表.*")
+    @Filter(value = "工会成员列表")
     public void GroupMemberList(GroupMsg msg, MsgSender sender) {
         StringBuilder stringBuilder = new StringBuilder();
         List<teamMember> teamMembers = DB.Instance.groupMemberList(msg.getGroupCode());
@@ -822,7 +826,7 @@ public class prcnessListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
             return;
         } else {
-            stringBuilder.append("还没有创建工会哦");
+            stringBuilder.append("还没有创建工会或者不在哦");
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
         }
 
@@ -874,15 +878,8 @@ public class prcnessListener {
         }
     }
 
-//    //因为各种原因这刀浪费了
-//    @Listen(MsgGetTypes.groupMsg)
-//    @Filter(value = "空刀.*")
-//    public void voidKnife(GroupMsg msg, MsgSender sender){
-//
-//    }
-
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "查已出刀.*")
+    @Filter(value = "已出刀")
     public void searchKnife(GroupMsg msg, MsgSender sender) {
         List<Knife> list = null;
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
@@ -931,6 +928,69 @@ public class prcnessListener {
             }
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "boss状态")
+    public void getBoss(GroupMsg msg, MsgSender sender) {
+        FightStatue fightStatue = DB.Instance.getFightStatue(msg.getGroupCode());
+        if (fightStatue != null) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "现在为 " + fightStatue.getLoop() + "周目\n" + fightStatue.getSerial() + "王\n剩余血量："
+                    + fightStatue.getRemnant() + "");
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notBossOrNotDate);
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "踢人.*")
+    public void kickman(GroupMsg msg, MsgSender sender) {
+        int num;
+        if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
+            CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+            List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+            num = DB.getInstance().deleteMember(strings.get(0).substring(10, strings.get(0).length() - 1));
+            if (num == 0) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有踢掉任何一个人，@的这个人是不是还没有加入这个工会呢");
+            } else {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功踢掉了");
+            }
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "查树")
+    public void searchTree(GroupMsg msg, MsgSender sender) {
+        List<String> trees = DB.Instance.searchTree(msg.getGroupCode());
+
+        if (trees.size() == 0) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "无 人 挂 树");
+        } else {
+            StringBuilder stringBuilder = new StringBuilder("挂树名单:");
+            for (String QQ : trees) {
+                stringBuilder.append("\n[CQ:at,qq=").append(QQ).append("] ").append(DB.Instance.searchName(QQ));
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        }
+    }
+
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "正在出刀")
+    public void searchOutKnife(GroupMsg msg, MsgSender sender) {
+        List<String> trees = DB.Instance.searchOutKnife(msg.getGroupCode());
+
+        if (trees.size() == 0) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "无 人 出 刀");
+        } else {
+            StringBuilder stringBuilder = new StringBuilder("出刀名单:");
+            for (String QQ : trees) {
+                stringBuilder.append("\n[CQ:at,qq=").append(QQ).append("] ").append(DB.Instance.searchName(QQ));
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
         }
     }
 

@@ -1,4 +1,4 @@
-package cn.sciuridae.bean;
+package cn.sciuridae.DB.bean;
 
 public class FightStatue {
     private int loop;
