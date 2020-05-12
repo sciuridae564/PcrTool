@@ -2,7 +2,7 @@ package cn.sciuridae.DB.sqLite;
 
 import cn.sciuridae.DB.bean.*;
 import com.forte.qqrobot.sender.MsgSender;
-import javafx.beans.property.SimpleStringProperty;
+import org.apache.poi.ss.usermodel.Row;
 import org.sqlite.SQLiteException;
 
 import java.sql.ResultSet;
@@ -430,63 +430,132 @@ public class DB {
         return -1;
     }
 
-
-
-    //找找今天还有哪个小朋友没有出刀
-    public synchronized String searchVoidKnife(String QQ) {
-        String date=new SimpleDateFormat(dateFormat).format(new Date());
-        String sql="select knifeQQ,count(*) from knife where date=\""+date+"\" group by knifeQQ;";
-        String sql1 = "select userQQ from teamMember where id in(select id from teamMember where userQQ =\"" + QQ + "\");";
-        String sql2 = "select id from teamMember where userQQ=\"" + QQ + "\"";
-        StringBuilder src=new StringBuilder("啊这，这波好像是没有搜到数据\n");
-        ArrayList<voidKnife> list;
-        ArrayList<voidKnife> list1;
-        RowMapper<voidKnife> extractor1 = (rs, index) -> {
-            voidKnife strings = new voidKnife();
-            strings.setQQ(rs.getString("userQQ"));
-            strings.setNum(3);
-            return strings;
-        };//这个工会的成员qq
-        RowMapper<voidKnife> extractor = (rs, index) -> {
-            voidKnife strings = new voidKnife();
-            strings.setQQ(rs.getString("knifeQQ"));
-            strings.setNum(rs.getInt("count(*)"));
-            return strings;
-        };//这个工会的出刀情况
-        RowMapper<String> mapper = (rs, index) -> rs.getString("startTime");//随便获取个值，证明这个工会正在打boss
-        RowMapper<Integer> mapper1 = (rs, index) -> rs.getInt("id");//这个工会的主键
+    /**
+     * 转移工会长权限
+     */
+    public synchronized int changeGroupMaster(String oldQQ, String newQQ) {
+        String oldID = "select id from teamMember where userQQ=\"" + oldQQ + "\" ";
+        String newID = "select id from teamMember where userQQ=\"" + newQQ + "\" ";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+        RowMapper<Integer> rowMapper1 = (rs, index) -> rs.getInt("id");
         try {
-            List<Integer> list2 = h.executeQuery(sql2, mapper1);
-            String sql3 = "select startTime  from progress where id=\"" + list2.get(0) + "\"";//随便获取个值，证明这个工会正在打boss
-            List<String> list3 = h.executeQuery(sql3, mapper);
-            if (list3.get(0).compareTo(date) < 0) {//没boss进度，或还没到出刀时间
-                return searchGroupName(QQ, 1) + notBossOrNotDate;
+            int id1 = h.executeQuery(newID, rowMapper).get(0);
+            int id2 = h.executeQuery(oldID, rowMapper).get(0);
+            if (id1 == id2) {
+                //只有两个人在同一个工会才可以
+                String change1 = "update _group set groupMasterQQ=\"" + newQQ + "\" where id=" + id1;//转让会长
+                String change2 = "update _group set power=1 where userQQ=\"" + newQQ + "\"";//设置 b为管理员
+                h.executeUpdate(change1, change2);//改变管理员权限
+                return 2;//成功
             }
-            System.out.println(sql1);
-            list = (ArrayList<voidKnife>) h.executeQuery(sql, extractor);//出刀情况
-            list1 = (ArrayList<voidKnife>) h.executeQuery(sql1, extractor1);//工会成员qq
-            int i=0;
-            for (int j=0;j<list1.size();j++){
-                if(list1.get(j).getQQ().equals(list.get(i).getQQ())){
-                    list1.get(j).setNum( list1.get(j).getNum()-list.get(i).getNum());
-                    if(list1.get(j).getNum()==0){
-                        list1.remove(j);j--;
-                    }
-                    i++;
-                }
+            return 1;//俩人不在同一个工会
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            //数据库没有新人的数据
+        }
+        return -1;
+    }
+
+    /**
+     * 撤管理权限
+     */
+    public synchronized int downAdmin(String superPowerQQ, String newQQ) {
+        String oldID = "select id from teamMember where userQQ=\"" + superPowerQQ + "\" ";
+        String newID = "select id from teamMember where userQQ=\"" + newQQ + "\" ";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+        RowMapper<Integer> rowMapper1 = (rs, index) -> rs.getInt("id");
+        try {
+            int id1 = h.executeQuery(newID, rowMapper).get(0);
+            int id2 = h.executeQuery(oldID, rowMapper).get(0);
+            if (id1 == id2) {
+                //只有两个人在同一个工会才可以
+                String change2 = "update _group set power=0 where userQQ=\"" + newQQ + "\"";//设置 b为de管理员
+                h.executeUpdate(change2);//改变管理员权限
+                return 2;//成功
             }
-            src=new StringBuilder("统计如下:\n");
-            for(voidKnife voidKnife:list1){
-                src.append("[CQ:at,qq="+voidKnife.getQQ()+"] ,还没出"+voidKnife.getNum()+"刀\n");
+            return 1;//俩人不在同一个工会
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            //数据库没有新人的数据
+        }
+        return -1;
+    }
+
+    public boolean isSuperPower(String groupQQ, String QQ) {
+        String sql = "select groupid from _group where groupid=\"" + groupQQ + "\" and groupMasterQQ" + QQ + "\"";
+        RowMapper<String> rowMapper = (rs, index) -> rs.getString("groupid");
+
+        try {
+            if (h.executeQuery(sql, rowMapper).size() > 0) {//找着了
+                return true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (NullPointerException | IndexOutOfBoundsException e) {//没找着出刀信息
-            return searchGroupName(QQ, 1) + allVoidKnife;
         }
-        return src.toString();
+        return false;
+    }
+
+    /**
+     * 找找今天还有哪个小朋友没有出刀
+     *
+     * @param GroupQQ
+     * @param mode    1为工会qq2为私人qq
+     * @return
+     */
+    public synchronized HashMap<String, Integer> searchVoidKnifeByGroup(String GroupQQ, int mode) {
+        String date=new SimpleDateFormat(dateFormat).format(new Date());
+        HashMap<String, Integer> map = null;
+        String sql1 = "select userQQ from teamMember where id =(select id from _group where groupid =\"" + GroupQQ + "\");";
+        String sql2 = "select id from _group where groupid=\"" + GroupQQ + "\"";
+
+        StringBuilder src=new StringBuilder("啊这，这波好像是没有搜到数据\n");
+        RowMapper<String> extractor1 = (rs, index) -> rs.getString("userQQ");//这个工会的成员qq
+        RowMapper<String> mapper = (rs, index) -> rs.getString("startTime");//随便获取个值，证明这个工会正在打boss
+        RowMapper<Integer> mapper1 = (rs, index) -> rs.getInt("id");//这个工会的主键
+        try {
+            if (1 == mode) {
+                //整个工会查找
+                List<Integer> list2 = h.executeQuery(sql2, mapper1);//这个工会的主键
+                String sql3 = "select startTime  from progress where id=\"" + list2.get(0) + "\"";//获取这个工会战开始时间
+                List<String> list3 = h.executeQuery(sql3, mapper);
+                if (list3.get(0).compareTo(date) < 0) {//没boss进度，或还没到出刀时间
+                    return null;
+                }
+                List<Knife> knifes = searchKnife(null, GroupQQ, date);//今天的出刀表
+                List<String> list1 = h.executeQuery(sql1, extractor1);//工会成员全员空刀表
+                map = new HashMap<>();
+                for (String s : list1) {
+                    map.put(s, 3);
+                }
+                for (Knife knife : knifes) {
+                    if (knife.isComplete()) {
+                        map.put(knife.getKnifeQQ(), map.get(knife.getKnifeQQ()) - 1);
+                    }
+                }
+            } else {
+                map = (HashMap<String, Integer>) searchKnife(GroupQQ, date);//今天的出刀表
+                Set<String> set = map.keySet();
+                for (String s : set) {
+                    map.put(s, 3 - map.get(s));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {//没找着出刀信息
+            e.printStackTrace();
+        }
+        return map;
     }
 
     /**
@@ -545,7 +614,7 @@ public class DB {
      * @param mode 1为根据这个人的qq，2为根据这个群的qq
      * @return
      */
-    public synchronized String searchGroupName(String QQ, int mode) {
+    public synchronized String searchGroupNameByQQcode(String QQ, int mode) {
         String groupName = null;
         RowMapper<String> rowMapper = (rs, index) -> rs.getString("groupName");
         try {
@@ -674,8 +743,6 @@ public class DB {
 
                 //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
                 int hurt_active;
-                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaa");
-                System.out.println(list.get(0)[2] - hurt>0);
                 if (list.get(0)[2] - hurt>0){
                     hurt_active=hurt;
                     stringBuilder.delete(0, stringBuilder.length());
@@ -687,11 +754,9 @@ public class DB {
                     hurt_active = list.get(0)[2];//伤害打穿了，进入下一模式
                     int loop = (list.get(0)[1] == 5 ? list.get(0)[0] + 1 : list.get(0)[0]);
                     int serial = (list.get(0)[1] == 5 ? 1 : list.get(0)[1] + 1);
-                    System.out.println("----------------");
-                    System.out.println("bbbbbbbbbbb"+list.get(0));
                     //更新boss
                     stringBuilder.delete(0, stringBuilder.length());
-                    stringBuilder.append("update progress set loop= ").append(loop).append(",serial=").append(serial).append(",Remnant=").append(getBossHpLimit(list.get(0)[1] - 1)).append(" where id=\"").append(list.get(0)[3]).append("\"");
+                    stringBuilder.append("update progress set loop= ").append(loop).append(",serial=").append(serial).append(",Remnant=").append(getBossHpLimit(serial - 1)).append(" where id=\"").append(list.get(0)[3]).append("\"");
                     h.executeUpdate(stringBuilder.toString());
                     //进入救树模式，把树上的人都噜下来
                     stringBuilder.delete(0,stringBuilder.length());
@@ -720,8 +785,6 @@ public class DB {
                     } else {
                         complete = false;
                     }
-
-
                     //这刀打爆了boss
                 }
                 //交成绩
@@ -837,15 +900,17 @@ public class DB {
 
     /**
      * 解散工会
-     *
+     *清空所有有关数据
      * @param groupQQ
      */
     public void dropGroup(String groupQQ) {
         String sql = "delete from teamMember where id =(select id from _group where groupid=\"" + groupQQ + "\")";
         String sql1 = "delete from _group where groupid = \"" + groupQQ + "\"";
-
+        String sql2 = "delete from knife where knifeQQ in" +
+                "( select userQQ from teamMember join _group on _group.id=teamMember.id where _group.groupid=\"" + groupQQ+"\")";
         try {
-            h.executeUpdate(sql, sql1);
+            h.executeUpdate(sql, sql1,sql2);
+
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -1158,34 +1223,6 @@ public class DB {
         return trees;
     }
 
-    class voidKnife {
-        private String QQ;
-        private int num;
-
-        public String getQQ() {
-            return QQ;
-        }
-
-        public void setQQ(String QQ) {
-            this.QQ = QQ;
-        }
-
-        public int getNum() {
-            return num;
-        }
-
-        public void setNum(int num) {
-            this.num = num;
-        }
-
-        @Override
-        public String toString() {
-            return "voidKnife{" +
-                    "CoolQ='" + QQ + '\'' +
-                    ", num=" + num +
-                    '}';
-        }
-    }
 
     /**
      * 获取这个工会公主连接工会战日期，即每天五点之后进入下一天，第一天是第一天，最后一天以12点截止

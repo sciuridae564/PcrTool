@@ -180,8 +180,10 @@ public class prcnessListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
                 break;
             case 0:
-                if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {//会长则销毁工会
+                if (DB.Instance.isSuperPower(msg.getGroupCode(), msg.getQQCode())) {//会长则销毁工会
                     DB.Instance.dropGroup(msg.getGroupCode());
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), successDropGroup);
+                    return;
                 }
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), successOutGroup);
                 break;
@@ -192,11 +194,117 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#未出刀")
-    public void searchVoidKnife(GroupMsg msg, MsgSender sender){
+    @Filter(value = "#转让会长.*")
+    public void changeSuperPower(GroupMsg msg, MsgSender sender) {
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+        if (DB.Instance.isSuperPower(msg.getGroupCode(), msg.getQQCode()) && strings.size() > 0) {
 
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.getInstance().searchVoidKnife(msg.getQQCode()));
+            switch (DB.Instance.changeGroupMaster(msg.getQQCode(), strings.get(0).substring(10, strings.get(0).length() - 1))) {
+                case -1:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), noFindTheOne);
+                    break;
+                case 1:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "她在别的工会哎，为什么会变成这样呢");
+                    break;
+                case 2:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), successChangeSuperPower);
+                    break;
+            }
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有会长权限");
+        }
+
     }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#撤下管理.*")
+    public void downAdmin(GroupMsg msg, MsgSender sender) {
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+        if (DB.Instance.isSuperPower(msg.getGroupCode(), msg.getQQCode()) && strings.size() > 0) {
+
+            switch (DB.Instance.changeGroupMaster(msg.getQQCode(), strings.get(0).substring(10, strings.get(0).length() - 1))) {
+                case -1:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), noFindTheOne);
+                    break;
+                case 1:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "她在别的工会哎，为什么会变成这样呢");
+                    break;
+                case 2:
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), successChangeSuperPower);
+                    break;
+            }
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有会长权限");
+        }
+
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#未出刀.*")
+    public void searchVoidKnife(GroupMsg msg, MsgSender sender){
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+        HashMap<String, Integer> map;
+        StringBuilder src = new StringBuilder();
+        if (strings != null && strings.size() > 0) {
+            map = new HashMap<>();
+            for (String QQ : strings) {
+                map.putAll(DB.getInstance().searchVoidKnifeByGroup(QQ, 2));
+            }
+        } else {
+            map = DB.getInstance().searchVoidKnifeByGroup(msg.getGroupCode(), 1);
+        }
+        Set<String> set = map.keySet();
+        src = new StringBuilder("统计如下:\n");
+        int flag;
+        for (String s : set) {
+            flag = map.get(s);
+            if (flag > 0) {
+                src.append("[CQ:at,qq=" + s + "] ,没出" + flag + "刀\n");
+            }
+        }
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), src.toString());
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "已出刀.*")
+    public void searchKnife(GroupMsg msg, MsgSender sender) {
+        List<Knife> list = new ArrayList<>();
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+        StringBuilder stringBuilder = new StringBuilder();
+        Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
+        if (strings != null && strings.size() > 0) {
+            //找 人的出刀
+            for (String s : strings) {
+                System.out.println(s);
+                list.addAll(DB.getInstance().searchKnife(s.substring(10, strings.get(0).length() - 1), null, df.format(date)));
+            }
+
+        } else {
+            //找整个工会的出刀
+            list = DB.getInstance().searchKnife(null, msg.getGroupCode(), df.format(date));
+        }
+        if (list != null) {
+            stringBuilder.append("出刀信息：");
+            for (Knife knife : list) {
+                stringBuilder.append("\n-----\n编号: ").append(knife.getId());
+                stringBuilder.append("\n昵称：").append(DB.Instance.searchName(knife.getKnifeQQ()));
+                stringBuilder.append("\n扣扣：").append(knife.getKnifeQQ());
+                stringBuilder.append("\n伤害：").append(knife.getHurt());
+                stringBuilder.append("\n周目").append(knife.getNo() / 10);
+                stringBuilder.append(",").append(knife.getNo() - (knife.getNo() / 10) * 10).append("王");
+            }
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), stringBuilder.toString());
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "还没有刀信息哦");
+        }
+
+    }
+
 
     public static void AllCoolDown() {
         coolDown = new HashMap<>();
@@ -325,28 +433,6 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "签到")
-    public void signIn(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int rank = random.nextInt(100);
-        StringBuilder stringBuilder = new StringBuilder();
-        if (rank > 80) {
-            stringBuilder.append("经验 x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
-        } else if (rank > 50) {
-            stringBuilder.append("mana x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
-        } else if (rank > 10) {
-            stringBuilder.append("宝石 x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
-        } else if (rank > 1) {
-            stringBuilder.append("禁言 x").append(random.nextInt(10)).append("分钟").append(coolQAt).append(msg.getQQCode()).append("]");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
-        }
-    }
-
-    @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "up十连")
     public void Gashapon(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(10));
@@ -364,6 +450,8 @@ public class prcnessListener {
         if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(300));
             reFlashCoolDown(msg.getQQCode());
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在冷却中");
         }
     }
 
@@ -373,6 +461,8 @@ public class prcnessListener {
         if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(300));
             reFlashCoolDown(msg.getQQCode());
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在冷却中");
         }
     }
 
@@ -689,43 +779,6 @@ public class prcnessListener {
             stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
         }
         return stringBuilder.toString();
-    }
-
-    @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "已出刀.*")
-    public void searchKnife(GroupMsg msg, MsgSender sender) {
-        List<Knife> list = new ArrayList<>();
-        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
-        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-        StringBuilder stringBuilder = new StringBuilder();
-        Date date = new Date();
-        SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
-        if (strings != null && strings.size() > 0) {
-            //找 人的出刀
-            for (String s : strings) {
-                System.out.println(s);
-                list.addAll(DB.getInstance().searchKnife(s.substring(10, strings.get(0).length() - 1), null, df.format(date)));
-            }
-
-        } else {
-            //找整个工会的出刀
-            list = DB.getInstance().searchKnife(null, msg.getGroupCode(), df.format(date));
-        }
-        if (list != null) {
-            stringBuilder.append("出刀信息：");
-            for (Knife knife : list) {
-                stringBuilder.append("\n-----\n编号: ").append(knife.getId());
-                stringBuilder.append("\n昵称：").append(DB.Instance.searchName(knife.getKnifeQQ()));
-                stringBuilder.append("\n扣扣：").append(knife.getKnifeQQ());
-                stringBuilder.append("\n伤害：").append(knife.getHurt());
-                stringBuilder.append("\n周目").append(knife.getNo() / 10);
-                stringBuilder.append(",").append(knife.getNo() - (knife.getNo() / 10) * 10).append("王");
-            }
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), stringBuilder.toString());
-        } else {
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "还没有刀信息哦");
-        }
-
     }
 
     @Listen(MsgGetTypes.groupMsg)

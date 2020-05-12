@@ -8,7 +8,7 @@ public class constant {
             "2.加入工会，[#入会 @机器人 游戏昵称]\n" +
             "3.批量加入工会，[#批量入会 @入会成员1 @入会成员2 ...]\n" +
             "（注意：使用这个命令需为工会长）\n" +
-            "4.退出工会，[#退会 @机器人]\n" +
+            "4.退出工会，[#退会 @机器人]\n注意：会长退会则会解散工会\n" +
             "5.开始进行会战，[#开始会战]\n" +
             "（注意：需为工会长）\n" +
             "5.5开始会战，但不是今天[#开始会战 年：月：日]\n" +
@@ -42,8 +42,10 @@ public class constant {
             "5.查看工会一些基本信息，[工会信息]\n" +
             "6.更改工会名字，[改工会名 更改后的工会名]\n" +
             "7.更改自己的名字，[改名 更改后的名字]\n" +
-            "8.设置一个人为管理员 [设置管理 @那个人]" +
-            "9.将一个人踢出工会[踢人 @那个人]" +
+            "8.设置一个人为管理员 [设置管理 @那个人]\n" +
+            "8.5消除一个人的管理权限 [撤下管理 @那个人]\n" +
+            "8.6转让会长权限（保留自己的管理员权限)[转让会长 @那个人]\n" +
+            "9.将一个人踢出工会[踢人 @那个人]\n" +
             "10.查看正在出刀（非挂树）的人[正在出刀]";
 
 
@@ -59,13 +61,15 @@ public class constant {
     public static final String isFullGroup="这个工会已经满员啦，再和会长多py一次吧";
     public static final String successJoinGroup="成功加入工会啦，记得每天好好女装哦";
     public static final String successOutGroup="成功退出工会啦，记得每天好好男装哦";
+    public static final String successDropGroup = "成功销毁工会，一切都已不复存在";
+    public static final String successChangeSuperPower = "更换会长成功，为王的诞生献上礼炮";
     public static final String noGroupOutGroup = "没有工会退什么工会辣";
     public static final String isTree="已经挂牢了，不要想偷偷从树上溜走了哟♥";
     public static final String noInDataBase="¿,他群间谍发现，建议rbq一周";
     public static final String notInTree = "啊这，俺寻思你也妹出刀啊";
     public static final String commandError="啊咧咧，这个命令格式我看不懂鸭";
-    public static final String noThisGroup="啊咧咧，这个工会好像还没有建立呢";
-    public static final String allVoidKnife = " 全员懒狗，一个刀都没出";
+    public static final String noThisGroup = "啊咧咧，本群的工会好像还没有建立呢";
+    public static final String NoGroupFightDate = " 未开启工会战或还未加入工会";
     public static final String notBossOrNotDate = " 工会战还没开启呢";
     public static final String noFindTheOne = "没有找到这个人，是不是还没有入会？";
     public static final int[] BossHpLimit = {6000000, 8000000, 10000000, 12000000, 20000000};//各个boss的血量上限
@@ -92,6 +96,7 @@ public class constant {
             "无应答......", "嗷呜%_%", "谁是你老婆啦，哼"};
     public static final String[] QieLU = {"切噜", "切哩", "切吉", "噜拉", "啪噜", "切璐", "扣", "啦哩", "啦嘟", "切泼", "啪噼", ",", "嚕嚕", "啰哩", "切拉", "切噼"};
     public static HashMap<String, Integer> reQieLU = new HashMap<>();
+    public static final String ExcelDir = "/Excel/";
 
     static {
         reQieLU.put("切噜", 0);
