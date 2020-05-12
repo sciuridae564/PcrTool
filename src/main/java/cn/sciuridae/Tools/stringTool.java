@@ -50,7 +50,7 @@ public class stringTool {
     //只是找到第一个】之后截断
     public static String getVar(String msg){
         String work=msg.replace(" ","");
-        return work.substring(work.indexOf(']')+1);
+        return work.substring(2);
     }
 
     /**
@@ -60,7 +60,7 @@ public class stringTool {
      * @param flag 1为自己出刀2为代刀
      * @return
      */
-    public static int getHurt(String s, int flag) {
+    public static int getHurt(String s, int flag) throws NumberFormatException {
         String work = s.replaceAll(" +", "");
         int i = 0;
         switch (flag) {

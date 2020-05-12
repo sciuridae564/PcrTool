@@ -49,7 +49,7 @@ public class RunApplication implements CoolQHttpApp {
 
     public void after(CQCodeUtil cqCodeUtil, MsgSender sender) {
         constant.robotQQ=sender.GETTER.getLoginQQInfo().getQQ();//获取机器人qq
-        Map<String, List<String>> map = DB.Instance.clearTree();
+        Map<String, List<String>> map = DB.Instance.clearTree();//清除过期树信息
         //如果有强制下树的人员
         if(!map.isEmpty()){
             StringBuilder stringBuilder=new StringBuilder();

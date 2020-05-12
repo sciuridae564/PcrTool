@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static cn.sciuridae.constant.*;
@@ -70,8 +71,127 @@ public class DB {
         }
     }
 
+
     /**
-     * 删除上一天未出完的刀
+     * 清空传入群组的树
+     * @param Group 群主键
+     * @return <群qq，未出完刀的qq>
+     */
+    public Map<String, List<String>> clearTree(List<Integer> Group) {
+        String clearTree = "delete from tree join teamMember on teamMember.userQQ=tree.userId where teamMember.id=";
+        Map<String, List<String>> map = new HashMap<>();
+        String clearMembers = "select userId from tree join teamMember on teamMember.userQQ=tree.userId where teamMember.id=";
+        String selectGroupName = "select groupid from _group where id=";
+        RowMapper<String> GroupQQs = (rs, index) -> rs.getString("groupid");
+        RowMapper<String> Members = (rs, index) -> rs.getString("userId");
+        for (int groupID : Group) {
+            try {
+                map.put(h.executeQuery(selectGroupName + groupID, GroupQQs).get(0), h.executeQuery(clearMembers + groupID, Members));
+                h.executeUpdate(clearTree + groupID);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IndexOutOfBoundsException e) {
+                //这，有主键为什么还找不着…………
+            }
+        }
+        return map;
+    }
+
+
+    /**
+     * 找结束会战的工会
+     *
+     * @return 工会qq号
+     */
+    public List<Integer> searchDeadLineGroup() {
+        String time = new SimpleDateFormat(dateFormat).format(new Date());//现在时间
+        String sql = "select id from progress where endTime<=\"" + time + "\"";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+        List<Integer> list = null;
+        try {
+            list = h.executeQuery(sql, rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * 查找在会战期间的工会
+     *
+     * @return 工会qq号
+     */
+    public List<Integer> searchAllGroupOnProgress() {
+        String time = new SimpleDateFormat(dateFormat).format(new Date());//现在时间
+        String sql = "select id from progress  where startTime<=\"" + time + "\" and endTime>\"" + time + "\"";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+        List<Integer> list = null;
+        try {
+            list = h.executeQuery(sql, rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    /**
+     * 清除会战结束的boss进度
+     *
+     * @param groupid 会战结束的会战主键
+     */
+    public void deleteDeadLineGroup(List<Integer> groupid) {
+        String sql = "delete from progress where id=";
+
+        for (int i : groupid) {
+            try {
+                h.executeUpdate(sql + i);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 找过期的树表项,因为时间原因不包括工会战过期了的表项
+     *
+     * @return qq号
+     */
+    public List<String> searchOutTimeTree() {
+        String time = new SimpleDateFormat(dateFormat).format(new Date());//现在时间
+        Date date = new Date();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy:MM:dd");
+        List<String> QQs = null;
+        if (localDateTime.getHour() < knifeFrash) { //5点前不许不许刷新
+            localDateTime = localDateTime.plusDays(-1);
+        }
+        SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
+        String sql = "select userId from tree where date=\"" + localDateTime.format(dateTimeFormatter) + "\"";
+        RowMapper<String> rowMapper = (rs, index) -> rs.getString("userId");
+
+        try {
+            QQs = h.executeQuery(sql, rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return QQs;
+    }
+
+
+    /**
+     * 删除数据库中过期的刀，在机器人启动时使用（防止长期不关数据没清除
      *
      * @return <群qq，未出完刀的qq>
      */
@@ -212,6 +332,8 @@ public class DB {
                 if (j.get(0) > 30) {
                     return 1;//人满了不能进
                 }
+                System.out.println(teamMember.getName() != null && teamMember.getName().length() != 0 ? pcrGroupMap.get(teamMember.getUserQQ()) : teamMember.getName());
+                System.out.println(teamMember.getName() );
                 String sql2 = "insert into teamMember(userQQ,id,name,power) values(\"" +
                         teamMember.getUserQQ() + "\","
                         + i.get(0) + ",\""
@@ -269,7 +391,6 @@ public class DB {
             if (h.executeQuery(sql2, rowMapper1).size() != 0) {
                 return 2;//src.append("¿,打咩，没有第二棵树能上了");
             }
-            System.out.println(sql1);
             h.executeUpdate(sql1);
             return 3;//src.append("已挂东南枝");
         } catch (SQLException e) {
@@ -398,7 +519,7 @@ public class DB {
                 if (integerList != null) {
                     stringBuilder.delete(0, stringBuilder.length());
                     stringBuilder.append("insert into progress values(").append(groupCode).append(",").append(integerList.get(0)).append(",1,1,").append(getBossHpLimit(0)).append(",\"").append(date).append("\",\"").append(endDate).append("\")");//-1为还未录入血量的状态
-                    System.out.println(stringBuilder);
+
                     h.executeUpdate(stringBuilder.toString());
                     if (date.equals(simpleDateFormat.format(new Date()))) {
                         return 1;//成功开始,且就在这一天
@@ -529,6 +650,8 @@ public class DB {
         };//获取boss属性
         RowMapper<String> rowMapper1= (rs, index) -> rs.getString("userId");//获取被救下来人的qq号
         RowMapper<String> rowMapper2= (rs, index) -> rs.getString("groupid");//获取通知的群号
+        RowMapper<Boolean> rowMapper3 = (rs, index) -> rs.getBoolean("complete");//获取最近一次的出刀是否为过盈尾刀，判断这次是否为补时刀
+
         try {
             List<Integer[]> list=h.executeQuery(stringBuilder.toString(),rowMapper);//获取现在boss的生命，周目
 
@@ -551,41 +674,59 @@ public class DB {
 
                 //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
                 int hurt_active;
+                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaa");
+                System.out.println(list.get(0)[2] - hurt>0);
                 if (list.get(0)[2] - hurt>0){
                     hurt_active=hurt;
-                    stringBuilder.delete(0,stringBuilder.length());
-                    stringBuilder.append("update progress set ").append("Remnant=").append(list.get(0)[2] - hurt).append(" where id=").append(list.get(0)[3]).append("");
+                    stringBuilder.delete(0, stringBuilder.length());
+                    stringBuilder.append("update progress set ").append("Remnant=").append(list.get(0)[2] - hurt).append(" where id=").append(list.get(0)[3]);
                     h.executeUpdate(stringBuilder.toString());
                     complete = true;
                     //没打穿boss
                 }else {
                     hurt_active = list.get(0)[2];//伤害打穿了，进入下一模式
-                    list.get(0)[1] = (list.get(0)[1] == 5 ? 1 : list.get(0)[1] + 1);
-                    list.get(0)[0] = (list.get(0)[1] == 5 ? list.get(0)[0] + 1 : list.get(0)[0]);
+                    int loop = (list.get(0)[1] == 5 ? list.get(0)[0] + 1 : list.get(0)[0]);
+                    int serial = (list.get(0)[1] == 5 ? 1 : list.get(0)[1] + 1);
+                    System.out.println("----------------");
+                    System.out.println("bbbbbbbbbbb"+list.get(0));
                     //更新boss
-                    stringBuilder.delete(0,stringBuilder.length());
-                    stringBuilder.append("update progress set loop= ").append(list.get(0)[0]).append(",serial=").append(list.get(0)[1]).append(",Remnant=").append(getBossHpLimit(list.get(0)[1] - 1)).append(" where id=\"").append(list.get(0)[3]).append("\"");
+                    stringBuilder.delete(0, stringBuilder.length());
+                    stringBuilder.append("update progress set loop= ").append(loop).append(",serial=").append(serial).append(",Remnant=").append(getBossHpLimit(list.get(0)[1] - 1)).append(" where id=\"").append(list.get(0)[3]).append("\"");
                     h.executeUpdate(stringBuilder.toString());
                     //进入救树模式，把树上的人都噜下来
                     stringBuilder.delete(0,stringBuilder.length());
                     stringBuilder.append("select userId from tree where  userId in(select userQQ from teamMember where id="+list.get(0)[3]+")");
-                    List<String> list1=h.executeQuery(stringBuilder.toString(),rowMapper1);
+                    List<String> list1=h.executeQuery(stringBuilder.toString(), rowMapper1);
 
-                    tips.append("下树啦，下树啦");
-                    for(String s:list1){
-                        tips.append("[CQ:at,qq=").append(s).append("] ");
+                    if (list1.size() > 0) {
+                        tips.append("下树啦，下树啦");
+                        for (String s : list1) {
+                            tips.append("[CQ:at,qq=").append(s).append("] ");
+                        }
+                        sender.SENDER.sendGroupMsg(groupQQ, tips.toString());//将救下树的人通知
                     }
-                    sender.SENDER.sendGroupMsg(groupQQ, tips.toString());//将救下树的人通知
 
                     stringBuilder.delete(0,stringBuilder.length());
                     stringBuilder.append("delete from tree where  userId in(select userQQ from teamMember where id="+list.get(0)[3]+")");
                     h.executeUpdate(stringBuilder.toString());
-                    complete = false;
+                    //看看这刀是不是补时刀
+
+                    stringBuilder.delete(0, stringBuilder.length());
+                    stringBuilder.append("select no,complete from knife where knifeQQ=\"").append(QQ).append("\" order by no");
+                    List<Boolean> list3 = h.executeQuery(stringBuilder.toString(), rowMapper3);
+
+                    if (list3.size() != 0 && !list3.get(list3.size() - 1)) {
+                        complete = true;//补时刀强制不可套娃
+                    } else {
+                        complete = false;
+                    }
+
+
                     //这刀打爆了boss
                 }
                 //交成绩
-                stringBuilder.delete(0,stringBuilder.length());
-                stringBuilder.append("insert into knife values(" + QQ + ",").append(list.get(0)[1] + list.get(0)[0] * 10).append(",").append(hurt_active).append(",\"").append(new SimpleDateFormat(dateFormat).format(new Date())).append("\"," + (complete ? 1 : 0) + ")");
+                stringBuilder.delete(0, stringBuilder.length());
+                stringBuilder.append("insert into knife values(" + QQ + ",").append(list.get(0)[1] + list.get(0)[0] * 10).append(",").append(hurt_active).append(",\"").append(GetPrincessTime(groupQQ)).append("\"," + (complete ? 1 : 0) + ")");
                 h.executeUpdate(stringBuilder.toString());
                 tips.delete(0, tips.length());
                 tips.append("已交刀,[CQ:at,qq=").append(QQ).append("]");
@@ -643,12 +784,15 @@ public class DB {
      * @return
      */
     public synchronized FightStatue searchFightStatue(String QQ ){
-        FightStatue fightStatue= null;
-        String sql = "select loop,serial,Remnant from progress where id=(select id from teamMember where  userQQ=\"" + QQ + "\");";
+        FightStatue fightStatue = null;
+        String sql = "select loop,serial,Remnant,startTime from progress where id=(select id from teamMember where  userQQ=\"" + QQ + "\");";
         RowMapper<FightStatue> rowMapper= new RowMapper<FightStatue>() {
             @Override
             public FightStatue mapRow(ResultSet rs, int index) throws SQLException {
-                FightStatue fightStatue1=new FightStatue(rs.getInt("loop"),rs.getInt("serial"),rs.getInt("Remnant"));
+                FightStatue fightStatue1 = new FightStatue(rs.getInt("loop"),
+                        rs.getInt("serial"),
+                        rs.getInt("Remnant"),
+                        rs.getString("startTime"));
                 return fightStatue1;
             }
         };
@@ -817,7 +961,6 @@ public class DB {
      * @return
      */
     public List<Knife> searchKnife(String QQ, String GroupQQ, String time) {
-        System.out.println("start");
         StringBuilder sql = new StringBuilder();
         if (QQ != null) {
             sql.append("select knife.rowid , knife.* from knife where knifeQQ=\"");
@@ -833,10 +976,8 @@ public class DB {
             return knife;
         };
         List<Knife> list = null;
-        System.out.println("end");
         try {
             list = h.executeQuery(sql.toString(), knifes);
-            System.out.println(list.size());
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -847,9 +988,9 @@ public class DB {
     }
 
     public FightStatue getFightStatue(String groupQQ) {
-        String selectBoss = "select loop,serial from progress where groupid=\"" + groupQQ + "\"";
+        String selectBoss = "select loop,serial,Remnant from progress where groupid=\"" + groupQQ + "\"";
         RowMapper<FightStatue> rowMapper = (rs, index) -> {
-            FightStatue fightStatue = new FightStatue(rs.getInt("loop"), rs.getInt("serial"), 1);
+            FightStatue fightStatue = new FightStatue(rs.getInt("loop"), rs.getInt("serial"), rs.getInt("Remnant"));
             return fightStatue;
         };
         try {
@@ -916,17 +1057,11 @@ public class DB {
 
     //检查这个qq号是否出过三刀了
     public boolean ningpeichudaoma(String QQ) {
-        String sql = "select complete from knife where knifeQQ =\"" + QQ + "\" and " + "date=\"" + new SimpleDateFormat(dateFormat).format(new Date()) + "\"";
-        RowMapper<Boolean> rowMapper = (rs, index) -> rs.getBoolean("complete");
+        String sql = "select count(*) from knife where knifeQQ =\"" + QQ + "\" and " + "date=\"" + new SimpleDateFormat(dateFormat).format(new Date()) + "\" and complete=1";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("count(*)");
         try {
-            List<Boolean> knifes = h.executeQuery(sql, rowMapper);
-            int sum = 0;
-            for (Boolean b : knifes) {
-                if (b) {
-                    sum++;
-                }
-            }
-            if (sum > 2) {
+            int knifesNum = h.executeQuery(sql, rowMapper).get(0);
+            if (knifesNum > 2) {
                 return false;
             }
         } catch (SQLException e) {
@@ -1052,8 +1187,51 @@ public class DB {
         }
     }
 
+    /**
+     * 获取这个工会公主连接工会战日期，即每天五点之后进入下一天，第一天是第一天，最后一天以12点截止
+     *
+     * @return
+     */
+    public String GetPrincessTime(String groupid) {
+        String time = new SimpleDateFormat(dateFormat).format(new Date());
+        String sql = "select startTime ,endTime from progress where groupid=\"" + groupid + "\"";
+        RowMapper<String[]> rowMapper = new RowMapper<String[]>() {
+            @Override
+            public String[] mapRow(ResultSet rs, int index) throws SQLException {
+                String[] strings = new String[2];
+                strings[0] = rs.getString("startTime");
+                strings[1] = rs.getString("endTime");
+                return strings;
+            }
+        };
 
+        try {
+            String[] strings = h.executeQuery(sql, rowMapper).get(0);
+            if (strings[0].compareTo(time) != 0) {
+                if (strings[1].compareTo(time) != 0) {
+                    //在工会战持续时间内
+                    LocalDateTime localDateTime = LocalDateTime.now();
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy:MM:dd");
+                    List<String> QQs = null;
+                    if (localDateTime.getHour() < knifeFrash) { //5点前不许不许刷新
+                        localDateTime = localDateTime.plusDays(-1);
+                    }
+                    time = localDateTime.format(dateTimeFormatter);
+                } else {
+                    return null;
+                }
+            }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+
+        return time;
+    }
 
 
 }

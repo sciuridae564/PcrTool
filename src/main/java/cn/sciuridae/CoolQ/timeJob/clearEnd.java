@@ -10,24 +10,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@CronTask("0 0 5 * * ? *") //每天5点，在线刷新
-public class clearVoidKnife implements TimeJob {
+import static cn.sciuridae.CoolQ.Listener.prcnessListener.AllCoolDown;
+
+@CronTask("0 0 0 1/1 * ? *")
+public class clearEnd implements TimeJob {
 
     @Override
     public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
-        Map<String, List<String>> map = DB.Instance.clearTree(DB.Instance.searchAllGroupOnProgress());
+        List<Integer> list = DB.Instance.searchDeadLineGroup();
+        Map<String, List<String>> map = DB.Instance.clearTree(list);
         Set<String> GroupQQs = map.keySet();
         StringBuilder stringBuilder = new StringBuilder();
         List<String> badMan;
         for (String GroupQQ : GroupQQs) {
             stringBuilder.delete(0, stringBuilder.length());
             badMan = map.get(GroupQQ);
-            stringBuilder.append("自动重置会战次数拉：");
+            stringBuilder.append("会战结束，辛苦辛苦\n但是：");
             for (String QQ : badMan) {
                 stringBuilder.append("[CQ:at,qq=").append(QQ).append("] ");
             }
+            stringBuilder.append("他们还在出刀。都已经结束啦");
             msgSender.SENDER.sendGroupMsg(GroupQQ, stringBuilder.toString());
         }
-
+        AllCoolDown();
     }
 }

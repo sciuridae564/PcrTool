@@ -14,6 +14,8 @@ import com.forte.qqrobot.utils.CQCodeUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.FileHandler;
 
@@ -22,6 +24,8 @@ import static cn.sciuridae.constant.*;
 
 @Beans
 public class prcnessListener {
+
+    private static HashMap<String, String> coolDown;//抽卡冷却时间
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#帮助.*" ,at = true)
@@ -194,8 +198,12 @@ public class prcnessListener {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.getInstance().searchVoidKnife(msg.getQQCode()));
     }
 
+    public static void AllCoolDown() {
+        coolDown = new HashMap<>();
+    }
+
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#出刀")
+    @Filter(value = {"#出刀"})
     public void getKnife(GroupMsg msg, MsgSender sender){
         FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
         if(fightStatue!=null){
@@ -219,7 +227,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#上树")
+    @Filter(value = "#挂树")
     public void getTree(GroupMsg msg, MsgSender sender){
         switch (DB.Instance.trueTree(msg.getQQCode(),msg.getGroupCode())){
             case -1:
@@ -238,19 +246,23 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#收刀.*")
+    @Filter(value = {"#收刀.*", "#交刀.*"})
     public void outKnife(GroupMsg msg, MsgSender sender){
         StringBuilder stringBuilder=new StringBuilder();
         FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
         if(fightStatue!=null) {//没有工会boss进度数据
             try {
-                DB.Instance.hurtfight(msg.getQQCode(), getHurt(msg.getMsg(), 1), sender);
-                fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
-                stringBuilder.append("现在boss状态\n周目:").append(fightStatue.getLoop()).append("\n").append(fightStatue.getSerial()).append("王\n");
-                if(fightStatue.getRemnant()==-1){
-                    stringBuilder.append("血量：未录入");
-                }else {
-                    stringBuilder.append("血量：").append(fightStatue.getRemnant());
+                if (fightStatue.getStartTime().compareTo(new SimpleDateFormat(dateFormat).format(new Date())) <= 0) { //时间若已过开始则可以上报伤害
+                    DB.Instance.hurtfight(msg.getQQCode(), getHurt(msg.getMsg(), 1), sender);
+                    fightStatue = DB.Instance.searchFightStatue(msg.getQQCode());
+                    stringBuilder.append("现在boss状态\n周目:").append(fightStatue.getLoop()).append("\n").append(fightStatue.getSerial()).append("王\n");
+                    if (fightStatue.getRemnant() == -1) {
+                        stringBuilder.append("血量：未录入");
+                    } else {
+                        stringBuilder.append("血量：").append(fightStatue.getRemnant());
+                    }
+                } else {
+                    stringBuilder.append("会战即将开始，还没有到打boss的时候哦");
                 }
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
             } catch (NumberFormatException e) {
@@ -263,10 +275,29 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#开始会战")
+    @Filter(value = "#结束会战")
+    public void endFight(GroupMsg msg, MsgSender sender) {
+        int i = DB.Instance.endFight(msg.getGroupCode(), msg.getQQCode());
+        switch (i) {
+            case -1:
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
+                break;
+            case 0://数据库离还没建这个工会或者没这权限
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+                break;
+            case 1://成功结束
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), SuccessEndFight);
+                break;
+            case 2://会战没开启
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), EngFightStartDouble);
+                break;
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#开始会战.*")
     public void startFight(GroupMsg msg, MsgSender sender) {
         String time = msg.getMsg().replaceAll(" +", "").substring(5);
-        System.out.println(time);
         int i = 0;
 
         i = DB.Instance.startFight(msg.getGroupCode(), msg.getQQCode(), time);
@@ -294,370 +325,81 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#结束会战")
-    public void endFight(GroupMsg msg, MsgSender sender) {
-        int i = DB.Instance.endFight(msg.getGroupCode(), msg.getQQCode());
-        switch (i) {
-            case -1:
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
-                break;
-            case 0://数据库离还没建这个工会或者没这权限
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
-                break;
-            case 1://成功结束
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), SuccessEndFight);
-                break;
-            case 2://会战没开启
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), EngFightStartDouble);
-                break;
-        }
-    }
-
-
-    @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "签到")
     public void signIn(GroupMsg msg, MsgSender sender) {
-        System.out.println("没做");
+        Random random = new Random();
+        random.setSeed(new Date().getTime());
+        int rank = random.nextInt(100);
+        StringBuilder stringBuilder = new StringBuilder();
+        if (rank > 80) {
+            stringBuilder.append("经验 x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        } else if (rank > 50) {
+            stringBuilder.append("mana x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        } else if (rank > 10) {
+            stringBuilder.append("宝石 x").append(random.nextInt(10000)).append(coolQAt).append(msg.getQQCode()).append("]");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        } else if (rank > 1) {
+            stringBuilder.append("禁言 x").append(random.nextInt(10)).append("分钟").append(coolQAt).append(msg.getQQCode()).append("]");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "up十连")
     public void Gashapon(GroupMsg msg, MsgSender sender) {
-
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> jues = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else if (j > 795) {
-                tw++;
-            } else {
-                on++;
-            }
-        }
-        for (int i = 0; i < 1; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else {
-                tw++;
-            }
-        }
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        for (int i = 0; i < thre; i++) {
-            int j = random.nextInt(50);
-            if (j < 36) {
-                stringBuilder.append(Three[j / 3]).append(",");
-            } else if (j < 43) {
-                stringBuilder.append(Three_plus[0]).append(",");
-            } else {
-                stringBuilder.append(Three_plus[1]).append(",");
-            }
-        }
-        stringBuilder.append("\n两星角色:");
-        for (int i = 0; i < tw; i++) {
-            int j = random.nextInt(52);
-            if (j < 36) {
-                stringBuilder.append(two[j / 3]).append(",");
-            } else {
-                stringBuilder.append(two_plus[(j - 36) / 4]).append(",");
-            }
-        }
-        stringBuilder.append("\n一星角色:");
-        for (int i = 0; i < on; i++) {
-            int j = random.nextInt(795);
-            if (j < 695) {
-                stringBuilder.append(one[j / 77]).append(",");
-            } else {
-                stringBuilder.append(one_plus[0]).append(",");
-            }
-        }
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(10));
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "十连")
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> jues = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else if (j > 795) {
-                tw++;
-            } else {
-                on++;
-            }
-        }
-        for (int i = 0; i < 1; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else {
-                tw++;
-            }
-        }
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        for (int i = 0; i < thre; i++) {
-            int j = random.nextInt(Three.length);
-            stringBuilder.append(Three[j]).append(",");
-        }
-        stringBuilder.append("\n两星角色:");
-        for (int i = 0; i < tw; i++) {
-            int j = random.nextInt(two.length);
-            stringBuilder.append(two[j]).append(",");
-        }
-        stringBuilder.append("\n一星角色:");
-        for (int i = 0; i < on; i++) {
-            int j = random.nextInt(one.length);
-            stringBuilder.append(one[j]).append(",");
-        }
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(10));
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "井")
     public void Gashapon__(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> jues = new ArrayList<>();
-        int q = 300;
-        for (int i = 0; i < q - q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else if (j > 795) {
-                tw++;
-            } else {
-                on++;
-            }
+        if (isCool(msg.getQQCode())) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(300));
+            reFlashCoolDown(msg.getQQCode());
         }
-        for (int i = 0; i < q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else {
-                tw++;
-            }
-        }
-        HashMap<String, Integer> map1 = new HashMap<>();
-        HashMap<String, Integer> map2 = new HashMap<>();
-        HashMap<String, Integer> map3 = new HashMap<>();
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        for (int i = 0; i < thre; i++) {
-            int j = random.nextInt(Three.length);
-            if (map1.get(Three[j]) != null) {
-                map1.put(Three[j], map1.get(Three[j]) + 1);
-            } else {
-                map1.put(Three[j], 1);
-            }
-        }
-        for (int i = 0; i < tw; i++) {
-            int j = random.nextInt(two.length);
-            if (map2.get(two[j]) != null) {
-                map2.put(two[j], map2.get(two[j]) + 1);
-            } else {
-                map2.put(two[j], 1);
-            }
-        }
-        for (int i = 0; i < on; i++) {
-            int j = random.nextInt(one.length);
-            if (map3.get(one[j]) != null) {
-                map3.put(one[j], map3.get(one[j]) + 1);
-            } else {
-                map3.put(one[j], 1);
-            }
-        }
-        Set<String> set1 = map1.keySet();
-        Set<String> set2 = map2.keySet();
-        Set<String> set3 = map3.keySet();
-        for (String s : set1) {
-            stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
-        }
-        stringBuilder.append("\n二星角色有：");
-        for (String s : set2) {
-            stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
-        }
-        stringBuilder.append("\n一星角色有：");
-        for (String s : set3) {
-            stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
-        }
-
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "up井")
     public void Gashapon___(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> jues = new ArrayList<>();
-
-        int q = 300;
-
-        for (int i = 0; i < q - q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else if (j > 795) {
-                tw++;
-            } else {
-                on++;
-            }
+        if (isCool(msg.getQQCode())) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(300));
+            reFlashCoolDown(msg.getQQCode());
         }
-        for (int i = 0; i < q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else {
-                tw++;
-            }
-        }
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        HashMap<String, Integer> map1 = new HashMap<>();
-        HashMap<String, Integer> map2 = new HashMap<>();
-        HashMap<String, Integer> map3 = new HashMap<>();
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        for (int i = 0; i < thre; i++) {
-            int j = random.nextInt(Three.length);
-            if (map1.get(Three[j]) != null) {
-                map1.put(Three[j], map1.get(Three[j]) + 1);
-            } else {
-                map1.put(Three[j], 1);
-            }
-        }
-        for (int i = 0; i < tw; i++) {
-            int j = random.nextInt(two.length);
-            if (map2.get(two[j]) != null) {
-                map2.put(two[j], map2.get(two[j]) + 1);
-            } else {
-                map2.put(two[j], 1);
-            }
-        }
-        for (int i = 0; i < on; i++) {
-            int j = random.nextInt(one.length);
-            if (map3.get(one[j]) != null) {
-                map3.put(one[j], map3.get(one[j]) + 1);
-            } else {
-                map3.put(one[j], 1);
-            }
-        }
-        Set<String> set1 = map1.keySet();
-        Set<String> set2 = map2.keySet();
-        Set<String> set3 = map3.keySet();
-        for (String s : set1) {
-            stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
-        }
-        stringBuilder.append("\n二星角色有：");
-        for (String s : set2) {
-            stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
-        }
-        stringBuilder.append("\n一星角色有：");
-        for (String s : set3) {
-            stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
-        }
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
-
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "up抽卡")
+    @Filter(value = "up抽卡.*")
     public void Gashapon____(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        random.setSeed(new Date().getTime());
-        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> jues = new ArrayList<>();
         String str = msg.getMsg().replaceAll(" +", "");
         int q = Integer.parseInt(str.substring(4));
-
-        for (int i = 0; i < q - q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else if (j > 795) {
-                tw++;
-            } else {
-                on++;
-            }
-        }
-        for (int i = 0; i < q / 10; i++) {
-            int j = random.nextInt(1000);
-            if (j > 975) {
-                thre++;
-            } else {
-                tw++;
-            }
-        }
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        HashMap<String, Integer> map1 = new HashMap<>();
-        HashMap<String, Integer> map2 = new HashMap<>();
-        HashMap<String, Integer> map3 = new HashMap<>();
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
-        for (int i = 0; i < thre; i++) {
-            int j = random.nextInt(Three.length);
-            if (map1.get(Three[j]) != null) {
-                map1.put(Three[j], map1.get(Three[j]) + 1);
-            } else {
-                map1.put(Three[j], 1);
-            }
-        }
-        for (int i = 0; i < tw; i++) {
-            int j = random.nextInt(two.length);
-            if (map2.get(two[j]) != null) {
-                map2.put(two[j], map2.get(two[j]) + 1);
-            } else {
-                map2.put(two[j], 1);
-            }
-        }
-        for (int i = 0; i < on; i++) {
-            int j = random.nextInt(one.length);
-            if (map3.get(one[j]) != null) {
-                map3.put(one[j], map3.get(one[j]) + 1);
-            } else {
-                map3.put(one[j], 1);
-            }
-        }
-        Set<String> set1 = map1.keySet();
-        Set<String> set2 = map2.keySet();
-        Set<String> set3 = map3.keySet();
-        for (String s : set1) {
-            stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
-        }
-        stringBuilder.append("\n二星角色有：");
-        for (String s : set2) {
-            stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
-        }
-        stringBuilder.append("\n一星角色有：");
-        for (String s : set3) {
-            stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
-        }
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(q));
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "抽卡")
+    @Filter(value = "抽卡.*")
     public void Gashapon_____(GroupMsg msg, MsgSender sender) {
+
+        String str = msg.getMsg().replaceAll(" +", "");
+        int q = Integer.parseInt(str.substring(2));
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(q));
+    }
+
+    public String dp_Gashapon(int num) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
         StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> jues = new ArrayList<>();
-        String str = msg.getMsg().replaceAll(" +", "");
-        int q = Integer.parseInt(str.substring(4));
-        for (int i = 0; i < q - q / 10; i++) {
+        for (int i = 0; i < num - num / 10; i++) {
             int j = random.nextInt(1000);
             if (j > 975) {
                 thre++;
@@ -667,7 +409,7 @@ public class prcnessListener {
                 on++;
             }
         }
-        for (int i = 0; i < q / 10; i++) {
+        for (int i = 0; i < num / 10; i++) {
             int j = random.nextInt(1000);
             if (j > 975) {
                 thre++;
@@ -718,7 +460,7 @@ public class prcnessListener {
             stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
         }
 
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+        return stringBuilder.toString();
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -878,10 +620,81 @@ public class prcnessListener {
         }
     }
 
+    public String dp_UpGashapon(int num) {
+        Random random = new Random();
+        random.setSeed(new Date().getTime());
+        int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
+        StringBuilder stringBuilder = new StringBuilder();
+
+
+        for (int i = 0; i < num - num / 10; i++) {
+            int j = random.nextInt(1000);
+            if (j > 975) {
+                thre++;
+            } else if (j > 795) {
+                tw++;
+            } else {
+                on++;
+            }
+        }
+        for (int i = 0; i < num / 10; i++) {
+            int j = random.nextInt(1000);
+            if (j > 975) {
+                thre++;
+            } else {
+                tw++;
+            }
+        }
+        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
+        HashMap<String, Integer> map1 = new HashMap<>();
+        HashMap<String, Integer> map2 = new HashMap<>();
+        HashMap<String, Integer> map3 = new HashMap<>();
+        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
+        for (int i = 0; i < thre; i++) {
+            int j = random.nextInt(Three.length);
+            if (map1.get(Three[j]) != null) {
+                map1.put(Three[j], map1.get(Three[j]) + 1);
+            } else {
+                map1.put(Three[j], 1);
+            }
+        }
+        for (int i = 0; i < tw; i++) {
+            int j = random.nextInt(two.length);
+            if (map2.get(two[j]) != null) {
+                map2.put(two[j], map2.get(two[j]) + 1);
+            } else {
+                map2.put(two[j], 1);
+            }
+        }
+        for (int i = 0; i < on; i++) {
+            int j = random.nextInt(one.length);
+            if (map3.get(one[j]) != null) {
+                map3.put(one[j], map3.get(one[j]) + 1);
+            } else {
+                map3.put(one[j], 1);
+            }
+        }
+        Set<String> set1 = map1.keySet();
+        Set<String> set2 = map2.keySet();
+        Set<String> set3 = map3.keySet();
+        for (String s : set1) {
+            stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
+        }
+        stringBuilder.append("\n二星角色有：");
+        for (String s : set2) {
+            stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
+        }
+        stringBuilder.append("\n一星角色有：");
+        for (String s : set3) {
+            stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
+        }
+        return stringBuilder.toString();
+    }
+
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "已出刀")
+    @Filter(value = "已出刀.*")
     public void searchKnife(GroupMsg msg, MsgSender sender) {
-        List<Knife> list = null;
+        List<Knife> list = new ArrayList<>();
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
         StringBuilder stringBuilder = new StringBuilder();
@@ -889,7 +702,10 @@ public class prcnessListener {
         SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
         if (strings != null && strings.size() > 0) {
             //找 人的出刀
-            list = DB.getInstance().searchKnife(strings.get(0).substring(10, strings.get(0).length() - 1), null, df.format(date));
+            for (String s : strings) {
+                System.out.println(s);
+                list.addAll(DB.getInstance().searchKnife(s.substring(10, strings.get(0).length() - 1), null, df.format(date)));
+            }
 
         } else {
             //找整个工会的出刀
@@ -898,21 +714,22 @@ public class prcnessListener {
         if (list != null) {
             stringBuilder.append("出刀信息：");
             for (Knife knife : list) {
-                stringBuilder.append("\n编号: ").append(knife.getId());
+                stringBuilder.append("\n-----\n编号: ").append(knife.getId());
                 stringBuilder.append("\n昵称：").append(DB.Instance.searchName(knife.getKnifeQQ()));
+                stringBuilder.append("\n扣扣：").append(knife.getKnifeQQ());
                 stringBuilder.append("\n伤害：").append(knife.getHurt());
-                stringBuilder.append("\n周目: ").append(knife.getNo() / 10);
+                stringBuilder.append("\n周目").append(knife.getNo() / 10);
                 stringBuilder.append(",").append(knife.getNo() - (knife.getNo() / 10) * 10).append("王");
             }
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), stringBuilder.toString());
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没有刀信息哦");
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "还没有刀信息哦");
         }
 
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "设置管理.*")
+    @Filter(value = {"设置管理.*", "设置管理员.*", "添加管理员.*", "添加管理.*"})
     public void setAdmin(GroupMsg msg, MsgSender sender) {
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
@@ -928,18 +745,6 @@ public class prcnessListener {
             }
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
-        }
-    }
-
-    @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "boss状态")
-    public void getBoss(GroupMsg msg, MsgSender sender) {
-        FightStatue fightStatue = DB.Instance.getFightStatue(msg.getGroupCode());
-        if (fightStatue != null) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "现在为 " + fightStatue.getLoop() + "周目\n" + fightStatue.getSerial() + "王\n剩余血量："
-                    + fightStatue.getRemnant() + "");
-        } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notBossOrNotDate);
         }
     }
 
@@ -994,5 +799,51 @@ public class prcnessListener {
         }
     }
 
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"boss状态", "boss", "boss咋样了", "boss还好吗"})
+    public void getBoss(GroupMsg msg, MsgSender sender) {
+        FightStatue fightStatue = DB.Instance.getFightStatue(msg.getGroupCode());
+        if (fightStatue != null) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "现在为 " + fightStatue.getLoop() + "周目\n" + fightStatue.getSerial() + "王\n剩余血量："
+                    + fightStatue.getRemnant() + "");
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notBossOrNotDate);
+        }
+    }
+
+    /**
+     * 刷新抽卡冷却时间
+     */
+    public void reFlashCoolDown(String QQ) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime.plusMinutes(2);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String time = localDateTime.format(dateTimeFormatter);
+        if (coolDown == null) {
+            coolDown = new HashMap<>();
+            coolDown.put(QQ, time);
+        } else {
+            coolDown.put(QQ, time);
+        }
+    }
+
+    /**
+     * 获取冷却时间是不是到了
+     *
+     * @param QQ
+     * @return
+     */
+    public boolean isCool(String QQ) {
+        if (coolDown == null) {
+            coolDown = new HashMap<>();
+            return true;
+        } else {
+            if (coolDown.get(QQ) != null) {
+                return coolDown.get(QQ).compareTo(new SimpleDateFormat("HH:mm").format(new Date())) < 0;
+            } else {
+                return true;
+            }
+        }
+    }
 
 }
