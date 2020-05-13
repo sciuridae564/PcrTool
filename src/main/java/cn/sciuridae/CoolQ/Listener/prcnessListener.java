@@ -2,6 +2,7 @@ package cn.sciuridae.CoolQ.Listener;
 
 import cn.sciuridae.DB.bean.*;
 import cn.sciuridae.DB.sqLite.DB;
+import cn.sciuridae.Excel.excelWrite;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.anno.depend.Beans;
@@ -12,6 +13,7 @@ import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -786,7 +788,7 @@ public class prcnessListener {
     public void setAdmin(GroupMsg msg, MsgSender sender) {
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-        if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
+        if (DB.Instance.isSuperPower(msg.getGroupCode(), msg.getQQCode())) {
             switch (DB.Instance.setAdmin(strings.get(0).substring(10, strings.get(0).length() - 1), msg.getGroupCode())) {
                 case 0:
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), noFindTheOne);
@@ -804,13 +806,20 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "踢人.*")
     public void kickman(GroupMsg msg, MsgSender sender) {
-        int num;
+        int num = 0;
         if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-            num = DB.getInstance().deleteMember(strings.get(0).substring(10, strings.get(0).length() - 1));
+            String deleteQQ = strings.get(0).substring(10, strings.get(0).length() - 1);//要被踢掉的那个人
+            if (DB.Instance.isSuperPower(msg.getGroupCode(), deleteQQ)) {
+                num = -2;
+            } else {
+                num = DB.getInstance().deleteMember(deleteQQ);
+            }
             if (num == 0) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有踢掉任何一个人，@的这个人是不是还没有加入这个工会呢");
+            } else if (num == -2) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "堂下何人竟敢状告本官");
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功踢掉了");
             }
@@ -896,6 +905,41 @@ public class prcnessListener {
             } else {
                 return true;
             }
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"生成excel.*"})
+    public void getExcel(GroupMsg msg, MsgSender sender) {
+        String processTime = msg.getMsg().substring(7).replaceAll(" +", "");
+        Date time;
+        if (processTime.equals("")) {
+            time = new Date();
+        } else {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+            try {
+                time = simpleDateFormat.parse(processTime);
+            } catch (ParseException e) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误");
+                return;
+            }
+        }
+        ArrayList<Date> timelist = new ArrayList<>();
+        timelist.add(time);
+
+        int id = DB.Instance.searchGroupIdByGroupQQ(msg.getGroupCode());
+        if (id != -1) {
+            try {
+                String groupQQ = msg.getGroupCode();//工会qq
+                File file = new File(getExcelFileName(groupQQ, time));
+                excelWrite excelWrite = new excelWrite(file, timelist, id);
+                excelWrite.writedDate();
+                excelWrite.reflashFile();
+            } catch (NullPointerException e) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "这一天，还没有工会战的出刀");
+            }
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), noThisGroup);
         }
     }
 

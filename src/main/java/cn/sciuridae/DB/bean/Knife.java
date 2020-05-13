@@ -18,6 +18,13 @@ public class Knife {
         this.complete = complete;
     }
 
+    public Knife(String knifeQQ, int no, int hurt, boolean complete) {
+        this.knifeQQ = knifeQQ;
+        this.no = no;
+        this.hurt = hurt;
+        this.complete = complete;
+    }
+
     public Knife(String knifeQQ, int no, int hurt, String date, boolean complete) {
         this.knifeQQ = knifeQQ;
         this.no = no;
@@ -84,10 +91,12 @@ public class Knife {
     @Override
     public String toString() {
         return "Knife{" +
-                "knifeQQ='" + knifeQQ + '\'' +
+                "id=" + id +
+                ", knifeQQ='" + knifeQQ + '\'' +
                 ", no=" + no +
                 ", hurt=" + hurt +
                 ", date='" + date + '\'' +
+                ", complete=" + complete +
                 '}';
     }
 }

@@ -1,14 +1,20 @@
 package cn.sciuridae.CoolQ.timeJob;
 
 import cn.sciuridae.DB.sqLite.DB;
+import cn.sciuridae.Excel.excelWrite;
 import com.forte.qqrobot.anno.timetask.CronTask;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.timetask.TimeJob;
 import com.forte.qqrobot.utils.CQCodeUtil;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+import static cn.sciuridae.Tools.stringTool.getExcelFileName;
+import static cn.sciuridae.constant.ExcelDir;
+import static cn.sciuridae.constant.dfForFile;
 
 @CronTask("0 0 5 * * ? *") //每天5点，在线刷新
 public class clearVoidKnife implements TimeJob {
@@ -29,5 +35,29 @@ public class clearVoidKnife implements TimeJob {
             msgSender.SENDER.sendGroupMsg(GroupQQ, stringBuilder.toString());
         }
 
+        //生成每日报表
+
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        ArrayList<Date> list = new ArrayList<>();
+        list.add(c.getTime());
+        //所有在进行工会战的id
+        List<Integer> groupIds = DB.Instance.searchAllGroupOnProgress();
+        for (Integer id : groupIds) {
+            File file = null;
+            try {
+                String groupQQ = DB.Instance.searchGroupNameByID(id);//工会qq
+                file = new File(getExcelFileName(groupQQ, date));
+                excelWrite excelWrite = new excelWrite(file, list, id);
+                excelWrite.writedDate();
+                excelWrite.reflashFile();
+            } catch (NullPointerException e) {
+                if (file != null && file.exists()) {
+                    file.delete();
+                }
+            }
+        }
     }
 }

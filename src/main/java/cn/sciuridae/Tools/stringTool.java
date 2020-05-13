@@ -5,8 +5,14 @@ import javax.swing.plaf.basic.BasicBorders;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
+import static cn.sciuridae.constant.ExcelDir;
 import static cn.sciuridae.constant.coolQAt;
+import static cn.sciuridae.constant.dfForFile;
 
 public class stringTool {
 
@@ -121,4 +127,30 @@ public class stringTool {
         }
         return bytes;
     }
+
+    public static List<Date> getBetweenDates(Date start, Date end) {
+        List<Date> result = new ArrayList<Date>();
+        Calendar tempStart = Calendar.getInstance();
+        tempStart.setTime(start);
+        tempStart.add(Calendar.DAY_OF_YEAR, 1);
+
+        Calendar tempEnd = Calendar.getInstance();
+        tempEnd.setTime(end);
+        while (tempStart.before(tempEnd)) {
+            result.add(tempStart.getTime());
+            tempStart.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return result;
+    }
+
+    //单日表
+    public static String getExcelFileName(String GroupQQ, Date date) {
+        return (ExcelDir + GroupQQ + "%" + dfForFile.format(date) + ".xls");
+    }
+
+    //总结表
+    public static String getExcelFileName(String GroupQQ, Date stratDate, Date endDate) {
+        return ExcelDir + GroupQQ + "%" + dfForFile.format(stratDate) + "到" + dfForFile.format(endDate) + ".xls";
+    }
+
 }

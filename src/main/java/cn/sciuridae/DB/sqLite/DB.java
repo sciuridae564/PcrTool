@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static cn.sciuridae.Tools.stringTool.getBetweenDates;
 import static cn.sciuridae.constant.*;
 
 public class DB {
@@ -559,6 +560,49 @@ public class DB {
     }
 
     /**
+     * 找找今天还有哪个小朋友没有出刀,工会id版
+     *
+     * @param Groupid//工会主键
+     * @return
+     */
+    public synchronized Map<String, Integer> searchVoidKnifeByGroup(int Groupid, String date) {
+        HashMap<String, Integer> map = null;
+        String sql1 = "select userQQ from teamMember where id =" + Groupid;
+        String sql2 = "select groupid from _group where id=" + Groupid;
+
+        RowMapper<String> extractor1 = (rs, index) -> rs.getString("userQQ");//这个工会的成员qq
+        RowMapper<String> mapper = (rs, index) -> rs.getString("startTime");//随便获取个值，证明这个工会正在打boss
+        RowMapper<String> mapper1 = (rs, index) -> rs.getString("groupid");//
+        try {
+            String sql3 = "select startTime  from progress where id=\"" + Groupid + "\"";//获取这个工会战开始时间
+            List<String> list3 = h.executeQuery(sql3, mapper);
+            if (list3.get(0).compareTo(date) > 0) {//没boss进度，或还没到出刀时间
+                return null;
+            }
+
+            List<Knife> knifes = searchKnife(null, h.executeQuery(sql2, mapper1).get(0), date);//今天的出刀表
+
+            List<String> list1 = h.executeQuery(sql1, extractor1);//工会成员全员空刀表
+            map = new HashMap<>();
+            for (String s : list1) {
+                map.put(s, 3);
+            }
+            for (Knife knife : knifes) {
+                if (knife.isComplete()) {
+                    map.put(knife.getKnifeQQ(), map.get(knife.getKnifeQQ()) - 1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {//没找着出刀信息
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    /**
      * 开始会战
      * @param applyQQ 提出开始会战的人
      * @param groupCode 消息所在群号
@@ -637,6 +681,30 @@ public class DB {
         }
         return groupName;
     }
+
+    /**
+     * 查询工会名字
+     *
+     * @param id 工会主键
+     * @return
+     */
+    public synchronized String searchGroupNameByID(int id) {
+        String sql = "select groupid from _group where id=" + id;
+        RowMapper<String> rowMapper = (rs, index) -> rs.getString("groupid");
+
+        try {
+            return h.executeQuery(sql, rowMapper).get(0);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return null;
+    }
+
 
     /**
      * 查询所给qq的游戏
@@ -832,7 +900,6 @@ public class DB {
                     hashMaps.put(strings[0], hashMaps.get(hashMaps) + 1);
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -840,6 +907,44 @@ public class DB {
         }
         return hashMaps;
     }
+
+    /**
+     * 查看今天所有人的出刀情况
+     *
+     * @param id   工会主键
+     * @param time 查看的时间
+     * @return
+     */
+    public synchronized Map<String, List<Knife>> searchKnife(int id, String time) {
+        String sql = "select userQQ from teamMember where id=" + id;
+        RowMapper<String> req = (rs, index) -> rs.getString("userQQ");
+        RowMapper<Knife> req1 = (rs, index) -> {
+            Knife knife = new Knife(rs.getString("knifeQQ"), rs.getInt("no"), rs.getInt("hurt"), rs.getBoolean("complete"));
+            return knife;
+        };
+        HashMap<String, List<Knife>> hashMaps = null;
+        try {
+            List<String> list = h.executeQuery(sql, req);
+            if (list != null) {
+                hashMaps = new HashMap<>();//用户qq号，出刀次数
+                for (String s : list) {
+                    hashMaps.put(s, new ArrayList<>());
+                }
+                sql = "select knife.*  from knife where  knifeQQ in (select userQQ from teamMember where id=" + id + ") and date=\"" + time + "\" order by knife.no";
+
+                List<Knife> list1 = h.executeQuery(sql, req1);
+                for (Knife strings : list1) {
+                    hashMaps.get(strings.getKnifeQQ()).add(strings);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return hashMaps;
+    }
+
 
     /**
      * 查看现在的boss状态
@@ -973,24 +1078,22 @@ public class DB {
     }
 
     public String groupStatue(String groupQQ) {
-        String tips = "还没有建立工会呢";
-        ;
+        StringBuilder tips = new StringBuilder("还没有建立工会呢");
         String sql = "select * from _group where groupid=\"" + groupQQ + "\"";
-        RowMapper<Group> groupId = (rs, index) -> {
-            Group group = new Group(rs.getInt("id"), rs.getString("groupid"), rs.getString("groupName"), rs.getString("groupMasterQQ"), rs.getString("createDate"));
-            return group;
-        };
-
+        RowMapper<Group> groupId = (rs, index) -> new Group(rs.getInt("id"), rs.getString("groupid"), rs.getString("groupName"), rs.getString("groupMasterQQ"), rs.getString("createDate"));
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("count(*)");
+        String sql1 = "select count(*) form teamMember join _group on _group.id=teamMember.id where _group.groupid=\"";
         try {
             Group group = h.executeQuery(sql, groupId).get(0);
-            tips = "工会名称：" + group.getGroupName() + "\n工会会长qq：" + group.getGroupMasterQQ() + "\n工会创建时间：" + group.getCreateDate();
+            int num = h.executeQuery(sql1, rowMapper).get(0);
+            tips.append("工会名：").append(group.getGroupName()).append("\n工会会长qq：").append(group.getGroupMasterQQ()).append("\n工会创建时间：").append(group.getCreateDate()).append("工会成员数：").append(num);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IndexOutOfBoundsException e) {
         }
-        return tips;
+        return tips.toString();
 
     }
 
@@ -1043,6 +1146,10 @@ public class DB {
         List<Knife> list = null;
         try {
             list = h.executeQuery(sql.toString(), knifes);
+//            System.out.println(sql);
+//            for(Knife s:list){
+//                System.out.println(s);
+//            }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -1270,6 +1377,80 @@ public class DB {
         return time;
     }
 
+    /**
+     * 获得所有在会战进行中的工会id
+     *
+     * @return
+     */
+    public List<Integer> getAllGroupQQInFight() {
+        String sql = "select _group.id from _group  join progress on progress.groupid=_group.groupid ";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+
+        try {
+            List<Integer> groupQQs = h.executeQuery(sql, rowMapper);
+            List<Integer> list = h.executeQuery(sql, rowMapper);
+
+            return list;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据主键查询这个工会工会战的开始到结束的时间列表
+     *
+     * @param id
+     * @return
+     */
+    public List<Date> getDateList(int id) {
+        String sql = "select startTime,endTime from progress where id=" + id;
+        RowMapper<String[]> rowMapper = (rs, index) -> {
+            String[] times = new String[2];
+            times[0] = rs.getString("startTime");
+            times[1] = rs.getString("endTime");
+            return times;
+        };
+
+        try {
+            String[] strings = h.executeQuery(sql, rowMapper).get(0);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy:MM:dd");
+            List<Date> list = null;
+            try {
+                list = getBetweenDates(new Date(simpleDateFormat.parse(strings[0]).getTime() - 24 * 3600 * 1000), simpleDateFormat.parse(strings[1]));
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
+
+            return list;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException | NullPointerException e) {
+
+        }
+        return null;
+    }
+
+    public int searchGroupIdByGroupQQ(String GroupQQ) {
+        String sql = "select id from _group where groupid=\"" + GroupQQ + "\"";
+        RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
+
+        try {
+            return h.executeQuery(sql, rowMapper).get(0);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+
+        }
+        return -1;
+    }
 
 }
 
