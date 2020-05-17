@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>会战撒</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav th:replace="temp::top"> </nav>
+
+<div th:if="${notInFight}!=null">
+    <div>
+        <label th:text="'现在是'+${fightStatue.getLoop()}+'周目'+${fightStatue.getSerial()}"></label>
+        <label th:text="'剩余血量'+${fightStatue.getRemnant()}"></label>
+
+    </div>
+    <div>
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>qq</th>
+            <th>伤害</th>
+            <th th:if="${Power}>1">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="knife:${knives}">
+            <td th:text="${knife.getId()}"></td>
+            <td th:text="${knife.getKnifeQQ()}"></td>
+            <td th:text="${knife.getHurt()}"></td>
+            <td th:if="${Power}>2">
+                <a class="btn btn-sm btn-info" >编辑</a>
+                <a class="btn btn-sm btn-danger" >删除</a>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    </div>
+    <a th:if="${Power}>1" th:href="@{/Fight/end}" th:text="停止会战"></a>
+</div>
+<div th:if="${notInFight}==null">
+    <h2>现在不在会战中</h2>
+    <a th:if="${Power}>1" th:href="@{/Fight/Start}" th:text="开始会战"></a>
+</div>
+
+
+</body>
+</html>

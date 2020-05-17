@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>公主连接小程序-会战记录</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/signin.css" rel="stylesheet">
+    <style>
+        body {text-align: center;} table {margin: auto;}
+    </style>
+</head>
+<body >
+<a  th:href="@{Fight/simple}"></a>
+<div class="container-fluid">
+    <div class="row">
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <h2>出刀列表</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>出刀人qq</th>
+                        <th>周目</th>
+                        <th>王</th>
+                        <th>伤害</th>
+                        <th>补时刀</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="knife:${knives}">
+                        <td th:text="${knife.getKnifeQQ()}"></td>
+                        <td th:text="${knife.getNo()/10}"></td>
+                        <td th:text="${knife.getNo()%10}"></td>
+                        <td th:text="${knife.getHurt()}"></td>
+                        <td th:text="${knife.isComplete()}"></td>
+                        <td>
+                            <button class="btn btn-sm btn-info">编辑</button>
+                            <button class="btn btn-sm btn-danger">删除</button>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+    </div>
+</div>
+
+
+
+</body>
+</html>

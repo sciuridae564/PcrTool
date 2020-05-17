@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>修改信息</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav th:replace="temp::top"></nav>
+
+<form th:action="@{/team/edit}" >
+    <div class="form-group">
+        <label class="col-sm-2 col-form-label" FOR="QQ">QQ号</label>
+        <input id="QQ" name="QQ" type="text" readonly  th:value="${teamMember.getUserQQ()}">
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 col-form-label" FOR="name">昵称</label>
+        <input id="name" name="name" th:value="${teamMember.getName()}">
+    </div>
+    <div class="form-group" th:if="${power}>2">
+        <label for="powerChange">权限</label>
+        <select class="form-control" id="powerChange" name="powerChange">
+            <option th:value="1" th:selected="${not teamMember.isPower()}">组员</option>
+            <option th:value="2" th:selected="${teamMember.isPower()}">管理员</option>
+            <option th:value="3">会长</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">保存</button>
+</form>
+</body>
+</html>

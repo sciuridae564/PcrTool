@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'热烈欢迎'+${username}+'领导来我校视察'" th:if="${not #strings.isEmpty(username)}"></title>
+    <script language=javascript >
+        var text=document.title
+        var timerId
+        function newtext() {
+            clearTimeout(timerId)
+            document.title=text.substring(1,text.length)+text.substring(0,1)
+            text=document.title.substring(0,text.length)
+            timerId = setTimeout("newtext()", 500)
+        }
+        newtext();
+
+    </script>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {text-align: center;} table {margin: auto;}
+    </style>
+
+</head>
+<body class="text-center">
+<div style="height: auto!important;" >
+    <nav th:replace="temp::top">
+
+    </nav>
+    <main class="container">
+        <div class="main">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <div class="mb-4 item-box event-box">
+                            <h2 th:text="${group.getGroupName()}"></h2>
+                            <p th:text="'会长QQ'+${group.getGroupMasterQQ()}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</div>
+</body>
+</html>
