@@ -250,10 +250,15 @@ public class DB {
     public synchronized int  creatGroup(Group group,String masterName){
         String sql="select name from teamMember where userQQ="+group.getGroupMasterQQ();
         RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("id");
+        RowMapper<String> rowMapper1= (rs, index) -> rs.getString("name");
         try {
-            String i=h.executeQuery(sql,String.class);
+            String i=h.executeQuery(sql,rowMapper1).get(0);
             return 0;//已经有一个社团了
         } catch (SQLException e) {
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (IndexOutOfBoundsException e){
             //没有找到
             String sql1="insert into _group values(null,\""+group.getGroupid()+"\",\""+group.getGroupName()+"\",\""+group.getGroupMasterQQ()+"\",\""+group.getCreateDate()+"\")";
             try {
@@ -271,14 +276,6 @@ public class DB {
             } catch (ClassNotFoundException e1) {
                 e1.printStackTrace();
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }catch (NullPointerException e){
-            e.printStackTrace();
         }
         return -1;
     }
@@ -525,8 +522,7 @@ public class DB {
                 List<Integer> list2 = h.executeQuery(sql2, mapper1);//这个工会的主键
                 String sql3 = "select startTime  from progress where id=" + list2.get(0) ;//获取这个工会战开始时间
                 List<String> list3 = h.executeQuery(sql3, mapper);
-                System.out.println(list3);
-                if (list3==null||list3.get(0)==null||list3.get(0).compareTo(date) >= 0) {//没boss进度，或还没到出刀时间
+                if (list3.size()<0||list3.get(0).compareTo(date) > 0) {//没boss进度，或还没到出刀时间
                     return null;
                 }
                 List<Knife> knifes = searchKnife(null, GroupQQ, date);//今天的出刀表
@@ -628,7 +624,11 @@ public class DB {
             try {
                 stringBuilder.append("select id from _group where groupid=\"").append(groupCode).append("\";");
                 List<Integer> integerList = h.executeQuery(stringBuilder.toString(), rowMapper1);
-                if (integerList != null) {
+
+                if (integerList.size()>0) {
+                    String sql="select id from progress where groupid=\""+groupCode+"\";";
+                    if(h.executeQuery(sql,rowMapper1).size()>0){return 2;}//判断现在是不是在会战
+                    //插入会战进度
                     stringBuilder.delete(0, stringBuilder.length());
                     stringBuilder.append("insert into progress values(").append(groupCode).append(",").append(integerList.get(0)).append(",1,1,").append(getBossHpLimit(0)).append(",\"").append(date).append("\",\"").append(endDate).append("\")");//-1为还未录入血量的状态
 
@@ -638,13 +638,11 @@ public class DB {
                     }
                     return 4;
                 }
-                return 2;//已经开始了
+                return 0;//没有这个工会
 
             } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
             } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
-                return 0;//数据库离还没建这个工会或者没这权限
             }
         }
         return -1;
@@ -1603,11 +1601,12 @@ public class DB {
 
     //获取密匙
     public String getToken(String QQ){
-        String sql="select token from Token where teamMemberowId=\""+QQ+"\"";
+        String sql="select token from Token where teamMemberowId="+searchTeamMemberowIdByQQ(QQ);
         RowMapper<String> row= (rs, index) -> rs.getString("token");
         String str=null;
 
         try {
+            System.out.println(sql);
             str=h.executeQuery(sql,row).get(0);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1616,6 +1615,13 @@ public class DB {
         }catch (IndexOutOfBoundsException e){
             str=  RandomStringUtils.randomAlphanumeric(20);//密匙生成
             String insertSql="insert into Token values(\""+str+"\","+searchTeamMemberowIdByQQ(QQ)+")";
+            try {
+                h.executeUpdate(insertSql);
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
         }
 
         return str;

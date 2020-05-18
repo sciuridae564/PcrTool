@@ -38,9 +38,9 @@ public class constant {
             "\t8.查询现在的boss信息[boss状态]\n" +
             "\t9.查看正在出刀（非挂树）的人[正在出刀]\n" +
             "\t10.查看正在树上的人[查树]\n" +
-            "\t11.查询今日全部成员未出刀情况，[#未出刀 (@那个人)]\n" +
+            "\t11.查询今日全部成员未出刀情况，[未出刀 (@那个人)]\n" +
             "\t\t同下\n" +
-            "\t12.查询今日全部成员已出刀情况，[#已出刀 (@那个人)]\n" +
+            "\t12.查询今日全部成员已出刀情况，[已出刀 (@那个人)]\n" +
             "\t\t没有@其他人的情况下默认查看整个工会\n" +
             "\t13.*调整boss血量，周目等一系列信息[调整boss状态 （调整后的）周目 几王 血量]\\\n" +
             "\t\t例：调整boss状态 2 4 2554 为调整到二周目4王2554剩余血量\n" +
@@ -52,6 +52,7 @@ public class constant {
             "\t3.有 内 鬼，终 止 交 易[翻译切噜 加密的话]\n" +
             "\t4.生成excel统计表格[生成excel (时间)]\n" +
             "\t\t时间参数与上面相同\n" +
+            "\t5.获取登陆码[获取码],如果没码就会强行造一个码"+
             "默认设定：\n" +
             "\t每天5点检查树上的人，全 部 撸 下\n" +
             "\t每天0点检查工会战结束的工会，生成一个总表\n" +
@@ -90,7 +91,7 @@ public class constant {
     public static final String notBossOrNotDate = " 工会战还没开启呢";
     public static final String noFindTheOne = "没有找到这个人，是不是还没有入会？";
     public static final int[] BossHpLimit = {6000000, 8000000, 10000000, 12000000, 20000000};//各个boss的血量上限
-    public static final String notPower = "得工会管理员才可以惹";
+    public static final String notPower = "权限不够，或未建立工会";
     public static final String SuccessStartFight = "会战开始惹";
     public static final String StartFightStartDouble = "会战已经开始惹，为什么还要再开一次";
     public static final String SuccessEndFight = "会战结束惹";

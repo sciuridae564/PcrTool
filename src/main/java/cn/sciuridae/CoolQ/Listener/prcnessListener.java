@@ -81,11 +81,11 @@ public class prcnessListener {
                 group.setGroupMasterQQ(groupMasterQQ);
                 int flag=DB.Instance.creatGroup(group,groupMasterName);
                 if(flag==0){
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupName + isHaveGroup);
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupMasterName + isHaveGroup);
                 }else if(flag==1){
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupName + " 工会已经创建好辣");
                 }else {
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupName + error);
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(),  error);
                 }
 
             }
@@ -250,7 +250,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#未出刀.*")
+    @Filter(value = "未出刀.*")
     public void searchVoidKnife(GroupMsg msg, MsgSender sender){
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
@@ -292,7 +292,6 @@ public class prcnessListener {
         if (strings != null && strings.size() > 0) {
             //找 人的出刀
             for (String s : strings) {
-                System.out.println(s);
                 list.addAll(DB.getInstance().searchKnife(s.substring(10, strings.get(0).length() - 1), null, getDate()));
             }
 
@@ -300,7 +299,7 @@ public class prcnessListener {
             //找整个工会的出刀
             list = DB.getInstance().searchKnife(null, msg.getGroupCode(),  getDate());
         }
-        if (list != null) {
+        if (list .size()>0) {
             stringBuilder.append("出刀信息：");
             for (Knife knife : list) {
                 stringBuilder.append("\n-----\n编号: ").append(knife.getId());
@@ -423,8 +422,6 @@ public class prcnessListener {
         i = DB.Instance.startFight(msg.getGroupCode(), msg.getQQCode(), time);
         switch (i) {
             case -1:
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
-                break;
             case 0://数据库离还没建这个工会或者没这权限
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
                 break;
@@ -963,6 +960,14 @@ public class prcnessListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), noThisGroup);
         }
     }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"获取码"})
+    public void getToken(PrivateMsg msg, MsgSender sender){
+        String QQ=msg.getQQCode();
+        sender.SENDER.sendPrivateMsg(QQ,"你的码是："+ DB.Instance.getToken(QQ));
+    }
+
 
 
 }
