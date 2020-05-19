@@ -2,7 +2,7 @@
 <html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
-        <title>后台登录-X-admin2.2</title>
+        <title>PcrTool</title>
         <meta name="renderer" content="webkit|ie-comp|ie-stand">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
@@ -57,7 +57,7 @@
                                 <cite>出刀管理</cite></a>
                         </li>
                         <li>
-                            <a onclick="xadmin.add_tab('出刀统计','member-list1.html',true)">
+                            <a onclick="xadmin.add_tab('出刀统计','/Fight/static',true)">
                                 <i class="iconfont">&#xe6a7;</i>
                                 <cite>出刀统计</cite></a>
                         </li>
@@ -71,14 +71,9 @@
                         <i class="iconfont nav_right">&#xe697;</i></a>
                     <ul class="sub-menu">
                         <li>
-                            <a onclick="xadmin.add_tab('人员编辑及删除','order-list.html')">
+                            <a onclick="xadmin.add_tab('人员编辑及删除','/group/team')">
                                 <i class="iconfont">&#xe6a7;</i>
                                 <cite>人员编辑及删除</cite></a>
-                        </li>
-                        <li>
-                            <a onclick="xadmin.add_tab('添加人员','order-list1.html')">
-                                <i class="iconfont">&#xe6a7;</i>
-                                <cite>添加人员</cite></a>
                         </li>
                     </ul>
                 </li>

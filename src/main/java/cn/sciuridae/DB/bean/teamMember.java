@@ -2,16 +2,24 @@ package cn.sciuridae.DB.bean;
 
 public class teamMember {
     private String userQQ;//组员qq
-    private boolean power;//权限 1为管理员
+    private boolean power=false;//权限 1为管理员
     private Integer id;//工会id 主键
     private String name;//组员游戏昵称
-
+    private boolean superPower=false;//会长权限
 
     public teamMember(String userQQ, boolean power, Integer id, String name) {
         this.userQQ = userQQ;
         this.power = power;
         this.id = id;
         this.name = name;
+    }
+
+    public boolean isSuperPower() {
+        return superPower;
+    }
+
+    public void setSuperPower(boolean superPower) {
+        this.superPower = superPower;
     }
 
     public String getUserQQ() {

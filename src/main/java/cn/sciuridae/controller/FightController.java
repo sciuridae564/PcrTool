@@ -34,29 +34,6 @@ public class FightController {
         return "/Fight/FightList";
     }
 
-    @RequestMapping( value="/Fight/static")
-    public String stati( HttpSession session ,Model model) {
-
-        return "/Fight/static";
-    }
-
-    @RequestMapping( value="/Fight/Start")
-    public String start( HttpSession session ,Model model) {
-
-        return "/Fight/SimpleFight";
-    }
-
-
-    @RequestMapping( value="/Fight/end")
-    public String end( HttpSession session ,Model model) {
-
-        return "/Fight/SimpleFight";
-    }
-
-
-    //增加一条出刀
-
-
     //正在出刀数据请求
     @GetMapping(value = "/Fight/OutKnife")
     @ResponseBody

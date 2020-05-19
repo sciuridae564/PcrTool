@@ -70,6 +70,7 @@ public class DB {
                     "                    );" +
                     " ALTER TABLE progress ADD COLUMN startTime varchar(8);" +//会战开始时间
                     " ALTER TABLE progress ADD COLUMN endTime varchar(8);"//会战结束时间
+//                    " ALTER TABLE progress ADD COLUMN end boolean;"//会战结束标志
                     ;
             h.executeUpdate(initTable);
         } catch (ClassNotFoundException e) {
@@ -448,7 +449,7 @@ public class DB {
             if (id1 == id2) {
                 //只有两个人在同一个工会才可以
                 String change1 = "update _group set groupMasterQQ=\"" + newQQ + "\" where id=" + id1;//转让会长
-                String change2 = "update _group set power=1 where userQQ=\"" + newQQ + "\"";//设置 b为管理员
+                String change2 = "update teamMember set power=1 where userQQ=\"" + newQQ + "\"";//设置 b为管理员
                 h.executeUpdate(change1, change2);//改变管理员权限
                 return 2;//成功
             }
@@ -496,6 +497,25 @@ public class DB {
         }
         return false;
     }
+
+    /**
+     * 获得这个团的会长行号
+     * @return
+     */
+    public int getSuperQQ(int id){
+        String sql="select teamMember.rowid  from teamMember join _group on teamMember.userQQ=_group.groupMasterQQ where _group.id="+id;
+        RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("rowid");
+
+        try {
+            return h.executeQuery(sql,rowMapper).get(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (IndexOutOfBoundsException e){}
+        return -1;
+    }
+
     /**
      * 找找今天还有哪个小朋友没有出刀
      *
@@ -899,6 +919,7 @@ public class DB {
             return strings;
         };
         HashMap<String,Integer> hashMaps=null;
+
         try {
             List<String> list=h.executeQuery(sql,req);
             if(list!=null){
@@ -1311,7 +1332,7 @@ public class DB {
     /**
      * 撤下工会管理员
      *
-     * @param Tragit  将要获得权限的qq
+     * @param Tragit  将要取得权限的qq
      * @return
      */
     public int downAdmin(String Tragit) {
@@ -1858,6 +1879,7 @@ public class DB {
         int power=1;//默认没权限
         RowMapper<Integer> rowMapper1= (rs, index) -> rs.getInt("id");
         try {
+            System.out.println(sql);
             teamMember=h.executeQuery(sql,rowMapper).get(0);
             if(teamMember.isPower()){
                 power=2;
@@ -2072,6 +2094,30 @@ public class DB {
 
         }
         return Topknife;
+    }
+
+    /**
+     * 获取这一天这个工会主键人的三刀总和，这一刀是他们那天出的刀的总和
+     * @param groupid
+     * @param time
+     * @return
+     */
+    public List<Knife> getAllKnife(int groupid,String time){
+        String sql="select sum(knife.hurt),knife.knifeQQ from knife" +
+                " where date=\""+time+"\" and knifeQQ in ( select userQQ from teamMember where id=" +groupid+")"+
+                "group by knifeQQ ";
+        RowMapper<Knife> rowMapper= (rs, index) -> new Knife(rs.getString("knifeQQ"),0,rs.getInt("sum(knife.hurt)"),true);
+        List<Knife> knives=null;
+        try {
+            knives=h.executeQuery(sql,rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (IndexOutOfBoundsException e){
+
+        }
+        return knives;
     }
 
 
