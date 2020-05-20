@@ -1,5 +1,8 @@
 package cn.sciuridae.controller;
 
+import cn.sciuridae.DB.bean.FightStatue;
+import cn.sciuridae.DB.bean.Group;
+import cn.sciuridae.DB.bean.Knife;
 import cn.sciuridae.DB.sqLite.DB;
 import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.boot.web.servlet.server.Session;
@@ -10,23 +13,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 
+import static cn.sciuridae.Tools.stringTool.getDate;
+import static cn.sciuridae.Tools.stringTool.getLastDate;
+
 @Controller
 public class BaseController {
 
-    @RequestMapping( value="/Base")
-    public String base(){
-        return "";
-    }
-
     //处理登陆来的消息,准备主界面各种消息
-    @RequestMapping( value="/Base/start")
-    public String baseStart(HttpSession session,Model Model){
+    @RequestMapping( value="/welcome.html")
+    public String welcome(HttpSession session,Model Model){
         DB.Power power=(DB.Power)session.getAttribute("token");
-//        session.setAttribute("username", DB.Instance.getNameByRowId(power.getteamMemberowId()));//这人名字
-//        session.setAttribute("group", DB.Instance.getGroupByRowid(power.getteamMemberowId()));//这人团信息
+        Group group = (Group) session.getAttribute("group");
+        FightStatue fightStatue= DB.Instance.searchFightStatue(group.getId());
 
-        Model.addAttribute("username", DB.Instance.getNameByRowId(power.getteamMemberowId()));
-        Model.addAttribute("group", DB.Instance.getGroupByRowid(power.getteamMemberowId()));
-        return "indexboard";
+        Model.addAttribute("username", DB.Instance.getNameByRowId(power.getteamMemberowId()));//登陆人名字
+        Model.addAttribute("group", group);//登陆人所在组
+        Model.addAttribute("group_teams", DB.Instance.getTeammembers(power.getteamMemberowId()));//登陆人所在组成员列表
+        Model.addAttribute("knifeCount", DB.Instance.searchKnifeCount(group.getId(),getDate()));//今日出刀数
+        Model.addAttribute("loop",fightStatue.getLoop() );
+        Model.addAttribute("Serial",fightStatue.getSerial() );
+        Model.addAttribute("Remnant",fightStatue.getRemnant() );
+        Model.addAttribute("knives", DB.Instance.searchKnife(null,group.getGroupid(),getLastDate()));
+        Knife knife= DB.Instance.getTopKnife(group.getId(),getLastDate());
+        if(knife!=null){knife.setName(DB.Instance.searchName(knife.getKnifeQQ()));}
+        Model.addAttribute("topKnife",knife );
+
+
+        return "/welcome";
     }
+
+
 }

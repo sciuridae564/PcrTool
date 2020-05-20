@@ -25,7 +25,7 @@ public class MySpringApplication {
     public class RunHomePage implements CommandLineRunner {
         public void run(String... args) throws Exception {
             try {
-                Runtime.getRuntime().exec("cmd /c start http://localhost:8080/index.html");
+                Runtime.getRuntime().exec("cmd /c start http://localhost:8080/login.html");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

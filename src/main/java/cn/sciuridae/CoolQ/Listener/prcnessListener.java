@@ -458,7 +458,7 @@ public class prcnessListener {
     public void Gashapon__(GroupMsg msg, MsgSender sender) {
 //        if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(300));
-            reFlashCoolDown(msg.getQQCode());
+//            reFlashCoolDown(msg.getQQCode());
 //        } else {
 //            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在冷却中");
 //        }
@@ -469,7 +469,7 @@ public class prcnessListener {
     public void Gashapon___(GroupMsg msg, MsgSender sender) {
 //        if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(300));
-            reFlashCoolDown(msg.getQQCode());
+//            reFlashCoolDown(msg.getQQCode());
 //        } else {
 //            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在冷却中");
 //        }
@@ -619,18 +619,18 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "改名.*")
+    @Filter(value = "#改名.*")
     public void reName(GroupMsg msg, MsgSender sender) {
         String newName = msg.getMsg();
         newName = newName.replaceAll(" +", "");
-        newName = newName.substring(2);
+        newName = newName.substring(3);
 
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.Instance.changeName(msg.getQQCode(), newName));
 
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "改工会名.*")
+    @Filter(value = "#改工会名.*")
     public void reGroupName(GroupMsg msg, MsgSender sender) {
         if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
             String newName = msg.getMsg();
@@ -745,7 +745,6 @@ public class prcnessListener {
                 tw++;
             }
         }
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
         HashMap<String, Integer> map1 = new HashMap<>();
         HashMap<String, Integer> map2 = new HashMap<>();
         HashMap<String, Integer> map3 = new HashMap<>();

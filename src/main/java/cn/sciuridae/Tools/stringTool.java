@@ -161,4 +161,15 @@ public class stringTool {
         return localDateTime.format(dateTimeFormatter);
     }
 
+    //获取公主连接上一天的时间---指每天5点才算明天
+    public static String getLastDate(){
+        LocalDateTime  localDateTime=LocalDateTime.now();
+        localDateTime=localDateTime.plusDays(-1);
+        if(localDateTime.getHour()<5){      //若为陵城5点之前则为上一天
+            localDateTime= localDateTime.plusDays(-1);
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormat);
+        return localDateTime.format(dateTimeFormatter);
+    }
+
 }

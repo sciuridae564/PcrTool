@@ -5,6 +5,7 @@ package cn.sciuridae.DB.bean;
 public class Knife {
     private int id;//出刀序号
     private String knifeQQ;//出刀人qq
+    private String name;//出刀人名字
     private int no;//出刀几王,11 是一轮一王，23是二轮3王
     private int hurt;//伤害
     private String date;//出刀时间，即使是第二天3点也算第一天
@@ -33,12 +34,37 @@ public class Knife {
         this.date = date;
         this.complete = complete;
     }
-
+    public Knife(int rowid,String knifeQQ, int no, int hurt, String date, boolean complete) {
+        this.id=rowid;
+        this.knifeQQ = knifeQQ;
+        this.no = no;
+        this.hurt = hurt;
+        this.date = date;
+        this.complete = complete;
+    }
     public Knife(String knifeQQ, int no, int hurt, String date) {
         this.knifeQQ = knifeQQ;
         this.no = no;
         this.hurt = hurt;
         this.date = date;
+    }
+
+    public Knife(int id, String knifeQQ, String name, int no, int hurt, String date, boolean complete) {
+        this.id = id;
+        this.knifeQQ = knifeQQ;
+        this.name = name;
+        this.no = no;
+        this.hurt = hurt;
+        this.date = date;
+        this.complete = complete;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getKnifeQQ() {
@@ -94,6 +120,7 @@ public class Knife {
         return "Knife{" +
                 "id=" + id +
                 ", knifeQQ='" + knifeQQ + '\'' +
+                ", name='" + name + '\'' +
                 ", no=" + no +
                 ", hurt=" + hurt +
                 ", date='" + date + '\'' +
