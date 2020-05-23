@@ -47,10 +47,10 @@
                     <button class="layui-btn" onclick="member_add()">
                         <i class="layui-icon">&#xe654;</i>出刀</button></div>
                 <div class="layui-card-body ">
-                    <table class="layui-table layui-form" lay-filter="knife">
+                    <table class="layui-table layui-form" lay-filter="knife" id="knifeTable">
                         <thead>
                         <tr>
-                            <th lay-data="{ sort:true}">序号</th>
+                            <th lay-fileNames="{ sort:true}">序号</th>
                             <th>出刀人qq</th>
                             <th>昵称</th>
                             <th>周目</th>
@@ -115,6 +115,7 @@
 
             $("#knife").html(html);
         }
+
     }
 
     /*用户-删除*/
@@ -235,6 +236,28 @@
         });
     }
     window.onload=frash;//加载数据
+
+    //设置日期选择框
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#start', //指定元素
+            type: 'date', //指定元素
+            max :0
+        });
+
+        var laydate1 = layui.laydate;
+        laydate1.render({
+            elem: '#end', //指定元素
+            type: 'date',
+            format:"yy:MM:dd",//指定元素
+            max :0
+        });
+    });
+
+    table.reload('knifeTable',{
+
+    });
 </script>
 
 </body>

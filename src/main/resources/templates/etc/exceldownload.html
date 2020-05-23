@@ -24,25 +24,43 @@
 </head>
 <body>
 <div class="layui-collapse">
-    <div class="layui-colla-item">
-        <h2 class="layui-colla-title">杜甫</h2>
-        <div class="layui-colla-content layui-show">内容区域</div>
-    </div>
-    <div class="layui-colla-item">
-        <h2 class="layui-colla-title">李清照</h2>
-        <div class="layui-colla-content layui-show">内容区域</div>
-    </div>
-    <div class="layui-colla-item">
-        <h2 class="layui-colla-title">鲁迅</h2>
-        <div class="layui-colla-content layui-show">内容区域</div>
-    </div>
+    <table class="layui-table" lay-even lay-skin="nob">
+        <thead>
+            <tr>
+                <th>这就是excel表格辣</th>
+            </tr>
+        </thead>
+        <tbody id="excel">
+
+        </tbody>
+    </table>
 </div>
 
 
 
 <script type="text/javascript">
+    function frash() {
+        var xhr=new XMLHttpRequest();
+        xhr.open('get','/excel/List');
+        xhr.send();
+        xhr.dataType="json"
+        xhr.onload=function (){
+            var data=JSON.parse(xhr.responseText);
+            var filename=data.fileNames;
+            var fileAbsolutePaths=data.fileAbsolutePaths;
+            console.log(filename)
+            console.log(fileAbsolutePaths)
+            var html='';
+            for(var i=0;i<filename.length;i++){
+                html+='<tr><td>'
+                html+='<a href="/downloadFile?fileName='+filename[i]+'"  download="'+filename[i]+'">'+filename[i]+'</a>'
+                html+='</td></tr>'
+            }
+            $("#excel").html(html);
+        }
+    }
 
-
+    window.onload=frash;//加载数据
 </script>
 </body>
 </html>

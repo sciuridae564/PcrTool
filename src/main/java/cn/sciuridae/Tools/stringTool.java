@@ -141,7 +141,7 @@ public class stringTool {
         return result;
     }
 
-    //单日表
+    //单日表文件名
     public static String getExcelFileName(String GroupQQ, Date date) {
         return (ExcelDir + GroupQQ + "/" + dfForFile.format(date) + ".xls");
     }
@@ -149,6 +149,11 @@ public class stringTool {
     //总结表
     public static String getExcelFileName(String GroupQQ, Date stratDate, Date endDate) {
         return ExcelDir + GroupQQ + "/" + dfForFile.format(stratDate) + "到" + dfForFile.format(endDate) + ".xls";
+    }
+
+    //整个工会excle文件路径
+    public static String getExcelDirName(String GroupQQ) {
+        return (ExcelDir + GroupQQ+"/");
     }
 
     //获取公主连接时间---指每天5点才算明天
@@ -172,4 +177,40 @@ public class stringTool {
         return localDateTime.format(dateTimeFormatter);
     }
 
+    //获取字符集名字
+    public static String getEncoding(String str) {
+        String encode = "GB2312";
+        try {
+            if (str.equals(new String(str.getBytes(encode), encode))) {      //判断是不是GB2312
+                String s = encode;
+                return s;      //是的话，返回“GB2312“，以下代码同理
+            }
+        } catch (Exception exception) {
+        }
+        encode = "ISO-8859-1";
+        try {
+            if (str.equals(new String(str.getBytes(encode), encode))) {      //判断是不是ISO-8859-1
+                String s1 = encode;
+                return s1;
+            }
+        } catch (Exception exception1) {
+        }
+        encode = "UTF-8";
+        try {
+            if (str.equals(new String(str.getBytes(encode), encode))) {   //判断是不是UTF-8
+                String s2 = encode;
+                return s2;
+            }
+        } catch (Exception exception2) {
+        }
+        encode = "GBK";
+        try {
+            if (str.equals(new String(str.getBytes(encode), encode))) {      //判断是不是GBK
+                String s3 = encode;
+                return s3;
+            }
+        } catch (Exception exception3) {
+        }
+        return "";        //如果都不是，说明输入的内容不属于常见的编码格式。
+    }
 }

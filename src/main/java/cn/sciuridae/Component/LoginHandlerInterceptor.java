@@ -15,7 +15,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         Object power= httpServletRequest.getSession().getAttribute("token");
         if(power==null){
             httpServletRequest.setAttribute("msg","还未登录");
-            httpServletRequest.getRequestDispatcher("/index.html").forward(httpServletRequest,httpServletResponse);
+            httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest,httpServletResponse);
             return false;
         }else {
             return true;

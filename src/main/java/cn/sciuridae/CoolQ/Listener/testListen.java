@@ -3,54 +3,83 @@ package cn.sciuridae.CoolQ.Listener;
 import cn.sciuridae.DB.sqLite.DB;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.sender.MsgSender;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static cn.sciuridae.Tools.stringTool.getEncoding;
+import static cn.sciuridae.Tools.stringTool.spiltByte;
 import static cn.sciuridae.constant.*;
 
 @Service
 public class testListen {
-    @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"测试"})
-    public void testListern(PrivateMsg msg, MsgSender sender) {
-        //System.out.println(sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1));
-//        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
-//        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-//        for (String s:strings){
-//            System.out.println(s);
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"测试.*"})
+    public void testListern(GroupMsg msg, MsgSender sender) {
+        String needTran = msg.getMsg().replaceAll(" +", "");
+//        try {
+//            needTran=new String(getUTF8BytesFromGBKString(needTran), "UTF-8");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
 //        }
-//        List<Integer> list= DB.Instance.getAllGroupQQInFight();
-//        File file=new File("test.xls");
-//        excelWrite excelWrite=new excelWrite(file);
-//        excelWrite.writedDate();
-//        excelWrite.reflashFile();
-        System.out.println("aaaaaaaaaaaaaaaaaaaa");
-        List<Integer> list = DB.Instance.searchDeadLineGroup();
-        //清理数据
-        Map<String, List<String>> map = DB.Instance.clearTree(list);
-        DB.Instance.endFight(list);
-        Set<String> GroupQQs = map.keySet();
-        StringBuilder stringBuilder = new StringBuilder();
-        List<String> badMan;
-        for (String GroupQQ : GroupQQs) {
-            stringBuilder.delete(0, stringBuilder.length());
-            badMan = map.get(GroupQQ);
-            stringBuilder.append("会战结束，辛苦辛苦\n");
-            if(badMan!=null){
-                stringBuilder.append("但是：");
-                for (String QQ : badMan) {
-                    stringBuilder.append("[CQ:at,qq=").append(QQ).append("] ");
-                }
-                stringBuilder.append("他们还在出刀。都已经结束啦");
-            }
-            sender.SENDER.sendPrivateMsg("1728817446", stringBuilder.toString());
-        }
-
+//        if (needTran.length() > 2) {
+//            needTran = needTran.substring(2);
+//            byte[] bytes = needTran.getBytes();
+//            StringBuilder tranled = new StringBuilder();
+//            StringBuilder tranled1 = new StringBuilder();
+//
+//            for (int i = 0; i < bytes.length; i++) {
+//                tranled1.append("|"+bytes[i]);
+//                int[] cache = spiltByte(bytes[i] < 0 ? -bytes[i] + 127 : bytes[i]);
+//                tranled1.append("+"+cache[0]+"-"+cache[1]);
+//                tranled.append(QieLU[cache[0]]);
+//                tranled.append(QieLU[cache[1]]);
+//                tranled1.append("+"+QieLU[cache[0]]+"-"+QieLU[cache[1]]);
+//            }
+//            sender.SENDER.sendGroupMsg(msg.getGroupCode(), tranled.toString()+tranled1.toString());
+//            sender.SENDER.sendGroupMsg(msg.getGroupCode(), msg.getMsg());
+//        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), getEncoding(needTran));
+//        }
     }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"给爷整个活"})
+    public void testListern1(GroupMsg msg, MsgSender sender) {
+       if(msg.getQQCode().equals("1728817446")){
+           sender.SENDER.sendGroupMsg(msg,"[CQ:at,qq=all]");
+       }
+    }
+
+    public static byte[] getUTF8BytesFromGBKString(String gbkStr) {
+        int n = gbkStr.length();
+        byte[] utfBytes = new byte[3 * n];
+        int k = 0;
+        for (int i = 0; i < n; i++) {
+            int m = gbkStr.charAt(i);
+            if (m < 128 && m >= 0) {
+                utfBytes[k++] = (byte) m;
+                continue;
+            }
+            utfBytes[k++] = (byte) (0xe0 | (m >> 12));
+            utfBytes[k++] = (byte) (0x80 | ((m >> 6) & 0x3f));
+            utfBytes[k++] = (byte) (0x80 | (m & 0x3f));
+        }
+        if (k < utfBytes.length) {
+            byte[] tmp = new byte[k];
+            System.arraycopy(utfBytes, 0, tmp, 0, k);
+            return tmp;
+        }
+        return utfBytes;
+    }
+
+
 }

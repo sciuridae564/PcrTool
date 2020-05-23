@@ -24,14 +24,14 @@ public class FightController {
     public String dosome( HttpSession session ,Model model) {
         DB.Power power= (DB.Power)session.getAttribute("token");
         model.addAttribute("Power",power.getPower());//设置权限
-        return "/Fight/SimpleFight";
+        return "Fight/SimpleFight";
     }
 
     @RequestMapping( value="/Fight/List")
     public String list(HttpSession session ,Model model) {
         DB.Power power= (DB.Power)session.getAttribute("token");
         model.addAttribute("Power",power.getPower());//设置权限
-        return "/Fight/FightList";
+        return "Fight/FightList";
     }
 
     //正在出刀数据请求
@@ -129,7 +129,7 @@ public class FightController {
         model.addAttribute("time", getDate());
         model.addAttribute("fightStatue", fightStatue);
 
-        return  "/Fight/add";
+        return  "Fight/add";
     }
 
     //添加一个出刀信息
@@ -149,7 +149,7 @@ public class FightController {
         Knife knife=DB.Instance.getKnife(id);
         model.addAttribute("knife",knife);
 
-        return  "/Fight/edit";
+        return  "Fight/edit";
     }
 
     @RequestMapping(value = "/Fight/edit1")
@@ -171,7 +171,7 @@ public class FightController {
         FightStatue fightStatue= DB.Instance.searchFightStatue(group.getId());
         model.addAttribute("fightStatue",fightStatue);
 
-        return  "/Fight/editboss";
+        return  "Fight/editboss";
     }
 
     @PostMapping(value = "/Fight/editBoss1")

@@ -10,47 +10,47 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/login.css">
     <link rel="stylesheet" href="/css/xadmin.css">
-    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript"  src="/static/js/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/layer/layer.js" charset="utf-8"></script>
     <!--[if lt IE 9]>
       <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
       <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
 <body class="login-bg">
-    
+
     <div class="login layui-anim layui-anim-up">
         <div class="message">登录</div>
         <div id="darkbannerwrap"></div>
-        
+        <p th:if="${not #strings.isEmpty(msg)}" th:text="${msg}">
         <form class="layui-form" >
             <input name="token" id="token" placeholder="请输入密匙"  type="text" lay-verify="required" class="layui-input" >
             <hr class="hr15">
-            <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit" >
+            <input value="登录"  style="width:100%;" type="button" onclick="_submit()">
             <hr class="hr20" >
         </form>
     </div>
 
     <script type="text/javascript">
-        $(function  () {
-            layui.use('form', function(){
-                var form = layui.form;
-                //监听提交
-                form.on('submit(login)', function(){
-                    var xhr=new XMLHttpRequest();xhr.open('get','/user/login?token='+document.getElementById('token').value);
-                    xhr.send();
-                    xhr.onload=function (){
-                        if(JSON.parse(xhr.responseText)){
-                            location.href='/index'
-                            return false;
-                        }
+        function _submit() {
+            var xhr=new XMLHttpRequest();
+            xhr.open('get','/user/check?token='+document.getElementById('token').value);
+            xhr.send();
+            xhr.onload=function (){
+                console.log(xhr.responseText)
+                if(JSON.parse(xhr.responseText)){
+                    location.href='/index'
+                }else {
+                    layui.use("layer",function () {
+                        var layer=layui.layer;
                         layer.msg('密匙错误');
-                    }
-                    return false;
-                });
-            });
-        })
-    </script>
+                    })
+                }
 
+        }
+        }
+
+    </script>
 </body>
 </html>

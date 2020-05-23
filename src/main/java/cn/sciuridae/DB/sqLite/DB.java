@@ -338,7 +338,7 @@ public class DB {
                     String sql2 = "insert into teamMember(userQQ,id,name,power) values(\"" +
                             teamMember.getUserQQ() + "\","
                             + i.get(0) + ",\""
-                            + (teamMember.getName() != null && teamMember.getName().length() != 0 ? pcrGroupMap.get(teamMember.getUserQQ()) : teamMember.getName()) + "\","
+                            + (teamMember.getName() != null && teamMember.getName().length() != 0 ?  teamMember.getName():pcrGroupMap.get(teamMember.getUserQQ())) + "\","
                             + (teamMember.isPower() ? 1 : 0)
                             + ")";
                     h.executeUpdate(sql2);//插入表中占个坑
@@ -849,6 +849,7 @@ public class DB {
                     stringBuilder.append("update progress set ").append("Remnant=").append(list.get(0)[2] - hurt).append(" where id=").append(list.get(0)[3]);
                     h.executeUpdate(stringBuilder.toString());
                     complete = true;
+
                     //没打穿boss
                 }else {
                     hurt_active = list.get(0)[2];//伤害打穿了，进入下一模式
@@ -1398,7 +1399,7 @@ public class DB {
      * @param GroupQQ
      * @return 获取挂树人的qq列表
      */
-    public List<String> searchTree(String GroupQQ) {
+    public synchronized List<String> searchTree(String GroupQQ) {
         String sql = "select tree.* from tree join teamMember on teamMember.userQQ=tree.userId" +
                 "                       join _group on _group.id=teamMember.id" +
                 " where isTree=1 and _group.groupid=\"" + GroupQQ + "\"";
@@ -1422,7 +1423,7 @@ public class DB {
      * @param GroupQQ
      * @return 获取挂树人的qq列表
      */
-    public List<String> searchOutKnife(String GroupQQ) {
+    public synchronized List<String> searchOutKnife(String GroupQQ) {
         String sql = "select tree.* from tree join teamMember on teamMember.userQQ=tree.userId" +
                 "                       join _group on _group.id=teamMember.id" +
                 " where isTree=0 and _group.groupid=\"" + GroupQQ + "\"";
@@ -1774,7 +1775,7 @@ public class DB {
                 new Knife(rs.getInt("rowid"),rs.getString("knifeQQ"),rs.getInt("no"),rs.getInt("hurt"),
                 date,rs.getBoolean("complete"));
         List<Knife> knives=null;
-
+        System.out.println(sql);
         try {
             knives =h.executeQuery(sql,rowMapper);
         } catch (SQLException e) {
@@ -1787,7 +1788,7 @@ public class DB {
         return knives;
     }
 
-    public String getNameByRowId(int id){
+    public synchronized String getNameByRowId(int id){
         String sql="select name from teamMember where rowid="+id;
         RowMapper<String> rowMapper= (rs, index) -> rs.getString("name");
         String name=null;
@@ -1808,7 +1809,7 @@ public class DB {
      * @param rowid
      * @return
      */
-    public Group getGroupByRowid(int rowid){
+    public synchronized Group getGroupByRowid(int rowid){
         String sql="select _group.* from _group join teamMember on teamMember.id=_group.id where teamMember.rowid="+rowid;
         RowMapper<Group> rowMapper= (rs, index) -> new Group(rs.getInt("id"),rs.getString("groupid"),rs.getString("groupName"),rs.getString("groupMasterQQ"),rs.getString("createDate"));
         Group group=null;
@@ -1828,7 +1829,7 @@ public class DB {
      * @param rowid
      * @return
      */
-    public List<teamMember> getTeamByRowid(int rowid){
+    public synchronized List<teamMember> getTeamByRowid(int rowid){
         String sql="select a.rowid,a.* from teamMember as a,teamMember as b where a.id=b.id and b.rowid="+rowid;
         RowMapper<teamMember> rowMapper= (rs, index) ->
                 new teamMember(rs.getString("userQQ"),
@@ -1849,7 +1850,7 @@ public class DB {
     }
 
     //通过行号找这个人的资料
-    public teamMember getteamMemberByrow(int row){
+    public synchronized teamMember getteamMemberByrow(int row){
         String sql="select * from teamMember where rowid="+row;
         RowMapper<teamMember> rowMapper= (rs, index) -> new teamMember(rs.getString("userQQ"),
                 rs.getBoolean("power"),
@@ -1872,7 +1873,7 @@ public class DB {
      * @param row
      * @return
      */
-    public int getPower(int row){
+    public synchronized int getPower(int row){
         String sql="select * from teamMember where rowid="+row;//先把这个人所在的会查出来
         RowMapper<teamMember> rowMapper= (rs, index) -> new teamMember(rs.getString("userQQ"),rs.getBoolean("power"),rs.getInt("id"),null);
         teamMember teamMember;
@@ -1902,7 +1903,7 @@ public class DB {
      * @param rowid
      * @return
      */
-    public List<teamMember> getTeammembers(int rowid){
+    public synchronized List<teamMember> getTeammembers(int rowid){
         String sql="select * from teamMember where id=(select id from teamMember where rowid ="+rowid+")";
         RowMapper<teamMember> rowMapper= (rs, index) -> new teamMember(rs.getString("userQQ"),rs.getBoolean("power"),rs.getInt("id"),rs.getString("name"));
         List<teamMember> teamMembers=null;
@@ -1923,7 +1924,7 @@ public class DB {
      * @param time
      * @return
      */
-    public int searchKnifeCount(int group ,String time){
+    public synchronized int searchKnifeCount(int group ,String time){
         String sql="select count(*) from knife join teamMember on teamMember.userQQ=knife.knifeQQ " +
                 "where complete =1 and date=\""+time+"\" and  teamMember.id="+group;
         RowMapper<Integer> rowMapper= (rs, index) -> rs.getInt("count(*)");
@@ -1944,7 +1945,7 @@ public class DB {
      * @param group
      * @return
      */
-    public FightStatue searchFightStatue(int group){
+    public synchronized FightStatue searchFightStatue(int group){
         String sql="select * from progress where id="+group;
         RowMapper<FightStatue> rowMapper= new RowMapper<FightStatue>() {
             @Override
@@ -1972,7 +1973,7 @@ public class DB {
         return fightStatue;
     }
 
-    public boolean addKnife(String QQ,int loop,int seri,int hurt ,String date){
+    public synchronized boolean addKnife(String QQ,int loop,int seri,int hurt ,String date){
         FightStatue fightStatue=searchFightStatue(QQ);//搜索boss状态
         String groupQQ=searchGroupQQByQQ(QQ);
 
@@ -2037,7 +2038,7 @@ public class DB {
     }
 
 
-    public Knife getKnife(int id){
+    public synchronized Knife getKnife(int id){
         String sql="select * from knife where rowid="+id;
         RowMapper<Knife> rowMapper= (RowMapper<Knife>) (rs, index) ->
                 new Knife(id,rs.getString("knifeQQ"),rs.getInt("no"),rs.getInt("hurt"),
@@ -2055,7 +2056,7 @@ public class DB {
         return null;
     }
 
-    public int updateKnife(String userQQ,int hurt,int loop,int serial,String time ,int id){
+    public synchronized int updateKnife(String userQQ,int hurt,int loop,int serial,String time ,int id){
 
        String sql="update knife  set knifeQQ=\""+userQQ+"\" ,no="+loop+serial+",hurt="+hurt+",date=\""+time+" \"  where rowid="+id;
         try {
@@ -2072,7 +2073,7 @@ public class DB {
      * 获取当日最高伤害的三刀总和
      * @return
      */
-    public Knife getTopKnife(int id,String time ){
+    public synchronized Knife getTopKnife(int id,String time ){
         String sql="select sum(knife.hurt),knife.knifeQQ from knife" +
                 " where date=\""+time+"\" and knifeQQ in ( select userQQ from teamMember where id=" +id+")"+
                 "group by knifeQQ ";
@@ -2102,7 +2103,7 @@ public class DB {
      * @param time
      * @return
      */
-    public List<Knife> getAllKnife(int groupid,String time){
+    public synchronized List<Knife> getAllKnife(int groupid,String time){
         String sql="select sum(knife.hurt),knife.knifeQQ from knife" +
                 " where date=\""+time+"\" and knifeQQ in ( select userQQ from teamMember where id=" +groupid+")"+
                 "group by knifeQQ ";

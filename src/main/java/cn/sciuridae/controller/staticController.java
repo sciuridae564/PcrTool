@@ -46,7 +46,7 @@ public class staticController {
         model.addAttribute("hurtSum",sum);
         model.addAttribute("kingcount",((max/10)-(min/10))*5+max%10-min%10);
 
-        return "/Fight/static";
+        return "Fight/static";
     }
 
     //返回那天的刀
@@ -63,7 +63,6 @@ public class staticController {
         }
         ReportDataBean reportDataBean=new ReportDataBean(categories,data);
         JSONObject jsonObj = (JSONObject) JSON.toJSON(reportDataBean);
-        System.out.println(jsonObj);
         return jsonObj;//现在就是今天的刀
     }
 

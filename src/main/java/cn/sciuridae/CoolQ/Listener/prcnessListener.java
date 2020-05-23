@@ -15,6 +15,9 @@ import com.forte.qqrobot.utils.CQCodeUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ import java.util.*;
 
 import static cn.sciuridae.Tools.stringTool.*;
 import static cn.sciuridae.constant.*;
+import static java.nio.charset.StandardCharsets.*;
 
 @Service
 public class prcnessListener {
@@ -32,7 +36,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#帮助.*" ,at = true)
     public void testListen1(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), helpMsg);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), helpMsg);
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -442,19 +446,19 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "up十连")
+    @Filter(value = "#up十连")
     public void Gashapon(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(10));
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "十连")
+    @Filter(value = "#十连")
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(10));
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "井")
+    @Filter(value = "#井")
     public void Gashapon__(GroupMsg msg, MsgSender sender) {
 //        if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(300));
@@ -465,7 +469,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "up井")
+    @Filter(value = "#up井")
     public void Gashapon___(GroupMsg msg, MsgSender sender) {
 //        if (isCool(msg.getQQCode())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(300));
@@ -476,7 +480,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "up抽卡.*")
+    @Filter(value = "#up抽卡.*")
     public void Gashapon____(GroupMsg msg, MsgSender sender) {
         String str = msg.getMsg().replaceAll(" +", "");
         int q = Integer.parseInt(str.substring(4));
@@ -484,7 +488,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "抽卡.*")
+    @Filter(value = "#抽卡.*")
     public void Gashapon_____(GroupMsg msg, MsgSender sender) {
 
         String str = msg.getMsg().replaceAll(" +", "");
@@ -577,14 +581,20 @@ public class prcnessListener {
         String needTran = msg.getMsg().replaceAll(" +", "");
         if (needTran.length() > 2) {
             needTran = needTran.substring(2);
-            byte[] bytes = needTran.getBytes();
             StringBuilder tranled = new StringBuilder();
 
+            byte[] bytes = new byte[0];
+            try {
+                bytes = needTran.getBytes("utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             for (int i = 0; i < bytes.length; i++) {
                 int[] cache = spiltByte(bytes[i] < 0 ? -bytes[i] + 127 : bytes[i]);
                 tranled.append(QieLU[cache[0]]);
                 tranled.append(QieLU[cache[1]]);
             }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), String.valueOf(needTran.getBytes().length));
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), tranled.toString());
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要翻译的语句哎");
@@ -598,6 +608,7 @@ public class prcnessListener {
         needTran = needTran.replaceAll(",", "%%");
         needTran = needTran.replaceAll("扣", "扣扣");
         needTran = needTran.substring(4);
+
         if (needTran.length() > 0) {
             ArrayList<Byte> bytes = new ArrayList<Byte>();
             //防止前面和最后出现"，"这个不和谐因素
@@ -966,7 +977,6 @@ public class prcnessListener {
         String QQ=msg.getQQCode();
         sender.SENDER.sendPrivateMsg(QQ,"你的码是："+ DB.Instance.getToken(QQ));
     }
-
 
 
 }

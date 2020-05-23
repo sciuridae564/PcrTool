@@ -106,7 +106,7 @@
                 <table class="layui-table"  >
                     <thead>
                     <tr>
-                        <th lay-data="{ sort: true}">出刀序号</th>
+                        <th lay-fileNames="{ sort: true}">出刀序号</th>
                         <th>周目</th>
                         <th>王位</th>
                         <th>伤害</th>
@@ -126,7 +126,7 @@
                 <table  class="layui-table" >
                     <thead>
                     <tr>
-                        <th lay-data="{ sort: true}">QQ</th>
+                        <th lay-fileNames="{ sort: true}">QQ</th>
                         <th>昵称</th>
                     </tr>
                     </thead>
@@ -143,7 +143,7 @@
                 <table class="layui-table"  >
                     <thead>
                     <tr>
-                        <th lay-data="{ sort: true}">QQ</th>
+                        <th lay-fileNames="{ sort: true}">QQ</th>
                         <th>昵称</th>
                     </tr>
                     </thead>
@@ -210,7 +210,7 @@
             for(var i=0;i<date.length;i++){
                 html+='<tr>'+'<td>'+date[i].id+'</td>'+'<td>'+(date[i].no-date[i].no%10)/10+'</td>'+'<td>'+date[i].no%10+'</td>'+'<td>'+date[i].hurt+'</td>'+'</tr>'
                 if(date[i].complete){ sum++;}
-            }console.log(sum)
+            }
             if(parseInt(sum)>2){
                 document.getElementById("addKnife").classList.add('layui-btn-disabled')
             }

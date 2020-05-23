@@ -6,6 +6,7 @@ import cn.sciuridae.DB.bean.teamMember;
 import cn.sciuridae.DB.sqLite.DB;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,9 +22,9 @@ import static cn.sciuridae.Tools.stringTool.getDate;
 @Controller
 public class LoginController {
 
-    @RequestMapping( value="/user/login")
+    @GetMapping( value="/user/check")
     @ResponseBody
-    public boolean dosome(String token, HttpSession session) {
+    public boolean dosome(@RequestParam("token") String token, HttpSession session) {
         DB.Power power= DB.Instance.checkPower(token);
         if(power!=null){
             session.setAttribute("token",power);

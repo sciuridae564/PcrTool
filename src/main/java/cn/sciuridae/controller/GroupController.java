@@ -19,12 +19,12 @@ public class GroupController {
     public String base(HttpSession session, Model model){
         DB.Power power=(DB.Power)session.getAttribute("token");
         model.addAttribute("power",power.getPower());
-        return "/team/list";
+        return "team/list";
     }
 
     @GetMapping(value = "/group/list")
     @ResponseBody
-    public List<teamMember> geteam(HttpSession session){
+    public synchronized List<teamMember> geteam(HttpSession session){
         DB.Power power=(DB.Power)session.getAttribute("token");
         Group group=(Group)session.getAttribute("group");
         List<teamMember> teamMembers= DB.Instance.getTeamByRowid(power.getteamMemberowId());
@@ -57,7 +57,7 @@ public class GroupController {
         DB.Power power=(DB.Power)session.getAttribute("token");
         model.addAttribute("teamMember",teamMember);
         model.addAttribute("power",power.getPower());
-        return "/team/edit";
+        return "team/edit";
 
     }
 

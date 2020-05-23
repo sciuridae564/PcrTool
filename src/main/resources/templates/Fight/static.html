@@ -106,16 +106,16 @@
         },
         tooltip: {},
         legend: {
-            data:['总伤害']
+            fileNames:['总伤害']
         },
         xAxis: {
-            data: []
+            fileNames: []
         },
         yAxis: {},
         series: [{
             name: '总伤害',
             type: 'bar',
-            data: []
+            fileNames: []
         }]
     });
 
@@ -141,12 +141,12 @@
                 success:function(jsonData){
                     myChart.setOption({
                         xAxis: {
-                            data: jsonData.categories
+                            fileNames: jsonData.fileAbsolutePaths
                         },
                         series: [{
                             // 根据名字对应到相应的系列
                             name: '总伤害',
-                            data: jsonData.data
+                            fileNames: jsonData.fileNames
                         }]
                     });
                     // 设置加载等待隐藏
@@ -154,7 +154,7 @@
                     myChart.hideLoading();
                     // myChart1.setOption({ //加载数据图表
                     //     legend: {
-                    //         data: jsonData.categories
+                    //         fileNames: jsonData.fileAbsolutePaths
                     //     },
                     //     series : [
                     //         {
@@ -163,7 +163,7 @@
                     //             // 根据名字对应到相应的系列
                     //             name: '伤害',
                     //             type: 'pie',
-                    //             data: jsonData.data
+                    //             fileNames: jsonData.fileNames
                     //         }
                     //     ]
                     // });

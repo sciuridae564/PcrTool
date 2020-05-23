@@ -39,7 +39,7 @@ public class BaseController {
         Model.addAttribute("topKnife",knife );
 
 
-        return "/welcome";
+        return "welcome";
     }
 
 
