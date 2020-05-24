@@ -1,28 +1,24 @@
 package cn.sciuridae.config;
 
+import cn.sciuridae.CoolQ.Listener.prcnessListener;
 import cn.sciuridae.DB.sqLite.DB;
 import cn.sciuridae.constant;
 import com.forte.component.forcoolqhttpapi.CoolQHttpApp;
-import com.forte.component.forcoolqhttpapi.CoolQHttpApplication;
 import com.forte.component.forcoolqhttpapi.CoolQHttpConfiguration;
 import com.forte.qqrobot.SimpleRobotApplication;
 import com.forte.qqrobot.beans.messages.result.GroupList;
 import com.forte.qqrobot.beans.messages.result.GroupMemberList;
 import com.forte.qqrobot.beans.messages.result.inner.Group;
 import com.forte.qqrobot.beans.messages.result.inner.GroupMember;
-import com.forte.qqrobot.exception.BotVerifyException;
-import com.forte.qqrobot.log.LogLevel;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.stereotype.Component;
+
 
 import java.util.*;
 
+import static cn.sciuridae.CoolQ.Listener.prcnessListener.eggOn;
+import static cn.sciuridae.Tools.ApiConnect.getImagePower;
 import static cn.sciuridae.constant.clearTree;
 import static cn.sciuridae.constant.pcrGroupMap;
 
@@ -63,16 +59,26 @@ public class QQRunApp implements CoolQHttpApp {
         }
 
 
-        //获取所有群成员
+        //获取所有群成员昵称和权限
         pcrGroupMap = new HashMap<>();
+        eggOn=new HashMap<>();
+        prcnessListener.powerList=new HashMap<>();
         GroupList groups = sender.GETTER.getGroupList();
         for (Group group : groups.getList()) {
             GroupMemberList groupMember = sender.GETTER.getGroupMemberList(group.getCode());
+            List<String> list=new ArrayList<>();
+            eggOn.put(group.getCode(),true);
             for (GroupMember s : groupMember) {
                 pcrGroupMap.put(s.getQQ(), s.getName());
+                if(s.getPower().isAdmin()||s.getPower().isOwner()){
+                    list.add(s.getQQ());
+                }
             }
+            prcnessListener.powerList.put(group.getCode(),list);
         }
 
+        //获取这个机器人能不能发图片
+        constant.canSendImage=getImagePower();
         System.out.println("启动成功");
         System.out.println("启动成功");
         System.out.println("启动成功");

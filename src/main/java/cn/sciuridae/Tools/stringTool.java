@@ -213,4 +213,6 @@ public class stringTool {
         }
         return "";        //如果都不是，说明输入的内容不属于常见的编码格式。
     }
+
+
 }

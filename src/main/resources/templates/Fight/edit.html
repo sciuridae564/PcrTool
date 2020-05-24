@@ -54,10 +54,25 @@
     <div class="layui-form-item" >
         <label class="layui-form-label">日期</label>
         <div class="layui-input-block">
-            <input type="text" id="time" required   autocomplete="off" class="layui-input" th:value="${knife.getDate()}">
+            <input class="layui-input"  id="time"  >
         </div>
     </div>
+    <script type="text/javascript">
+        //设置日期选择框
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#time', //指定元素
+                type: 'date', //指定元素
+                format:"y:MM:dd",//指定元素
+                value:"[[${knife.getDate()}]]",
+                max :0
+            });
 
+        });
+    </script>
 </form>
+
+
 </body>
 </html>

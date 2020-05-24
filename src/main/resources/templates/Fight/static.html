@@ -26,9 +26,12 @@
         <div class="layui-col-md12">
             <div class="layui-card">
                 <div class="layui-card-header" >
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal "  onclick="select() " style="float:right">
+                        <i class="layui-icon">&#xe666;</i>
+                    </button>
                 </div>
                 <div class="layui-card-body "><!--日期选项卡占位-->
-
+                    <input class="layui-input" placeholder="日期" name="date" id="date"></div>
                 </div>
             </div>
         </div>
@@ -45,21 +48,21 @@
                             <a href="javascript:;" class="x-admin-backlog-body">
                                 <h3>出完刀人数</h3>
                                 <p>
-                                    <cite th:text="${allKnifecount}"></cite></p>
+                                    <cite id="outsum" th:text="${allKnifecount}"></cite></p>
                             </a>
                         </li>
                         <li class="layui-col-md2 layui-col-xs6">
                             <a href="javascript:;" class="x-admin-backlog-body">
                                 <h3>总伤害</h3>
                                 <p>
-                                    <cite th:text="${hurtSum}==0?'--':${hurtSum}"></cite></p>
+                                    <cite id="hurtsum" th:text="${hurtSum}==0?'--':${hurtSum}"></cite></p>
                             </a>
                         </li>
                         <li class="layui-col-md2 layui-col-xs6">
                             <a href="javascript:;" class="x-admin-backlog-body">
                                 <h3>共击败王数</h3>
                                 <p>
-                                    <cite th:text="${kingcount}!=null?${kingcount}:'--'"></cite></p>
+                                    <cite id="kingsum" th:text="${kingcount}==-5000?${kingcount}:'--'"></cite></p>
                             </a>
                         </li>
 
@@ -81,18 +84,6 @@
             </div>
         </div>
     </div>
-
-    <!--<div class="layui-row layui-col-space15">-->
-        <!--<div class="layui-col-md12">-->
-            <!--<div class="layui-card">-->
-                <!--<div class="layui-card-header" >伤害饼状图-->
-                <!--</div>-->
-                <!--<div class="layui-card-body "  id="bing" style="height:500px;">-->
-
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
 
 </div>
 
@@ -119,18 +110,6 @@
         }]
     });
 
-    //初始化饼图
-    //
-    // var myChart1 = echarts.init(document.getElementById("bing"));
-    // option = {
-    //     tooltip: {
-    //         trigger: 'item',
-    //         formatter: '{a} <br/>{b}: {c} ({d}%)'
-    //     },
-    //     backgroundColor: '#2c343c',
-    // };
-    // myChart1.setOption(option);
-
     //刷新
     function frash() {
         myChart.showLoading({text: '正在努力的读取数据中...'  });
@@ -152,25 +131,66 @@
                     // 设置加载等待隐藏
                     console.log(jsonData)
                     myChart.hideLoading();
-                    // myChart1.setOption({ //加载数据图表
-                    //     legend: {
-                    //         fileNames: jsonData.fileAbsolutePaths
-                    //     },
-                    //     series : [
-                    //         {
-                    //             radius: '55%',
-                    //             roseType: 'radius',
-                    //             // 根据名字对应到相应的系列
-                    //             name: '伤害',
-                    //             type: 'pie',
-                    //             fileNames: jsonData.fileNames
-                    //         }
-                    //     ]
-                    // });
                 }
             });
 
     }
+
+    function select(){
+        myChart.showLoading({text: '正在努力的读取数据中...'  });
+
+        var xhr=new XMLHttpRequest();
+        xhr.open('get',"/static/normal?time="+document.getElementById("date").value);
+        xhr.dataType="json";
+        xhr.send();
+        xhr.onload=function (){
+            var jsonData=  JSON.parse(xhr.responseText);
+            console.log(jsonData.allKnifecount);console.log(jsonData.hurtSum);console.log(jsonData.kingcount);
+            document.getElementById("outsum").text=jsonData.allKnifecount;
+            document.getElementById("hurtsum").text=jsonData.hurtSum;
+            document.getElementById("kingsum").text=jsonData.kingcount;
+        }
+
+
+        var xhr1=new XMLHttpRequest();
+        xhr1.open('get',"/static/Knifelist?time="+document.getElementById("date").value);
+        xhr1.dataType="json";
+        xhr1.send();
+        xhr1.onload=function (){
+            var jsonData=  JSON.parse(xhr1.responseText);
+            console.log(jsonData)
+            myChart.setOption({
+                xAxis: {
+                    fileNames: jsonData.categories
+                },
+                series: [{
+                    // 根据名字对应到相应的系列
+                    name: '总伤害',
+                    fileNames: jsonData.data
+                }]
+            });
+            // 设置加载等待隐藏
+            myChart.hideLoading();
+        }
+
+    }
+
+
+
+    //设置日期选择框
+    layui.use('laydate', function() {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#date', //指定元素
+            type: 'date', //指定元素
+            max: 0,
+            format: "y:MM:dd",
+            value:new Date(),
+            done: function(value, date, endDate){
+                select();
+            }
+        });
+    });
 
     window.onload=frash;//加载数据
 </script>

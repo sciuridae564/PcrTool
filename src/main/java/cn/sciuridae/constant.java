@@ -2,6 +2,7 @@ package cn.sciuridae;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 
 public class constant {
     public static final String helpMsg = "命令总览：\n" +
@@ -113,7 +114,7 @@ public class constant {
     public static final SimpleDateFormat df = new SimpleDateFormat(dateFormat);
     public static final String fileTimeFormat = "yy年MM月dd日";
     public static final SimpleDateFormat dfForFile = new SimpleDateFormat(fileTimeFormat);
-
+    public static boolean canSendImage=false;//这个机器人能不能发送图片的标记
 
     static {
         reQieLU.put("切噜", 0);

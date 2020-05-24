@@ -81,6 +81,7 @@ public class FightController {
     public synchronized List<Knife> getgroupKnife(HttpSession session ){
         Group group = (Group) session.getAttribute("group");
         List<Knife>  knives=DB.Instance.searchKnife(null,group.getGroupid(),getDate());
+
         return knives;
     }
 
@@ -97,9 +98,15 @@ public class FightController {
 
     @GetMapping(value = "/Fight/GroupKnifeList")
     @ResponseBody
-    public synchronized List<Knife> getGroupKnife(HttpSession session){
+    public synchronized List<Knife> getGroupKnife(String start,String end,String QQ, HttpSession session){
         DB.Power power= (DB.Power)session.getAttribute("token");
-        List<Knife> knives= DB.Instance.searchKnifeByQQ(power.getteamMemberowId(),getDate() );
+        List<Knife> knives;
+        if(QQ.length()>0){//有qq
+            knives=DB.Instance.searchKnifeByQQ(QQ,start.substring(2),end.substring(2) );
+        }else {
+            knives= DB.Instance.searchKnifeByQQ(power.getteamMemberowId(),start.substring(2),end.substring(2) );
+        }
+
         //处理一下，把昵称整进去
         List<teamMember> teamMembers=DB.Instance.getTeammembers(power.getteamMemberowId());
         Map<String,String> map=new HashMap<>();
@@ -108,6 +115,7 @@ public class FightController {
        }
         for (Knife knife:knives){
             knife.setName(map.get(knife.getKnifeQQ()));
+            System.out.println(knife);
         }
         return knives;
     }
@@ -126,7 +134,7 @@ public class FightController {
         FightStatue fightStatue= DB.Instance.searchFightStatue(group.getId());
         model.addAttribute("power",power.getPower());//权限
         model.addAttribute("userQQ", DB.Instance.searchQQById(power.getteamMemberowId()));
-        model.addAttribute("time", getDate());
+        model.addAttribute("time", "20"+getDate());
         model.addAttribute("fightStatue", fightStatue);
 
         return  "Fight/add";
@@ -136,7 +144,7 @@ public class FightController {
     @RequestMapping(value = "/Fight/add1")
     @ResponseBody
     public synchronized boolean addKnife1(String userQQ,int hurt,int loop,int serial,String time){
-        if(DB.Instance.addKnife(userQQ,loop,serial,hurt,time)){
+        if(DB.Instance.addKnife(userQQ,loop,serial,hurt,time.substring(2))){
             return  true;
         }else {
             return  false;
@@ -146,7 +154,7 @@ public class FightController {
     @RequestMapping(value = "/Fight/edit")
     public synchronized String edit( int id,Model model,HttpSession session){
 
-        Knife knife=DB.Instance.getKnife(id);
+        Knife knife=DB.Instance.getKnife(id);knife.setDate("20"+knife.getDate());
         model.addAttribute("knife",knife);
 
         return  "Fight/edit";
@@ -155,7 +163,7 @@ public class FightController {
     @RequestMapping(value = "/Fight/edit1")
     @ResponseBody
     public synchronized boolean edit1(String userQQ,int hurt,int loop,int serial,String time,int id){
-        if(DB.Instance.updateKnife(userQQ,hurt,loop,serial,time,id)>0){
+        if(DB.Instance.updateKnife(userQQ,hurt,loop,serial,time.substring(2),id)>0){
             return  true;
         }else {
             return  false;
@@ -169,8 +177,9 @@ public class FightController {
         session.getAttribute("group");
         Group group = (Group) session.getAttribute("group");
         FightStatue fightStatue= DB.Instance.searchFightStatue(group.getId());
+        fightStatue.setStartTime("20"+fightStatue.getStartTime());
+        fightStatue.setEndTime("20"+fightStatue.getEndTime());
         model.addAttribute("fightStatue",fightStatue);
-
         return  "Fight/editboss";
     }
 
@@ -178,6 +187,6 @@ public class FightController {
     @ResponseBody
     public synchronized boolean editBoss1(int loop,int remnant,int serial,String StartTime,String EndTime,HttpSession session){
         Group group = (Group) session.getAttribute("group");
-        return DB.Instance.changeBoss(group.getGroupid(),loop,serial,remnant,StartTime,EndTime);
+        return DB.Instance.changeBoss(group.getGroupid(),loop,serial,remnant,StartTime.substring(2),EndTime.substring(2));
     }
 }

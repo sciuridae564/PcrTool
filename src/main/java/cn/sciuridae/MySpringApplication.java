@@ -21,14 +21,14 @@ public class MySpringApplication {
     }
 
     //开启springboot后自动启动一个提示网页
-    @Component
-    public class RunHomePage implements CommandLineRunner {
-        public void run(String... args) throws Exception {
-            try {
-                Runtime.getRuntime().exec("cmd /c start http://localhost:8080/login.html");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
+//    @Component
+//    public class RunHomePage implements CommandLineRunner {
+//        public void run(String... args) throws Exception {
+//            try {
+//                Runtime.getRuntime().exec("cmd /c start http://localhost:8080/login.html");
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+//    }
 }

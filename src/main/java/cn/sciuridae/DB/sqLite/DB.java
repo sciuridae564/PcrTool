@@ -443,6 +443,7 @@ public class DB {
         String newID = "select id from teamMember where userQQ=\"" + newQQ + "\" ";
         RowMapper<Integer> rowMapper = (rs, index) -> rs.getInt("id");
         RowMapper<Integer> rowMapper1 = (rs, index) -> rs.getInt("id");
+
         try {
             int id1 = h.executeQuery(newID, rowMapper).get(0);
             int id2 = h.executeQuery(oldID, rowMapper).get(0);
@@ -459,7 +460,7 @@ public class DB {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IndexOutOfBoundsException e) {
-            //数据库没有新人的数据
+            e.printStackTrace();//数据库没有新人的数据
         }
         return -1;
     }
@@ -471,6 +472,7 @@ public class DB {
         RowMapper<String> rowMapper = (rs, index) -> rs.getString("groupid");
 
         try {
+
             if (h.executeQuery(sql, rowMapper).size() > 0) {//找着了
                 return true;
             }
@@ -1765,17 +1767,64 @@ public class DB {
     /**
      * 通过这个人的行数查全团出刀情况
      * @param id 这个人的行数
-     * @param date 要查刀的日期
      * @return
      */
-    public List<Knife> searchKnifeByQQ(int id,String date){
+    public List<Knife> searchKnifeByQQ(int id){
         String sql="select knife.rowid,knife.* from knife join teamMember on knife.knifeQQ=teamMember.userQQ " +
                 "where teamMember.id=(select id from teamMember where rowid="+id+") order by no";
         RowMapper<Knife> rowMapper= (RowMapper<Knife>) (rs, index) ->
                 new Knife(rs.getInt("rowid"),rs.getString("knifeQQ"),rs.getInt("no"),rs.getInt("hurt"),
-                date,rs.getBoolean("complete"));
+                rs.getString("date"),rs.getBoolean("complete"));
         List<Knife> knives=null;
         System.out.println(sql);
+        try {
+            knives =h.executeQuery(sql,rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (IndexOutOfBoundsException e){
+
+        }
+        return knives;
+    }
+
+    /**
+     * 通过这个人的行数查全团出刀情况
+     * @param id 这个人的行数
+     * @return
+     */
+    public List<Knife> searchKnifeByQQ(int id,String startdate,String enddate){
+        String sql="select knife.rowid,knife.* from knife join teamMember on knife.knifeQQ=teamMember.userQQ " +
+                "where teamMember.id=(select id from teamMember where rowid="+id+") and knife.date>=\""+startdate+"\" and knife.date<=\""+enddate+"\" order by no";
+        RowMapper<Knife> rowMapper= (RowMapper<Knife>) (rs, index) ->
+                new Knife(rs.getInt("rowid"),rs.getString("knifeQQ"),rs.getInt("no"),rs.getInt("hurt"),
+                        rs.getString("date"),rs.getBoolean("complete"));
+        List<Knife> knives=null;
+        System.out.println(sql);
+        try {
+            knives =h.executeQuery(sql,rowMapper);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (IndexOutOfBoundsException e){
+
+        }
+        return knives;
+    }
+
+    /**
+     * 通过这个人的qq查这个人出刀情况
+     * @return
+     */
+    public List<Knife> searchKnifeByQQ(String QQ,String startdate,String enddate){
+        String sql="select knife.rowid,knife.* from knife join teamMember on knife.knifeQQ=teamMember.userQQ " +
+                "where teamMember.userQQ=\""+QQ+"\" and knife.date>=\""+startdate+"\" and knife.date<=\""+enddate+"\" order by no";
+        RowMapper<Knife> rowMapper= (RowMapper<Knife>) (rs, index) ->
+                new Knife(rs.getInt("rowid"),QQ,rs.getInt("no"),rs.getInt("hurt"),
+                        rs.getString("date"),rs.getBoolean("complete"));
+        List<Knife> knives=null;
         try {
             knives =h.executeQuery(sql,rowMapper);
         } catch (SQLException e) {

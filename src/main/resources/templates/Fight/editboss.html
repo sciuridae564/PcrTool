@@ -42,18 +42,41 @@
     <div class="layui-form-item">
         <label class="layui-form-label">开始时间</label>
         <div class="layui-input-block">
-            <input type="text" id="StartTime" required    autocomplete="off" class="layui-input" th:value="${fightStatue.getStartTime()}">
+            <input type="text" id="StartTime" name="StartTime" required    autocomplete="off" class="layui-input" th:value="${fightStatue.getStartTime()}">
         </div>
     </div>
 
     <div class="layui-form-item" >
         <label class="layui-form-label">结束时间</label>
         <div class="layui-input-block">
-            <input type="text" id="EndTime" required   autocomplete="off" class="layui-input" th:value="${fightStatue.getEndTime()}">
+            <input type="text" id="EndTime" name="EndTime" required   autocomplete="off" class="layui-input" th:value="${fightStatue.getEndTime()}">
         </div>
     </div>
-
-
 </form>
+
+<script type="text/javascript">
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#StartTime', //指定元素
+            type: 'date', //指定元素
+            format:"y:MM:dd",//指定元素
+            value:"[[${fightStatue.getStartTime()}]]"
+
+        });
+
+    });
+
+    layer.use('laydate',function () {
+        var laydate1 = layui.laydate;
+        laydate1.render({
+            elem: '#EndTime', //指定元素
+            type: 'date', //指定元素
+            format:"y:MM:dd",//指定元素
+            value:"[[${fightStatue.getEndTime()}]]"
+
+        });
+    })
+</script>
 </body>
 </html>

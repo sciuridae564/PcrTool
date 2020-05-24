@@ -74,6 +74,26 @@
         </div>
     </div>
 
+    <script type="text/javascript">
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#time', //指定元素
+                type: 'date', //指定元素
+                format:"y:MM:dd",//指定元素
+                value: new Date(),
+                max :0
+            });
+            var laydate1 = layui.laydate;
+            laydate1.render({
+                elem: '#time1', //指定元素
+                type: 'date', //指定元素
+                format:"y:MM:dd",//指定元素
+                value:new Date(),
+                max :0
+            });
+        });
+    </script>
 </form>
 </body>
 </html>

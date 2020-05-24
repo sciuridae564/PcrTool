@@ -2,6 +2,7 @@ package cn.sciuridae.Component;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,4 +24,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login.html","/","/login","/user/check","/css/*","/fonts/*","/images/*","img/*","js/*","lib/layui/*");
     }
+
 }

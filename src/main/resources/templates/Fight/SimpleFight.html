@@ -301,10 +301,10 @@
                     xhr3.send();
                     xhr3.onload=function (){
                         if(JSON.parse(xhr3.responseText)){
-                            layer.msg('修改失败,\n错误原因：我不知道')
+                            layer.msg('修改成功');
+                            frash();
                         }else {
-                             layer.msg('修改成功');
-                             frash();
+                             layer.msg('修改失败,\n错误原因：我不知道')
                         }
                     }
                     parent.layer.close(index)
