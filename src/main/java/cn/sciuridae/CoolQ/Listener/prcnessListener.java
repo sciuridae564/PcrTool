@@ -5,7 +5,7 @@ import cn.sciuridae.DB.sqLite.DB;
 import cn.sciuridae.Excel.excelWrite;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
-import com.forte.qqrobot.anno.depend.Beans;
+import com.forte.qqrobot.beans.messages.QQCodeAble;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
@@ -16,27 +16,25 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static cn.sciuridae.CoolQ.Listener.prcnessIntercept.On;
 import static cn.sciuridae.Tools.stringTool.*;
 import static cn.sciuridae.constant.*;
-import static java.nio.charset.StandardCharsets.*;
 
 @Service
 public class prcnessListener {
 
     private static HashMap<String, String> coolDown;//抽卡冷却时间
-    public static HashMap<String, Boolean> eggOn;//抽卡开关
+
     public static HashMap<String, List<String>> powerList;//管理列表
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#帮助.*" ,at = true)
+    @Filter(value = "#帮助.*", at = true)
     public void testListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), helpMsg);
     }
@@ -49,49 +47,50 @@ public class prcnessListener {
 
     /**
      * 格式 #建会@机器人 工会名 自己的游戏名字（没有@工会长默认创建者为工会长）
+     *
      * @param msg
      * @param sender
      */
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#建会.*" ,at = true)
-    public void createGroup(GroupMsg msg, MsgSender sender){
-        robotQQ= msg.getThisCode();
-        String str=msg.getMsg();
-        int atNum=searchAtNumber(str);
-        String groupMasterQQ=null;
-        String groupName=null;
-        String groupMasterName=null;
-        String[] strings=msg.getMsg().split(" +");
+    @Filter(value = "#建会.*", at = true)
+    public void createGroup(GroupMsg msg, MsgSender sender) {
+        robotQQ = msg.getThisCode();
+        String str = msg.getMsg();
+        int atNum = searchAtNumber(str);
+        String groupMasterQQ = null;
+        String groupName = null;
+        String groupMasterName = null;
+        String[] strings = msg.getMsg().split(" +");
 
-        Date date=new Date();
+        Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat(dateFormat);//设置日期格式
-        Group group=new Group();
+        Group group = new Group();
         group.setCreateDate(df.format(date));
         group.setGroupid(msg.getGroupCode());
 
         //暂时不支持替别人建会
-        if(strings.length>4){
+        if (strings.length > 4) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
             return;
         }
         //DB.Instance.searchGroupIdByGroupQQ(msg.getGroupCode());
         try {
-            if(atNum>2){
+            if (atNum > 2) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
                 return;
-            }else if(atNum==1){//只有at了机器人
-                groupMasterQQ=msg.getQQ();
-                groupName=strings[2];//工会名字
-                groupMasterName=strings[3];
+            } else if (atNum == 1) {//只有at了机器人
+                groupMasterQQ = msg.getQQ();
+                groupName = strings[2];//工会名字
+                groupMasterName = strings[3];
                 group.setGroupName(groupName);
                 group.setGroupMasterQQ(groupMasterQQ);
-                int flag=DB.Instance.creatGroup(group,groupMasterName);
-                if(flag==0){
+                int flag = DB.Instance.creatGroup(group, groupMasterName);
+                if (flag == 0) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupMasterName + isHaveGroup);
-                }else if(flag==1){
+                } else if (flag == 1) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupName + " 工会已经创建好辣");
-                }else {
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(),  error);
+                } else {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
                 }
 
             }
@@ -105,7 +104,7 @@ public class prcnessListener {
 //                System.out.println(group); System.out.println(gameName);System.out.println(teamMember);
 //                //DB.Instance.creatGroup(group,gameName,teamMember);
 //            }
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), tips_error);
         }
@@ -164,10 +163,10 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#入会.*" ,at = true)
-    public void getGroup(GroupMsg msg, MsgSender sender){
+    @Filter(value = "#入会.*", at = true)
+    public void getGroup(GroupMsg msg, MsgSender sender) {
         teamMember teamMember = new teamMember(msg.getQQCode(), false, null, getVar(msg.getMsg()));
-        switch (DB.Instance.joinGroup(teamMember,msg.getGroupCode())){
+        switch (DB.Instance.joinGroup(teamMember, msg.getGroupCode())) {
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);//错误
                 break;
@@ -188,8 +187,8 @@ public class prcnessListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#退会.*", at = true)
-    public void outGroup(GroupMsg msg, MsgSender sender){
-        switch (DB.Instance.outGroup(msg.getQQCode())){
+    public void outGroup(GroupMsg msg, MsgSender sender) {
+        switch (DB.Instance.outGroup(msg.getQQCode())) {
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
                 break;
@@ -214,7 +213,7 @@ public class prcnessListener {
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
 
         if (DB.Instance.isSuperPower(msg.getGroupCode(), msg.getQQCode()) && strings.size() > 0) {
-            int i=DB.Instance.changeGroupMaster(msg.getQQCode(), strings.get(0).substring(10, strings.get(0).length() - 1));
+            int i = DB.Instance.changeGroupMaster(msg.getQQCode(), strings.get(0).substring(10, strings.get(0).length() - 1));
 
             switch (i) {
                 case -1:
@@ -259,7 +258,7 @@ public class prcnessListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "未出刀.*")
-    public void searchVoidKnife(GroupMsg msg, MsgSender sender){
+    public void searchVoidKnife(GroupMsg msg, MsgSender sender) {
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
         HashMap<String, Integer> map;
@@ -273,9 +272,9 @@ public class prcnessListener {
         } else {
             map = DB.getInstance().searchVoidKnifeByGroup(msg.getGroupCode(), 1);
         }
-        if(map==null){//没有空刀信息
+        if (map == null) {//没有空刀信息
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notBossOrNotDate);
-        }else {
+        } else {
             Set<String> set = map.keySet();
             src = new StringBuilder("统计如下:\n");
             int flag;
@@ -305,9 +304,9 @@ public class prcnessListener {
 
         } else {
             //找整个工会的出刀
-            list = DB.getInstance().searchKnife(null, msg.getGroupCode(),  getDate());
+            list = DB.getInstance().searchKnife(null, msg.getGroupCode(), getDate());
         }
-        if (list .size()>0) {
+        if (list.size() > 0) {
             stringBuilder.append("出刀信息：");
             for (Knife knife : list) {
                 stringBuilder.append("\n-----\n编号: ").append(knife.getId());
@@ -331,15 +330,15 @@ public class prcnessListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#出刀"})
-    public void getKnife(GroupMsg msg, MsgSender sender){
-        FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
-        if(fightStatue!=null){
+    public void getKnife(GroupMsg msg, MsgSender sender) {
+        FightStatue fightStatue = DB.Instance.searchFightStatue(msg.getQQCode());
+        if (fightStatue != null) {
             switch (DB.getInstance().joinTree(msg.getQQCode())) {
                 case -1:
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "好像出了点什么状况");
                     break;
                 case 1:
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(),"¿,他群间谍发现，建议rbq一周" );
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
                     break;
                 case 2:
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,打咩，还在出刀这么又出刀了");
@@ -348,15 +347,15 @@ public class prcnessListener {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已出刀");
                     break;
             }
-        }else {
+        } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没有开启工会战惹");
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#挂树")
-    public void getTree(GroupMsg msg, MsgSender sender){
-        switch (DB.Instance.trueTree(msg.getQQCode(),msg.getGroupCode())){
+    public void getTree(GroupMsg msg, MsgSender sender) {
+        switch (DB.Instance.trueTree(msg.getQQCode(), msg.getGroupCode())) {
             case -1:
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), error);
                 break;
@@ -374,10 +373,10 @@ public class prcnessListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#收刀.*", "#交刀.*"})
-    public void outKnife(GroupMsg msg, MsgSender sender){
-        StringBuilder stringBuilder=new StringBuilder();
-        FightStatue fightStatue=DB.Instance.searchFightStatue(msg.getQQCode());
-        if(fightStatue!=null) {//没有工会boss进度数据
+    public void outKnife(GroupMsg msg, MsgSender sender) {
+        StringBuilder stringBuilder = new StringBuilder();
+        FightStatue fightStatue = DB.Instance.searchFightStatue(msg.getQQCode());
+        if (fightStatue != null) {//没有工会boss进度数据
             try {
                 if (fightStatue.getStartTime().compareTo(new SimpleDateFormat(dateFormat).format(new Date())) <= 0) { //时间若已过开始则可以上报伤害
                     DB.Instance.hurtfight(msg.getQQCode(), getHurt(msg.getMsg(), 1), sender);
@@ -396,7 +395,7 @@ public class prcnessListener {
                 e.printStackTrace();
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), commandError);
             }
-        }else {
+        } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没开始为什么就交刀惹");
         }
     }
@@ -452,60 +451,127 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#up十连")
     public void Gashapon(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(10));
+        if (isCool(msg.getQQCode())) {
+            Gashapon gashapon = dp_UpGashapon(10);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+            if (gashapon.ban) {
+                sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+            }
+            reFlashCoolDown(msg.getQQCode());
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#十连")
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
-       if(eggOn.get(msg.getGroupCode())){
-           sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(10));
-       }
+        if (isCool(msg.getQQCode())) {
+            Gashapon gashapon = dp_Gashapon(10);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+            if (gashapon.ban) {
+                sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+            }
+            reFlashCoolDown(msg.getQQCode());
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#井")
     public void Gashapon__(GroupMsg msg, MsgSender sender) {
-        if(eggOn.get(msg.getGroupCode())){
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(300));
+        if (isCool(msg.getQQCode())) {
+            Gashapon gashapon = dp_Gashapon(300);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+            if (gashapon.ban) {
+                sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+            }
+            reFlashCoolDown(msg.getQQCode());
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
         }
-
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#up井")
     public void Gashapon___(GroupMsg msg, MsgSender sender) {
-        if(eggOn.get(msg.getGroupCode())){
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(300));
+        if (isCool(msg.getQQCode())) {
+            Gashapon gashapon = dp_UpGashapon(300);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+            if (gashapon.ban) {
+                sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+            }
+            reFlashCoolDown(msg.getQQCode());
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#up抽卡.*")
     public void Gashapon____(GroupMsg msg, MsgSender sender) {
-        if(eggOn.get(msg.getGroupCode())){
+        if (isCool(msg.getQQCode())) {
             String str = msg.getMsg().replaceAll(" +", "");
-            int q = Integer.parseInt(str.substring(5));
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_UpGashapon(q));
+            try {
+                int q = Integer.parseInt(str.substring(5));
+                if (q <= pricnessConfig.getGashaponMax() && isCool(msg.getQQCode())) {
+                    Gashapon gashapon = dp_UpGashapon(q);
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+                    if (gashapon.ban) {
+                        sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+                    }
+                    reFlashCoolDown(msg.getQQCode());
+                } else {
+                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过大，no so much money");
+                }
+            } catch (NumberFormatException e) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "数字解析错误");
+            }
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#抽卡.*")
     public void Gashapon_____(GroupMsg msg, MsgSender sender) {
-        if(eggOn.get(msg.getGroupCode())){
+        if (isCool(msg.getQQCode())) {
             String str = msg.getMsg().replaceAll(" +", "");
-            int q = Integer.parseInt(str.substring(3));
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), dp_Gashapon(q));
+            try {
+                int q = Integer.parseInt(str.substring(3));
+                if (q <= pricnessConfig.getGashaponMax() && isCool(msg.getQQCode())) {
+                    Gashapon gashapon = dp_Gashapon(q);
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.data);
+                    if (gashapon.ban) {
+                        sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
+                    }
+                    reFlashCoolDown(msg.getQQCode());
+                } else {
+                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过大，no so much money");
+                }
+            } catch (NumberFormatException e) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "数字解析错误");
+            }
+        } else {
+            //发送冷却提示消息
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡抽的那么快，人家会受不了的");
         }
+
     }
 
     /**
      * 普通池的概率
+     *
      * @param num
      * @return
      */
-    public String dp_Gashapon(int num) {
+    public Gashapon dp_Gashapon(int num) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
@@ -554,17 +620,23 @@ public class prcnessListener {
                 map3.put(one[j], 1);
             }
         }
-
-
-        return get_GashaponString(on,tw,thre,map1,map2,map3);
+        Gashapon g = new Gashapon();
+        g.setData(get_GashaponString(on, tw, thre, map1, map2, map3));
+        try {
+            g.setBan(num / thre < 20);
+        } catch (ArithmeticException e) {
+            g.setBan(false);
+        }
+        return g;
     }
 
     /**
      * up池的概率
+     *
      * @param num
      * @return
      */
-    public String dp_UpGashapon(int num) {
+    public Gashapon dp_UpGashapon(int num) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
@@ -594,14 +666,14 @@ public class prcnessListener {
         HashMap<String, Integer> map3 = new HashMap<>();
 
         for (int i = 0; i < thre; i++) {
-            int q=random.nextInt(25);
-            if(q<7){//抽不抽的出来亚里沙
+            int q = random.nextInt(25);
+            if (q < 7) {//抽不抽的出来亚里沙
                 if (map1.get(Three_plus[0]) != null) {
                     map1.put(Three_plus[0], map1.get(Three_plus[0]) + 1);
                 } else {
                     map1.put(Three_plus[0], 1);
                 }
-            }else {
+            } else {
                 int j = random.nextInt(Three.length);
                 if (map1.get(Three[j]) != null) {
                     map1.put(Three[j], map1.get(Three[j]) + 1);
@@ -627,46 +699,54 @@ public class prcnessListener {
                 map3.put(one[j], 1);
             }
         }
-
-
-
-        return get_GashaponString(on,tw,thre,map1,map2,map3);
+        Gashapon g = new Gashapon();
+        g.setData(get_GashaponString(on, tw, thre, map1, map2, map3));
+        try {
+            g.setBan(num / thre < 20);
+        } catch (ArithmeticException e) {
+            g.setBan(false);
+        }
+        return g;
     }
 
     /**
      * 组织抽卡结果
      */
-    public String get_GashaponString(int on ,int tw ,int thre,HashMap<String, Integer> map1,HashMap<String, Integer> map2,HashMap<String, Integer> map3 ){
-        StringBuilder stringBuilder=new StringBuilder();
-        stringBuilder.append("一共抽出了").append(thre).append("个三星").append(tw).append("个两星").append(on).append("个一星\n三星角色:");
+    public String get_GashaponString(int on, int tw, int thre, HashMap<String, Integer> map1, HashMap<String, Integer> map2, HashMap<String, Integer> map3) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("一共抽出了");
+        if (thre != 0) {
+            stringBuilder.append(thre).append("个三星");
+        }
+        if (tw != 0) {
+            stringBuilder.append(tw).append("个二星");
+        }
+        if (on != 0) {
+            stringBuilder.append(on).append("个一星");
+        }
         Set<String> set1 = map1.keySet();
         Set<String> set2 = map2.keySet();
         Set<String> set3 = map3.keySet();
-//        if(canSendImage){
-//            for (String s : set1) {
-//                stringBuilder.append("[CQ:image,file="+s+".png]").append("*").append(map1.get(s)).append(",");
-//            }
-//            stringBuilder.append("\n二星角色有：");
-//            for (String s : set2) {
-//                stringBuilder.append("[CQ:image,file="+s+".png]").append("*").append(map2.get(s)).append(",");
-//            }
-//            stringBuilder.append("\n一星角色有：");
-//            for (String s : set3) {
-//                stringBuilder.append("[CQ:image,file="+s+".png]").append("*").append(map3.get(s)).append(",");
-//            }
-//        }else {
+        if (thre != 0) {
+            stringBuilder.append("\n三星角色有：");
             for (String s : set1) {
                 stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
             }
+        }
+        if (tw != 0) {
             stringBuilder.append("\n二星角色有：");
             for (String s : set2) {
                 stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
             }
+        }
+
+        if (on != 0) {
             stringBuilder.append("\n一星角色有：");
             for (String s : set3) {
                 stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
             }
-//        }
+        }
+
         return stringBuilder.toString();
     }
 
@@ -749,7 +829,7 @@ public class prcnessListener {
         if (DB.Instance.powerCheck(msg.getQQCode(), msg.getGroupCode())) {
             String newName = msg.getMsg();
             newName = newName.replaceAll(" +", "");
-            newName = newName.substring(4);
+            newName = newName.substring(5);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), DB.Instance.changeGroupName(msg.getGroupCode(), newName));
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
@@ -832,7 +912,6 @@ public class prcnessListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
         }
     }
-
 
 
     @Listen(MsgGetTypes.groupMsg)
@@ -930,7 +1009,7 @@ public class prcnessListener {
      */
     public void reFlashCoolDown(String QQ) {
         LocalDateTime localDateTime = LocalDateTime.now();
-        localDateTime.plusMinutes(2);
+        localDateTime.plusSeconds(pricnessConfig.getGashaponcool());
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         String time = localDateTime.format(dateTimeFormatter);
         if (coolDown == null) {
@@ -997,28 +1076,145 @@ public class prcnessListener {
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"获取码"})
-    public void getToken(PrivateMsg msg, MsgSender sender){
-        String QQ=msg.getQQCode();
-        sender.SENDER.sendPrivateMsg(QQ,"你的码是："+ DB.Instance.getToken(QQ));
+    public void getToken(PrivateMsg msg, MsgSender sender) {
+        String QQ = msg.getQQCode();
+
+        sender.SENDER.sendPrivateMsg(QQ, "你的码是：" + DB.Instance.getToken(QQ));
+        sender.SENDER.sendPrivateMsg(QQ, "会战后台网址：http://" + ip + "/8080");
+
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#关闭扭蛋"})
-    public void openEgg(GroupMsg msg, MsgSender sender){
-        System.out.println(powerList);
-        if(powerList.get(msg.getGroupCode()).contains(msg.getQQCode())){
-            eggOn.put(msg.getGroupCode(),false);
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(),"已关闭");
+    public void openEgg(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(false));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            groupPower.setEggon(false);
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
         }
 
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#开启扭蛋"})
-    public void shutEgg(GroupMsg msg, MsgSender sender){
-        if(powerList.get(msg.getGroupCode()).contains(msg.getQQCode())){
-            eggOn.put(msg.getGroupCode(),true);
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(),"已开启");
+    public void shutEgg(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(true));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
         }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#关闭PcrTool"})
+    public void shut(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(false));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭PcrTool");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            groupPower.setOn(false);
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#开启PcrTool"})
+    public void open(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(true));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#关闭提醒买药小助手"})
+    public void shutbuy(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setButon(false));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭提醒买药小助手");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            groupPower.setButon(false);
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭提醒买药小助手");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#开启提醒买药小助手"})
+    public void openbuy(GroupMsg msg, MsgSender sender) {
+        try {
+            if (powerList.get(msg.getGroupCode()).contains(msg.getQQCode())) {
+                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setButon(true));
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启提醒买药小助手");
+                setjson();
+            }
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            setjson();
+            groupPower groupPower = new groupPower();
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启提醒买药小助手");
+        }
+    }
+
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"重载设置"})
+    public void reloadconfig(PrivateMsg msg, MsgSender sender) {
+        getconfig();
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
+                "提醒买药小助手图片名:" + pricnessConfig.getTixingmaiyao() +
+                "\n抽卡上限" + pricnessConfig.getGashaponMax() +
+                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool());
+    }
+
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"通用设置"})
+    public void config(PrivateMsg msg, MsgSender sender) {
+        getconfig();
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
+                "提醒买药小助手图片名:" + pricnessConfig.getTixingmaiyao() +
+                "\n抽卡上限" + pricnessConfig.getGashaponMax() +
+                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool());
     }
 }

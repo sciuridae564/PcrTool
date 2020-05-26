@@ -17,10 +17,9 @@ import org.springframework.beans.factory.BeanFactory;
 
 import java.util.*;
 
-import static cn.sciuridae.CoolQ.Listener.prcnessListener.eggOn;
 import static cn.sciuridae.Tools.ApiConnect.getImagePower;
-import static cn.sciuridae.constant.clearTree;
-import static cn.sciuridae.constant.pcrGroupMap;
+import static cn.sciuridae.Tools.ApiConnect.getLocalIp4AddressFromNetworkInterface;
+import static cn.sciuridae.constant.*;
 
 @SimpleRobotApplication(resources = "/conf.properties")
 
@@ -61,13 +60,11 @@ public class QQRunApp implements CoolQHttpApp {
 
         //获取所有群成员昵称和权限
         pcrGroupMap = new HashMap<>();
-        eggOn=new HashMap<>();
         prcnessListener.powerList=new HashMap<>();
         GroupList groups = sender.GETTER.getGroupList();
         for (Group group : groups.getList()) {
             GroupMemberList groupMember = sender.GETTER.getGroupMemberList(group.getCode());
             List<String> list=new ArrayList<>();
-            eggOn.put(group.getCode(),true);
             for (GroupMember s : groupMember) {
                 pcrGroupMap.put(s.getQQ(), s.getName());
                 if(s.getPower().isAdmin()||s.getPower().isOwner()){
@@ -79,6 +76,11 @@ public class QQRunApp implements CoolQHttpApp {
 
         //获取这个机器人能不能发图片
         constant.canSendImage=getImagePower();
+        //获取本机ip地址
+        constant.ip=getLocalIp4AddressFromNetworkInterface();
+        //读取配置文件
+        getFile();
+        getconfig();
         System.out.println("启动成功");
         System.out.println("启动成功");
         System.out.println("启动成功");
