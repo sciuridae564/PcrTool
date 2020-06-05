@@ -69,10 +69,10 @@ public class constant {
             "\t\t时间参数与上面相同\n" +
             "\t5.获取登陆码[获取码],如果没码就会强行造一个码\n" +
             "\t6.在一个群里关闭/开启这个机器人[#关闭/开启PcrTool]\n" +
-            "\t注意。这个关闭为总按钮，需群管才能使用\n" +
+            "\t注意.这个关闭为总按钮，需群管才能使用\n" +
             "\t7.在一个群里关闭/开启扭蛋[#关闭/开启扭蛋]\n" +
             "\t8.在一个群里关闭/开启提醒买药小助手[#关闭/开启提醒买药小助手]\n" +
-            "\t9.读取使用机器人通用设置文件，私聊[重载设置]\n" +
+            "\t9.读取使用机器人通用设置文件和扭蛋信息，私聊[重载设置]\n" +
             "\t10.查看现在机器人设置,私聊[通用设置]" +
             "\t11.赌马准备[#赛马 @机器人]\n" +
             "\t12.下注  [押马马号#金额] 示例 押马1#125\n" +
@@ -334,8 +334,6 @@ public class constant {
                 JSONObject jsonObject = JSONObject.parseObject(FileUtils.readFileToString(file, "utf-8"));
                 JSONObject gachi = (JSONObject) jsonObject.get("白金池信息");
                 JSONObject upgachi = (JSONObject) jsonObject.get("up池信息");
-                System.out.println(gachi);
-                System.out.println(upgachi);
                 baijinThreeChance = (int) gachi.get("三星总概率");
                 baijiTwoChance = (int) gachi.get("二星总概率");
                 baijiOneChance = (int) gachi.get("一星总概率");

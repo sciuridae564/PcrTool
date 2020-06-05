@@ -519,8 +519,8 @@ public class OtherListener {
     public void reloadconfig(PrivateMsg msg, MsgSender sender) {
         getconfig();
         getgachi();
-
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
+        getEvent();
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "扭蛋池，马事件已更新,现在设置为：\n" +
                 "提醒买药小助手图片名:" + pricnessConfig.getTixingmaiyao() +
                 "\n抽卡上限" + pricnessConfig.getGashaponMax() +
                 "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool());
