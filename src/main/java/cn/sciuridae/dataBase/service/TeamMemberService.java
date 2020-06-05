@@ -40,4 +40,8 @@ public interface TeamMemberService extends IService<TeamMember> {
     Integer setName(long QQ, String name);
 
     String getToken(long QQ);
+
+    Integer getTokenNum(String token);
+
+    Integer updateToken(Long qq, String token);
 }

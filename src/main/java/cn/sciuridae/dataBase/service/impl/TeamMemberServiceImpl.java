@@ -85,4 +85,16 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     public String getToken(long QQ) {
         return teamMemberMapper.getToken(QQ);
     }
+
+    @Override
+    public Integer getTokenNum(String token) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("token", token);
+        return teamMemberMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    public Integer updateToken(Long qq, String token) {
+        return teamMemberMapper.updateToken(token, qq);
+    }
 }

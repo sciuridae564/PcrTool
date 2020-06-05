@@ -19,7 +19,7 @@ import static cn.sciuridae.listener.prcnessIntercept.On;
 
 public class constant {
     public static final String helpMsg = "命令总览：\n" +
-            "打*为管理员指令**的为工会长指令\n" +
+            "打*为管理员指令**的为工会长指令 中括号内为指令不需要中括号 小括号内为可选内容\n" +
             "工会基础指令：\n" +
             "\t1.创建工会[#建会 @机器人 工会名 游戏昵称]\n" +
             "\t2.加入工会[#入会 @机器人 游戏昵称]\n" +
@@ -70,6 +70,7 @@ public class constant {
             "\t4.生成excel统计表格[#生成excel (时间)]\n" +
             "\t\t时间参数与上面相同\n" +
             "\t5.获取登陆码[获取码],如果没码就会强行造一个码\n" +
+            "\t5.5登陆码更换 私聊机器人 [更换token]\n" +
             "\t6.在一个群里关闭/开启这个机器人[#关闭/开启PcrTool]\n" +
             "\t注意.这个关闭为总按钮，需群管才能使用\n" +
             "\t7.在一个群里关闭/开启扭蛋[#关闭/开启扭蛋]\n" +
