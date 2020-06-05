@@ -9,6 +9,7 @@ import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
+import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.sender.MsgSender;
@@ -52,7 +53,7 @@ public class horseRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#给xcw上供")
+    @Filter(value = "#给xcw上供", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         if (On.get(msg.getGroupCode()).isHorse()) {
             Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
@@ -129,7 +130,7 @@ public class horseRunListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "我的资产")
+    @Filter(value = "我有多少钱鸭老婆", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void mycoin(GroupMsg msg, MsgSender sender) {
         Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
         if (byId != null) {
@@ -145,7 +146,7 @@ public class horseRunListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#开启赛马"})
+    @Filter(value = {"#开启赛马"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void openhorse(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQ()).getPowerType();
@@ -164,7 +165,7 @@ public class horseRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#关闭赛马"})
+    @Filter(value = {"#关闭赛马"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void shuthorse(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQ()).getPowerType();

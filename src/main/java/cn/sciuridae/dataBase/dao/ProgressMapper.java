@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * <p>
  * Mapper 接口
@@ -24,4 +27,8 @@ public interface ProgressMapper extends BaseMapper<Progress> {
 
     @Select("select * from progress where teamQQ=#{groupQq} ")
     Progress getProgress(@Param("groupQq") long groupQq);
+
+    @Select("select teamQQ from progress where endTime < #{endTime} ")
+    List<Long> getEnd(@Param("endTime") LocalDateTime endTime);
+
 }

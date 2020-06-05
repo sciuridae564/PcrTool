@@ -8,6 +8,7 @@ import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
+import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +39,13 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = "#帮助")
+    @Filter(value = "#帮助", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void testListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, helpMsg);
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#up十连")
+    @Filter(value = "#up十连", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gashapon gashapon = dp_UpGashapon(10);
@@ -60,7 +61,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#十连")
+    @Filter(value = "#十连", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gashapon gashapon = dp_Gashapon(10);
@@ -76,7 +77,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#井")
+    @Filter(value = "#井", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon__(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gashapon gashapon = dp_Gashapon(300);
@@ -92,7 +93,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#up井")
+    @Filter(value = "#up井", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon___(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gashapon gashapon = dp_UpGashapon(300);
@@ -258,7 +259,7 @@ public class OtherListener {
                 map1.merge(noUpThree[j], 1, (a, b) -> a + b);
             }
         }
-        for (int i = 0; i < thre; i++) {
+        for (int i = 0; i < tw; i++) {
             int q = random.nextInt(TwoChance);
             if (q < upTwoChance) {
                 //抽出来up角色
@@ -268,7 +269,7 @@ public class OtherListener {
                 map2.merge(noUptwo[j], 1, (a, b) -> a + b);
             }
         }
-        for (int i = 0; i < thre; i++) {
+        for (int i = 0; i < on; i++) {
             int q = random.nextInt(OneChance);
             if (q < upOneChance) {
                 //抽出来up角色
@@ -395,7 +396,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#关闭扭蛋"})
+    @Filter(value = {"#关闭扭蛋"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void openEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -416,7 +417,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#开启扭蛋"})
+    @Filter(value = {"#开启扭蛋"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void shutEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -435,7 +436,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#关闭PcrTool"})
+    @Filter(value = {"#关闭PcrTool"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void shut(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -455,7 +456,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#开启PcrTool"})
+    @Filter(value = {"#开启PcrTool"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void open(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -474,7 +475,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#关闭提醒买药小助手"})
+    @Filter(value = {"#关闭提醒买药小助手"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void shutbuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -495,7 +496,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#开启提醒买药小助手"})
+    @Filter(value = {"#开启提醒买药小助手"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void openbuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
@@ -514,7 +515,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"重载设置"})
+    @Filter(value = {"重载设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void reloadconfig(PrivateMsg msg, MsgSender sender) {
         getconfig();
         getgachi();
@@ -526,7 +527,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"通用设置"})
+    @Filter(value = {"通用设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
         getconfig();
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +

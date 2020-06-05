@@ -1,7 +1,7 @@
 package cn.sciuridae.dataBase.bean;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,12 +14,13 @@ import java.time.LocalDateTime;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "Tree对象", description = "")
+
 @TableName("tree")
 public class Tree implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @TableId("teamQQ")
     private Long teamQQ;
 
     private LocalDateTime date;

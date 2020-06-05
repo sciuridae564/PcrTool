@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
-import io.swagger.annotations.ApiModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "KnifeList对象", description = "")
 @TableName("knifeList")
 public class KnifeList implements Serializable {
 

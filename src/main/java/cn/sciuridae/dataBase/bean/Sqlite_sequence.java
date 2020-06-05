@@ -1,7 +1,5 @@
 package cn.sciuridae.dataBase.bean;
 
-import io.swagger.annotations.ApiModel;
-
 import java.io.Serializable;
 
 /**
@@ -12,7 +10,6 @@ import java.io.Serializable;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "Sqlite_sequence对象", description = "")
 public class Sqlite_sequence implements Serializable {
 
     private static final long serialVersionUID = 1L;

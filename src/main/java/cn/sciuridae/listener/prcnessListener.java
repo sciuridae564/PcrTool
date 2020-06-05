@@ -10,6 +10,7 @@ import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
+import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import org.apache.ibatis.binding.BindingException;
@@ -120,7 +121,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#出刀"})
+    @Filter(value = {"#出刀"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getKnife(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()) != msg.getGroupCodeNumber()) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
@@ -149,7 +150,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#挂树")
+    @Filter(value = "#挂树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getTree(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()) != msg.getGroupCodeNumber()) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
@@ -213,7 +214,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#结束会战")
+    @Filter(value = "#结束会战", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void endFight(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             Progress progress = ProgressServiceImpl.getProgress(msg.getGroupCodeNumber());
@@ -291,7 +292,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "查树")
+    @Filter(value = "查树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchTree(GroupMsg msg, MsgSender sender) {
         List<String> trees = treeServiceImpl.getTreeByGroup(msg.getGroupCodeNumber());
 
@@ -308,7 +309,7 @@ public class prcnessListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "正在出刀")
+    @Filter(value = "正在出刀", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchOutKnife(GroupMsg msg, MsgSender sender) {
         List<String> trees = treeServiceImpl.getFightByGroup(msg.getGroupCodeNumber());
 
@@ -324,7 +325,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"boss状态", "boss", "boss咋样了", "boss还好吗"})
+    @Filter(value = {"boss状态", "boss", "boss咋样了", "boss还好吗"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getBoss(GroupMsg msg, MsgSender sender) {
         Progress progress = ProgressServiceImpl.getProgress(msg.getGroupCodeNumber());
         if (progress != null) {
@@ -376,7 +377,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"^获取码$"})
+    @Filter(value = {"获取码"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getToken(PrivateMsg msg, MsgSender sender) {
         String QQ = msg.getQQCode();
 

@@ -3,7 +3,6 @@ package cn.sciuridae.dataBase.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "PcrUnion对象", description = "")
 @TableName("pcrUnion")
 public class PcrUnion implements Serializable {
 

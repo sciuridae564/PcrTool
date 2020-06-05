@@ -83,7 +83,7 @@ public class GroupRunListener {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
             int num = pcrUnionServiceImpl.getVoidSize(msg.getGroupCodeNumber());
-            if (num + strings.size() < 30) {
+            if (num + strings.size() <= 30) {
                 ArrayList<Long> have = new ArrayList<>();
                 for (String s : strings) {
                     TeamMember teamMember = new TeamMember(cqAtoNumber(s), msg.getGroupCodeNumber(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName(), false);
@@ -116,7 +116,7 @@ public class GroupRunListener {
     @Filter(value = "#入会.*", at = true)
     public void getGroup(GroupMsg msg, MsgSender sender) {
         TeamMember teamMember = new TeamMember(msg.getQQCodeNumber(), msg.getGroupCodeNumber(), getVar(msg.getMsg()), false);
-        int num = 0;
+        int num;
         try {
             num = pcrUnionServiceImpl.getVoidSize(msg.getGroupCodeNumber());
         } catch (BindingException e) {
@@ -128,7 +128,6 @@ public class GroupRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), isFullGroup);//工会满员
             return;
         }
-
 
         try {
             teamMemberServiceImpl.save(teamMember);

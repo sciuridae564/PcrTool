@@ -2,7 +2,6 @@ package cn.sciuridae.dataBase.bean;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.Serializable;
@@ -15,7 +14,6 @@ import java.io.Serializable;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "TeamMember对象", description = "")
 @TableName("teamMember")
 public class TeamMember implements Serializable {
 

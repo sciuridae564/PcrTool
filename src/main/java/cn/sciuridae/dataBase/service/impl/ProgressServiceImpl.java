@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * <p>
  * 服务实现类
@@ -37,5 +40,10 @@ public class ProgressServiceImpl extends ServiceImpl<ProgressMapper, Progress> i
         QueryWrapper<Progress> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teamQQ", Groupqq);
         return progressMapper.delete(queryWrapper);
+    }
+
+    @Override
+    public List<Long> getEnd(LocalDateTime thisDay) {
+        return progressMapper.getEnd(thisDay);
     }
 }

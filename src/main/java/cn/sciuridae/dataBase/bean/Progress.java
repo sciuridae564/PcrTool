@@ -2,7 +2,6 @@ package cn.sciuridae.dataBase.bean;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.annotation.Version;
-import io.swagger.annotations.ApiModel;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "Progress对象", description = "")
 @TableName("progress")
 public class Progress implements Serializable {
 

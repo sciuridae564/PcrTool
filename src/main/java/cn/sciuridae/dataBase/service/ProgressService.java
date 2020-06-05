@@ -3,6 +3,9 @@ package cn.sciuridae.dataBase.service;
 import cn.sciuridae.dataBase.bean.Progress;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * <p>
  * 服务类
@@ -18,4 +21,6 @@ public interface ProgressService extends IService<Progress> {
     Progress getProgress(long Groupqq);
 
     int endFight(long Groupqq);
+
+    List<Long> getEnd(LocalDateTime thisDay);
 }

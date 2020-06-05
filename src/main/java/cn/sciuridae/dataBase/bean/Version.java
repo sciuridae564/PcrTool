@@ -1,7 +1,6 @@
 package cn.sciuridae.dataBase.bean;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
 
 import java.io.Serializable;
 
@@ -13,7 +12,6 @@ import java.io.Serializable;
  * @author sciuridae
  * @since 2020-06-02
  */
-@ApiModel(value = "Version对象", description = "")
 @TableName("version")
 public class Version implements Serializable {
 
