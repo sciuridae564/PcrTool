@@ -8,6 +8,8 @@ import com.forte.qqrobot.listener.MsgIntercept;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cn.sciuridae.constant.setjson;
+
 @Beans
 public class prcnessIntercept implements MsgIntercept {
     public static ConcurrentHashMap<String, groupPower> On = new ConcurrentHashMap<>(10);//1:总开关2:抽卡开关3：提醒买药开关
@@ -33,6 +35,7 @@ public class prcnessIntercept implements MsgIntercept {
                 //没这个群的自动都是不通过
                 groupPower groupPower = new groupPower();
                 On.put(((GroupMsg) context.getMsgGet()).getGroupCode(), groupPower);
+                setjson();
                 return false;
             }
         }

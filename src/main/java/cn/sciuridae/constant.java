@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -37,7 +37,9 @@ public class constant {
             "工会战命令:\n" +
             "\t1.开始进行会战[#开始会战 (时间)]\n" +
             "\t\t时间参数可选，默认为今天\n" +
-            "\t\t时间格式举例：20：05：06\n" +
+            "\t\t时间格式举例：2020:05:06\n" +
+            "\t默认结束时间为8天后，即会战时间为\n" +
+            "\t2020-06-05 5点到2020-06-13 0点\n" +
             "\t2.结束会战[#结束会战]\n" +
             "\t3.表示自己正在出刀[#出刀]\n" +
             "\t4.表示自己因为太菜挂树了[#挂树]\n" +
@@ -45,13 +47,13 @@ public class constant {
             "\t\t如果有自信不会挂树可以直接用这个命令提交伤害\n" +
             "\t\t但是如果挂了请注意不要透露给工会长自己的住宅地址，注意人身安全\n" +
             "\t\t机器人不会接受没有提交出刀请求后的挂树命令\n" +
-            "\t6.*代替别人提交伤害数据[代刀 @那个人 伤害值]\n" +
-            "\t7.*撤除出刀资料[撤刀 出刀编号]\n" +
+            "\t6.*代替别人提交伤害数据[#代刀 @那个人 伤害值]\n" +
+            "\t7.*撤除出刀资料[#撤刀 出刀编号]\n" +
             "\t\t这个命令只是删除了出刀信息，但是并不会更改boss信息，防止发生奇奇怪怪的事情\n" +
             "\t\t需要管理手动调整\n" +
-            "\t8.查询现在的boss信息[boss状态]\n" +
-            "\t9.查看正在出刀（非挂树）的人[正在出刀]\n" +
-            "\t10.查看正在树上的人[查树]\n" +
+            "\t8.查询现在的boss信息[#调整boss状态]\n" +
+            "\t9.查看正在出刀（非挂树）的人[#正在出刀]\n" +
+            "\t10.查看正在树上的人[#查树]\n" +
             "\t11.查询今日全部成员未出刀情况，[未出刀 (@那个人)]\n" +
             "\t\t同下\n" +
             "\t12.查询今日全部成员已出刀情况，[已出刀 (@那个人)]\n" +
@@ -65,7 +67,7 @@ public class constant {
             "\t2.抽n发[#(up)抽卡 n]\n" +
             "\t3.加 密 通 话[切噜 要加密的话]\n" +
             "\t3.有 内 鬼，终 止 交 易[翻译切噜 加密的话]\n" +
-            "\t4.生成excel统计表格[生成excel (时间)]\n" +
+            "\t4.生成excel统计表格[#生成excel (时间)]\n" +
             "\t\t时间参数与上面相同\n" +
             "\t5.获取登陆码[获取码],如果没码就会强行造一个码\n" +
             "\t6.在一个群里关闭/开启这个机器人[#关闭/开启PcrTool]\n" +
@@ -128,9 +130,8 @@ public class constant {
                     "以暴力、胁迫或者其他方法强制猥亵他人或者侮辱妇女的，处五年以下有期徒刑或者拘役。 聚众或者在公共场所当众犯前款罪的，或者有其他恶劣情节的，处五年以上有期徒刑。 猥亵儿童的，依照前两款的规定从重处罚。"};
     public static final String[] QieLU = {"切噜", "切哩", "切吉", "噜拉", "啪噜", "切璐", "扣", "啦哩", "啦嘟", "切泼", "啪噼", ",", "嚕嚕", "啰哩", "切拉", "切噼"};
     public static final String ExcelDir = "Excel/";
-    public static final SimpleDateFormat df = new SimpleDateFormat(dateFormat);
     public static final String fileTimeFormat = "yy年MM月dd日";
-    public static final SimpleDateFormat dfForFile = new SimpleDateFormat(fileTimeFormat);
+    public static final DateTimeFormatter df = DateTimeFormatter.ofPattern(fileTimeFormat);
     public static String robotQQ = "0";//机器人qq
     public static String[] one = {"日和莉", "怜", "未奏希", "胡桃", "依里", "由加莉", "铃莓", "碧", "美咲", "莉玛"};
     public static String[] two = {"茜里", "宫子", "雪", "铃奈", "香织", "美美", "惠理子", "忍", "真阳", "栞", "千歌", "空花", "珠希", "美冬", "深月", "铃", "绫音"};

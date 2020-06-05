@@ -2,6 +2,7 @@ package cn.sciuridae.timer;
 
 import cn.sciuridae.dataBase.bean.Progress;
 import cn.sciuridae.dataBase.service.ProgressService;
+import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.dataBase.service.TreeService;
 import cn.sciuridae.utils.ExcelWrite;
 import com.forte.qqrobot.anno.timetask.CronTask;
@@ -27,6 +28,8 @@ public class clearEnd implements TimeJob {
     TreeService treeServiceImpl;
     @Autowired
     ProgressService ProgressServiceImpl;
+    @Autowired
+    ScoresService scoresServiceImpl;
 
     @Override
     public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
@@ -60,5 +63,9 @@ public class clearEnd implements TimeJob {
             }
         }
         AllCoolDown();
+
+        //签到重置
+        scoresServiceImpl.clearSign();
+
     }
 }

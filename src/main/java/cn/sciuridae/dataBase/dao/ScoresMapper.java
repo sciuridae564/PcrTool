@@ -3,6 +3,7 @@ package cn.sciuridae.dataBase.dao;
 import cn.sciuridae.dataBase.bean.Scores;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,5 +17,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Mapper
 public interface ScoresMapper extends BaseMapper<Scores> {
+
+    @Update("update Scores set iSign=false ")
+    int changeTeamSum();
 
 }

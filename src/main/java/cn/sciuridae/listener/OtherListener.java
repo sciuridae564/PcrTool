@@ -109,12 +109,17 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#up抽卡.*")
+    @Filter(value = "#up抽卡", keywordMatchType = KeywordMatchType.STARTS_WITH)
     public void Gashapon____(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             String str = msg.getMsg().replaceAll(" +", "");
             try {
                 int q = Integer.parseInt(str.substring(5));
+                //抽卡次数不能为1以下
+                if (q < 1) {
+                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过小");
+                    return;
+                }
                 if (q <= pricnessConfig.getGashaponMax() && isCool(msg.getQQCode())) {
                     Gashapon gashapon = dp_UpGashapon(q);
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.getData());
@@ -135,21 +140,29 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#抽卡.*")
+    @Filter(value = "#抽卡", keywordMatchType = KeywordMatchType.STARTS_WITH)
     public void Gashapon_____(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             String str = msg.getMsg().replaceAll(" +", "");
             try {
-                int q = Integer.parseInt(str.substring(3));
+                int q = Integer.parseInt(str.substring(3));//获取抽多少次
+                //抽卡次数不能为1以下
+                if (q < 1) {
+                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过小");
+                    return;
+                }
+                //抽卡次数不能超过设置的最高值and冷却时间到没到
                 if (q <= pricnessConfig.getGashaponMax() && isCool(msg.getQQCode())) {
                     Gashapon gashapon = dp_Gashapon(q);
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.getData());
+                    //抽卡太欧需要被禁言
                     if (gashapon.isBan()) {
                         sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
                     }
                     reFlashCoolDown(msg.getQQCode());
+
                 } else {
-                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过大，no so much money");
+                    sender.SENDER.sendPrivateMsg(msg.getQQCode(), "抽卡数额过大");
                 }
             } catch (NumberFormatException e) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "数字解析错误");
@@ -542,9 +555,11 @@ public class OtherListener {
     public void reFlashCoolDown(String QQ) {
         LocalDateTime localDateTime = LocalDateTime.now();
         localDateTime.plusSeconds(pricnessConfig.getGashaponcool());
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         String time = localDateTime.format(dateTimeFormatter);
+
         if (coolDown == null) {
+            System.out.println("aaa");
             coolDown = new HashMap<>();
             coolDown.put(QQ, time);
         } else {
@@ -564,7 +579,7 @@ public class OtherListener {
             return true;
         } else {
             if (coolDown.get(QQ) != null) {
-                return coolDown.get(QQ).compareTo(new SimpleDateFormat("HH:mm").format(new Date())) < 0;
+                return coolDown.get(QQ).compareTo(new SimpleDateFormat("HH:mm:ss").format(new Date())) < 0;
             } else {
                 return true;
             }

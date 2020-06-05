@@ -24,9 +24,7 @@ public class PcrUnionServiceImpl extends ServiceImpl<PcrUnionMapper, PcrUnion> i
 
     @Override
     public PcrUnion getGroup(long groupQq) {
-        QueryWrapper<PcrUnion> wrapper = new QueryWrapper<>();
-        wrapper.eq("groupQQ", groupQq);
-        return pcrUnionMapper.selectOne(wrapper);
+        return pcrUnionMapper.getTeam(groupQq);
     }
 
 
@@ -52,7 +50,8 @@ public class PcrUnionServiceImpl extends ServiceImpl<PcrUnionMapper, PcrUnion> i
         QueryWrapper<PcrUnion> wrapper = new QueryWrapper<>();
         wrapper.eq("groupQQ", groupQq);
         wrapper.eq("groupMasterQQ", qq);
-        return pcrUnionMapper.selectOne(wrapper) != null;
+        PcrUnion pcrUnion = pcrUnionMapper.selectOne(wrapper);
+        return pcrUnion != null;
     }
 
     @Override
@@ -67,6 +66,7 @@ public class PcrUnionServiceImpl extends ServiceImpl<PcrUnionMapper, PcrUnion> i
         QueryWrapper<PcrUnion> wrapper = new QueryWrapper<>();
         wrapper.eq("groupQQ", groupQq);
         PcrUnion pcrUnion = new PcrUnion();
+        pcrUnion.setGroupQQ(groupQq);
         pcrUnion.setGroupMasterQQ(new_qq);
         return pcrUnionMapper.update(pcrUnion, wrapper) == 1;
     }

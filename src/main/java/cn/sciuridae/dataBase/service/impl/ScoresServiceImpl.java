@@ -20,5 +20,8 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     @Autowired
     ScoresMapper scoresMapper;
 
+    public void clearSign() {
+        scoresMapper.changeTeamSum();
+    }
 
 }

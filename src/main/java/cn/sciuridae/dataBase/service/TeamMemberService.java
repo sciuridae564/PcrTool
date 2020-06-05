@@ -29,13 +29,15 @@ public interface TeamMemberService extends IService<TeamMember> {
 
     boolean isAdmin(long QQ, long GroupQq);
 
-    long getGroupByQQ(long QQ);
+    Long getGroupByQQ(long QQ);
 
     long setAdmin(long QQ);
 
     long deAdmin(long QQ);
 
     String getName(long QQ);
+
+    Integer setName(long QQ, String name);
 
     String getToken(long QQ);
 }

@@ -9,6 +9,7 @@ import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
+import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import org.apache.ibatis.binding.BindingException;
@@ -39,8 +40,9 @@ public class GroupRunListener {
      * @param sender
      */
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "^#建会.*", at = true)
+    @Filter(value = "#建会", at = true, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void createGroup(GroupMsg msg, MsgSender sender) {
+
         String[] strings = msg.getMsg().split(" +");
         //参数少于4个
         if (strings.length > 4) {
@@ -76,7 +78,7 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#批量入会.*")
+    @Filter(value = "#批量入会", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void getGroups(GroupMsg msg, MsgSender sender) {
         //先看下是不是管理员
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
@@ -98,11 +100,15 @@ public class GroupRunListener {
                     }
                 }
                 pcrUnionServiceImpl.changeVoidSize(msg.getGroupCodeNumber(), num);//更新空位信息
-                StringBuilder stringBuilder = new StringBuilder("已经有工会的人：");
-                for (long s : have) {
-                    stringBuilder.append(cqCodeUtil.getCQCode_At(String.valueOf(s)));
+                StringBuilder stringBuilder = new StringBuilder();
+                if (have.size() > 0) {
+                    stringBuilder.append("已经有工会的人：");
+                    for (long s : have) {
+                        stringBuilder.append(cqCodeUtil.getCQCode_At(String.valueOf(s)));
+                    }
+
                 }
-                stringBuilder.append("余下的人都已经成功加入拉");
+                stringBuilder.append("指令完成惹");
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
                 return;
             }
@@ -113,9 +119,15 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#入会.*", at = true)
+    @Filter(value = "#入会", at = true, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void getGroup(GroupMsg msg, MsgSender sender) {
-        TeamMember teamMember = new TeamMember(msg.getQQCodeNumber(), msg.getGroupCodeNumber(), getVar(msg.getMsg()), false);
+        String name = getVar(msg.getMsg());
+
+        TeamMember teamMember = new TeamMember(msg.getQQCodeNumber(),
+                msg.getGroupCodeNumber(),
+                name.trim().equals("") ? sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName() : name,
+                false);
+        System.out.println(teamMember);
         int num;
         try {
             num = pcrUnionServiceImpl.getVoidSize(msg.getGroupCodeNumber());
@@ -131,7 +143,9 @@ public class GroupRunListener {
 
         try {
             teamMemberServiceImpl.save(teamMember);
+            System.out.println("存储");
         } catch (UncategorizedSQLException e) {
+
             if (e.getSQLException().getErrorCode() == 19) {
                 //主键冲突，就是qq号已经在库里有了
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), isHaveGroup);//已有工会
@@ -144,7 +158,7 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#退会.*", at = true)
+    @Filter(value = "#退会", at = true, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void outGroup(GroupMsg msg, MsgSender sender) {
 
         if (pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
@@ -160,9 +174,9 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#转让会长.*")
+    @Filter(value = "#转让会长", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void changeSuperPower(GroupMsg msg, MsgSender sender) {
-        if (pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+        if (!pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有本群工会的会长权限");
             return;
         }
@@ -174,8 +188,10 @@ public class GroupRunListener {
             return;
         }
         long newQQ = cqAtoNumber(strings.get(0));
-        long group = teamMemberServiceImpl.getGroupByQQ(newQQ);
-        if (teamMemberServiceImpl.getGroupByQQ(msg.getGroupCodeNumber()) != group) {
+        System.out.println(newQQ);
+        Long group = teamMemberServiceImpl.getGroupByQQ(newQQ);
+        Long groupByQQ = teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber());
+        if (!groupByQQ.equals(group)) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "她还不在这个工会\n答应我，不要做舔狗好吗/委屈");
             return;
         }
@@ -187,9 +203,9 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#撤下管理.*")
+    @Filter(value = "#撤下管理", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void downAdmin(GroupMsg msg, MsgSender sender) {
-        if (pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+        if (!pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有本群工会的会长权限");
             return;
         }
@@ -201,8 +217,9 @@ public class GroupRunListener {
             return;
         }
         long newQQ = cqAtoNumber(strings.get(0));
-        long group = teamMemberServiceImpl.getGroupByQQ(newQQ);
-        if (teamMemberServiceImpl.getGroupByQQ(msg.getGroupCodeNumber()) != group) {
+        Long group = teamMemberServiceImpl.getGroupByQQ(newQQ);
+        Long groupByQQ = teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber());
+        if (!groupByQQ.equals(group)) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "她还不在这个工会\n");
             return;
         }
@@ -214,22 +231,28 @@ public class GroupRunListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "^#改名.*")
+    @Filter(value = "#改名", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void reName(GroupMsg msg, MsgSender sender) {
         String newName = msg.getMsg();
         newName = newName.replaceAll(" +", "");
         newName = newName.substring(3);
+        System.out.println(newName.length());
+        if (newName.length() > 20) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "那么长的名字，本小姐记不住呢");
+            return;
+        }
+        Integer integer = teamMemberServiceImpl.setName(msg.getQQCodeNumber(), newName);
+        if (integer < 1) {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "还没有进入任何一个工会惹");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "改名成功，现在名称为：" + newName);
+        }
 
-        TeamMember teamMember = new TeamMember();
-        teamMember.setName(newName);
-        teamMember.setUserQQ(msg.getQQCodeNumber());
-        teamMemberServiceImpl.updateById(teamMember);
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "改名成功，现在名称为：" + newName);
 
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "^#改工会名.*")
+    @Filter(value = "#改工会名", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void reGroupName(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             String newName = msg.getMsg();
@@ -243,7 +266,7 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "工会信息")
+    @Filter(value = "工会信息", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void GroupNameStatue(GroupMsg msg, MsgSender sender) {
         PcrUnion pcrUnion = pcrUnionServiceImpl.getGroup(msg.getGroupCodeNumber());
         String stringBuilder = "工会名：" + pcrUnion.getGroupName() +
@@ -254,12 +277,12 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "工会成员列表")
+    @Filter(value = "工会成员列表", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void GroupMemberList(GroupMsg msg, MsgSender sender) {
         StringBuilder stringBuilder = new StringBuilder();
 
-
         List<TeamMember> teamMembers = teamMemberServiceImpl.getTeamMemberByGroup(msg.getGroupCodeNumber());
+
         long groupMaster = pcrUnionServiceImpl.getGroupMaster(msg.getGroupCodeNumber());
         if (teamMembers != null) {
             stringBuilder.append("工会成员:\n");
@@ -309,7 +332,7 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#踢人.*")
+    @Filter(value = "#踢人", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void kickman(GroupMsg msg, MsgSender sender) {
         int num = 0;
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
@@ -325,7 +348,10 @@ public class GroupRunListener {
             if (num == 0) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有踢掉任何一个人，@的这个人是不是还没有加入这个工会呢");
             } else if (num == -2) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "堂下何人竟敢状告本官(ps:自己也不能告自己)");
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "堂下何人竟敢状告本官");
+                if (pcrUnionServiceImpl.isGroupMaster(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "阿，竟是中堂大人，失敬失敬。\nだが、断る，想解散用退会阿");
+                }
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功踢掉了");
             }

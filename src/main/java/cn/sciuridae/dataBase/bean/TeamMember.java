@@ -38,6 +38,7 @@ public class TeamMember implements Serializable {
         this.groupQQ = groupQQ;
         this.name = name;
         this.power = power;
+        token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
     }
 
     public long getUserQQ() {

@@ -38,6 +38,7 @@ public class ExcelWrite {
 
     public ExcelWrite(String fileName, List<LocalDate> dates, long groupId) throws IOException {
         file = new File(fileName);
+        System.out.println(fileName);
         if (!file.exists() || !file.isFile()) {
             file.createNewFile();
         }

@@ -23,6 +23,9 @@ public interface PcrUnionMapper extends BaseMapper<PcrUnion> {
     @Select("select teamSum from pcrUnion where groupQQ=#{groupQq} ")
     int getTeamSum(@Param("groupQq") long groupQq);
 
+    @Select("select * from pcrUnion where groupQQ=#{groupQq} ")
+    PcrUnion getTeam(@Param("groupQq") long groupQq);
+
     @Update("update pcrUnion set teamSum=#{teamSum} where groupQQ=#{groupQq} ")
     int changeTeamSum(@Param("groupQq") long groupQq, @Param("teamSum") int teamSum);
 

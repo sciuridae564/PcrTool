@@ -13,5 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ScoresService extends IService<Scores> {
 
-
+    public void clearSign();
 }

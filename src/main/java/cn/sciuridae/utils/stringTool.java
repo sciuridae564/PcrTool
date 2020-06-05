@@ -113,12 +113,12 @@ public class stringTool {
 
     //单日表文件名
     public static String getExcelFileName(String GroupQQ, LocalDate date) {
-        return (ExcelDir + GroupQQ + "/" + dfForFile.format(date) + ".xls");
+        return (ExcelDir + GroupQQ + "/" + date.format(df) + ".xls");
     }
 
     //总结表
     public static String getExcelFileName(String GroupQQ, LocalDate stratDate, LocalDate endDate) {
-        return ExcelDir + GroupQQ + "/" + dfForFile.format(stratDate) + "到" + dfForFile.format(endDate) + ".xls";
+        return ExcelDir + GroupQQ + "/" + stratDate.format(df) + "到" + endDate.format(df) + ".xls";
     }
 
     //整个工会excle文件路径

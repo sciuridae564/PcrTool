@@ -49,7 +49,7 @@ public class prcnessListener {
     PcrUnionService pcrUnionServiceImpl;
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "未出刀.*")
+    @Filter(value = "#未出刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void searchVoidKnife(GroupMsg msg, MsgSender sender) {
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
@@ -88,7 +88,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "已出刀.*")
+    @Filter(value = "#已出刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void searchKnife(GroupMsg msg, MsgSender sender) {
         List<KnifeList> list = new ArrayList<>();
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
@@ -123,7 +123,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#出刀"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getKnife(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()) != msg.getGroupCodeNumber()) {
+        if (!teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()).equals(msg.getGroupCodeNumber())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
         } else {
             try {
@@ -152,20 +152,24 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#挂树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getTree(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()) != msg.getGroupCodeNumber()) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
-        } else {
-            int i = treeServiceImpl.updateTree(msg.getQQCodeNumber());
-            if (i == 1) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), isTree);
+        try {
+            if (!teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()).equals(msg.getGroupCodeNumber())) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
             } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有在树上");
+                int i = treeServiceImpl.updateTree(msg.getQQCodeNumber());
+                if (i == 1) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), isTree);
+                } else {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有在树上");
+                }
             }
+        } catch (NullPointerException e) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还没有加入工会");
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#收刀.*", "#交刀.*"})
+    @Filter(value = {"#收刀", "#交刀"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void outKnife(GroupMsg msg, MsgSender sender) {
         try {
             int hurt = getHurt(msg.getMsg(), 1);
@@ -179,7 +183,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#开始会战.*")
+    @Filter(value = "#开始会战", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void startFight(GroupMsg msg, MsgSender sender) {
         try {
             if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
@@ -193,8 +197,10 @@ public class prcnessListener {
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
                 if (!time.equals("")) {
-                    startTime = LocalDateTime.parse(time, df);
+                    LocalDate localDate = LocalDate.parse(time, df);
+                    startTime = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
                 }
+                ;
                 Progress progress = new Progress();
                 progress.setLoop(1);
                 progress.setSerial(1);
@@ -203,13 +209,15 @@ public class prcnessListener {
                 progress.setVersion(1);
                 progress.setStartTime(startTime);
                 progress.setEndTime(startTime.plusDays(8));
+
                 ProgressServiceImpl.save(progress);
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功记录会战\n" + startTime.format(df) + "到" + startTime.plusDays(8).format(df));
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
             }
         } catch (Exception e) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例  20:05:12");
+            e.printStackTrace();
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例 2020-05-04");
         }
     }
 
@@ -232,7 +240,7 @@ public class prcnessListener {
 
     //撤刀 撤回刀的编号
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "撤刀.*")
+    @Filter(value = "#撤刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void dropKnife(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             try {
@@ -251,7 +259,7 @@ public class prcnessListener {
 
     //调整boss状态 周目 几王 血量
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "调整boss状态.*")
+    @Filter(value = "#调整boss状态", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void changeBoss(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             String[] change = msg.getMsg().replaceAll(" +", " ").split(" ");
@@ -277,7 +285,7 @@ public class prcnessListener {
 
     //代刀 @代刀的那个人 伤害值
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "代刀.*")
+    @Filter(value = "#代刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void sideKnife(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
@@ -292,7 +300,7 @@ public class prcnessListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "查树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = "#查树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchTree(GroupMsg msg, MsgSender sender) {
         List<String> trees = treeServiceImpl.getTreeByGroup(msg.getGroupCodeNumber());
 
@@ -309,7 +317,7 @@ public class prcnessListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "正在出刀", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = "#正在出刀", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchOutKnife(GroupMsg msg, MsgSender sender) {
         List<String> trees = treeServiceImpl.getFightByGroup(msg.getGroupCodeNumber());
 
@@ -338,7 +346,7 @@ public class prcnessListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"生成excel.*"})
+    @Filter(value = {"#生成excel"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void getExcel(GroupMsg msg, MsgSender sender) {
         String[] cmd = msg.getMsg().split(" +");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -348,6 +356,8 @@ public class prcnessListener {
                 arrayList.add(LocalDate.parse(cmd[1], formatter));
             } else if (cmd.length == 3) {
                 arrayList.addAll(getDescDateList(LocalDate.parse(cmd[1], formatter), LocalDate.parse(cmd[2], formatter)));
+            } else if (cmd.length == 1) {
+                arrayList.add(LocalDate.now());
             }
         } catch (DateTimeParseException e) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误");
@@ -361,9 +371,9 @@ public class prcnessListener {
                 String groupQQ = msg.getGroupCode();//工会qq
                 ExcelWrite excelWrite;
                 if (arrayList.size() > 1) {
-                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0)), arrayList, msg.getGroupCodeNumber());
-                } else {
                     excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(arrayList.size() - 1)), arrayList, msg.getGroupCodeNumber());
+                } else {
+                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0)), arrayList, msg.getGroupCodeNumber());
                 }
 
                 excelWrite.writedDate();
@@ -408,7 +418,6 @@ public class prcnessListener {
                 //会战开启 上报伤害
                 //查询这个人出没出完三刀
                 if (knifeListServiceImpl.getKnifeNum(QQ, LocalDateTime.now(), true) > 2) {
-
                     return "三刀已出完，不可再出了";
                 }
 

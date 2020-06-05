@@ -34,7 +34,7 @@ public class Progress implements Serializable {
 
     private LocalDateTime endTime;
     @TableLogic
-    private Integer deleted;
+    private Integer deleted = 0;
     @Version
     private Integer version;
 

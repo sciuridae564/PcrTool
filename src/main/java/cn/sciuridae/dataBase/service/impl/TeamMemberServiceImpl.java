@@ -27,7 +27,7 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     @Override
     public List<TeamMember> getTeamMemberByGroup(long group) {
         QueryWrapper<TeamMember> wrapper = new QueryWrapper<>();
-        wrapper.lt("groupQQ", group);
+        wrapper.eq("groupQQ", group);
         List<TeamMember> list = teamMemberMapper.selectList(wrapper);
         return list;
     }
@@ -41,7 +41,7 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     @Override
     public int deleteTeamMemberByGroup(long group) {
         QueryWrapper<TeamMember> wrapper = new QueryWrapper<>();
-        wrapper.lt("groupQQ", group);
+        wrapper.eq("groupQQ", group);
         return teamMemberMapper.delete(wrapper);
     }
 
@@ -56,7 +56,7 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     }
 
     @Override
-    public long getGroupByQQ(long QQ) {
+    public Long getGroupByQQ(long QQ) {
         return teamMemberMapper.group(QQ);
     }
 
@@ -73,6 +73,12 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     @Override
     public String getName(long QQ) {
         return teamMemberMapper.getName(QQ);
+    }
+
+    @Override
+    public Integer setName(long QQ, String name) {
+
+        return teamMemberMapper.setName(QQ, name);
     }
 
     @Override

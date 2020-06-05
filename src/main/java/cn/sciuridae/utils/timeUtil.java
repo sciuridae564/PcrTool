@@ -57,7 +57,7 @@ public class timeUtil {
 
     //今日五点
     public static LocalDateTime getTodayFive(LocalDateTime date) {
-        return date.withHour(5).withMinute(0).withSecond(0).withNano(0);
+        return date.withHour(5).withMinute(0).withSecond(0);
     }
 
 

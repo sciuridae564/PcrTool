@@ -38,5 +38,12 @@ public class PricnessConfig {
         this.gashaponcool = gashaponcool;
     }
 
-
+    @Override
+    public String toString() {
+        return "PricnessConfig{" +
+                "tixingmaiyao='" + tixingmaiyao + '\'' +
+                ", gashaponMax=" + gashaponMax +
+                ", gashaponcool=" + gashaponcool +
+                '}';
+    }
 }

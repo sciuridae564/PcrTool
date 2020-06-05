@@ -32,7 +32,10 @@ public class ProgressServiceImpl extends ServiceImpl<ProgressMapper, Progress> i
 
     @Override
     public Progress getProgress(long Groupqq) {
-        return progressMapper.getProgress(Groupqq);
+        QueryWrapper<Progress> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teamQQ", Groupqq);
+
+        return progressMapper.selectOne(queryWrapper);
     }
 
     @Override

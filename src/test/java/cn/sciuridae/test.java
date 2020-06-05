@@ -2,13 +2,18 @@ package cn.sciuridae;
 
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
+import static cn.sciuridae.utils.timeUtil.getTodayFive;
+
 
 public class test {
 
     @Test
     public void tes() {
-        String string = "[CQ:at,qq=215123515]";
+        LocalDateTime startTime = getTodayFive(LocalDateTime.now());
 
-        System.out.println(Long.parseLong(string.substring(10, string.length() - 1)));
+        System.out.println(startTime);
+        System.out.println(LocalDateTime.now());
     }
 }
