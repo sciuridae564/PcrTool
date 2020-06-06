@@ -46,6 +46,11 @@ public class ProgressServiceImpl extends ServiceImpl<ProgressMapper, Progress> i
     }
 
     @Override
+    public int updateFight(Progress progress) {
+        return progressMapper.updataProgress(progress.getTeamQQ(), progress.getLoop(), progress.getSerial(), progress.getRemnant(), progress.getEndTime(), progress.getStartTime());
+    }
+
+    @Override
     public List<Long> getEnd(LocalDateTime thisDay) {
         return progressMapper.getEnd(thisDay);
     }

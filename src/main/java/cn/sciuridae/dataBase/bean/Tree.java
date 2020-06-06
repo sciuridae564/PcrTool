@@ -22,6 +22,7 @@ public class Tree implements Serializable {
 
     @TableId("teamQQ")
     private Long teamQQ;
+    private String name;
 
     private LocalDateTime date;
 
@@ -62,13 +63,22 @@ public class Tree implements Serializable {
         this.groupQQ = groupQQ;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Tree{" +
                 "teamQQ=" + teamQQ +
+                ", name='" + name + '\'' +
                 ", date=" + date +
                 ", isTree=" + isTree +
                 ", groupQQ=" + groupQQ +
-                "}";
+                '}';
     }
 }

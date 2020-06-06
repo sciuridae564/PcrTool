@@ -38,6 +38,20 @@ public class Progress implements Serializable {
     @Version
     private Integer version;
 
+    public Progress() {
+    }
+
+    public Progress(Integer id, Long teamQQ, Integer loop, Integer serial, Integer remnant, LocalDateTime startTime, LocalDateTime endTime, Integer deleted, Integer version) {
+        this.id = id;
+        this.teamQQ = teamQQ;
+        this.loop = loop;
+        this.serial = serial;
+        Remnant = remnant;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.deleted = deleted;
+        this.version = version;
+    }
 
     public Integer getId() {
         return id;

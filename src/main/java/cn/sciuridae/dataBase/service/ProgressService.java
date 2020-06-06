@@ -22,5 +22,7 @@ public interface ProgressService extends IService<Progress> {
 
     int endFight(long Groupqq);
 
+    int updateFight(Progress progress);
+
     List<Long> getEnd(LocalDateTime thisDay);
 }

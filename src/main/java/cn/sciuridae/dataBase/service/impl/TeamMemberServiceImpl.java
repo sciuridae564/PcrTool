@@ -51,6 +51,11 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     }
 
     @Override
+    public TeamMember getTeamMemberBytoken(String token) {
+        return teamMemberMapper.getTeamMember(token);
+    }
+
+    @Override
     public boolean isAdmin(long QQ, long GroupQq) {
         return teamMemberMapper.isAdmin(GroupQq, QQ);
     }

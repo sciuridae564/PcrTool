@@ -1,6 +1,7 @@
 package cn.sciuridae.timer;
 
 import cn.sciuridae.dataBase.bean.Progress;
+import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.ProgressService;
 import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.dataBase.service.TreeService;
@@ -41,10 +42,10 @@ public class clearEnd implements TimeJob {
         for (Long GroupQQ : list) {
             stringBuilder.delete(0, stringBuilder.length());
             stringBuilder.append("会战结束，辛苦辛苦\n");
-            List<String> list1 = treeServiceImpl.deletTreeByGroup(GroupQQ);
+            List<Tree> list1 = treeServiceImpl.deletTreeByGroup(GroupQQ);
             if (list1 != null) {
-                for (String QQ : list1) {
-                    stringBuilder.append("[CQ:at,qq=").append(QQ).append("] ");
+                for (Tree tree : list1) {
+                    stringBuilder.append("[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
                 }
                 stringBuilder.append("他们还在出刀。都已经结束啦");
             }

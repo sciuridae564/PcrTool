@@ -133,6 +133,7 @@ public class prcnessListener {
                     tree.setDate(LocalDateTime.now());
                     tree.setGroupQQ(msg.getGroupCodeNumber());
                     tree.setTeamQQ(msg.getQQCodeNumber());
+                    tree.setName(teamMemberServiceImpl.getName(msg.getQQCodeNumber()));
                     tree.setTree(false);
                     treeServiceImpl.save(tree);
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "出刀已记录，@会长看我表演");
@@ -272,7 +273,7 @@ public class prcnessListener {
             progress.setSerial(serial);
             progress.setRemnant(Integer.valueOf(change[3]));
 
-            ProgressServiceImpl.updateById(progress);
+            ProgressServiceImpl.updateFight(progress);
             if (is) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "boss调整成功");
             } else {
@@ -302,14 +303,14 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#查树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchTree(GroupMsg msg, MsgSender sender) {
-        List<String> trees = treeServiceImpl.getTreeByGroup(msg.getGroupCodeNumber());
+        List<Tree> trees = treeServiceImpl.getTreeByGroup(msg.getGroupCodeNumber());
 
         if (trees.size() == 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "无 人 挂 树");
         } else {
             StringBuilder stringBuilder = new StringBuilder("挂树名单:");
-            for (String QQ : trees) {
-                stringBuilder.append("\n[CQ:at,qq=").append(QQ).append("] ");
+            for (Tree tree : trees) {
+                stringBuilder.append("\n[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
             }
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
         }
@@ -319,14 +320,14 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#正在出刀", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void searchOutKnife(GroupMsg msg, MsgSender sender) {
-        List<String> trees = treeServiceImpl.getFightByGroup(msg.getGroupCodeNumber());
+        List<Tree> trees = treeServiceImpl.getFightByGroup(msg.getGroupCodeNumber());
 
         if (trees.size() == 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "无 人 出 刀");
         } else {
             StringBuilder stringBuilder = new StringBuilder("正在出刀:");
-            for (String QQ : trees) {
-                stringBuilder.append("\n[CQ:at,qq=").append(QQ).append("] ");
+            for (Tree tree : trees) {
+                stringBuilder.append("\n[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
             }
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
         }
@@ -449,7 +450,7 @@ public class prcnessListener {
                     knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
 
                     //进入救树模式，把树上的人都噜下来
-                    List<String> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
+                    List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
 
                     List<KnifeList> strins = knifeListServiceImpl.getKnife(QQ, LocalDateTime.now());
                     //判断是不是补时刀
@@ -460,8 +461,8 @@ public class prcnessListener {
                     }
                     if (strings.size() > 0) {
                         stringBuilder.append("下树啦，下树啦");
-                        for (String s : strings) {
-                            stringBuilder.append("[CQ:at,qq=").append(s).append("] ");
+                        for (Tree tree : strings) {
+                            stringBuilder.append("[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
                         }
                     }
                     //这刀打爆了boss

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        Object power = httpServletRequest.getSession().getAttribute("token");
+        Object power = httpServletRequest.getSession().getAttribute("teamMember");
         if (power == null) {
             httpServletRequest.setAttribute("msg", "还未登录");
             httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);

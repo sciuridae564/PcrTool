@@ -42,20 +42,20 @@ public class TreeServiceImpl extends ServiceImpl<TreeMapper, Tree> implements Tr
     }
 
     @Override
-    public List<String> deletTreeByGroup(long group) {
-        List<String> list = mapper.getTreeByGroup(group);
+    public List<Tree> deletTreeByGroup(long group) {
+        List<Tree> list = mapper.getTreeByGroup(group);
         list.addAll(mapper.getFightByGroup(group));
         mapper.deleteBatchIds(list);
         return list;
     }
 
     @Override
-    public List<String> getTreeByGroup(long group) {
+    public List<Tree> getTreeByGroup(long group) {
         return mapper.getTreeByGroup(group);
     }
 
     @Override
-    public List<String> getFightByGroup(long group) {
+    public List<Tree> getFightByGroup(long group) {
         return mapper.getFightByGroup(group);
     }
 

@@ -50,4 +50,7 @@ public interface TeamMemberMapper extends BaseMapper<TeamMember> {
 
     @Select("select name from teamMember where userQQ = #{Qq}")
     String getName(@Param("Qq") long Qq);
+
+    @Select("select * from teamMember where token = #{token}")
+    TeamMember getTeamMember(@Param("token") String token);
 }

@@ -3,8 +3,7 @@ package cn.sciuridae.utils;
 import java.sql.*;
 
 public class InitDatabase {
-    private static final int new_version = 3;
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    private static final int new_version = 4;
 
     public void InitDB() {
         int version = -1;
@@ -52,6 +51,12 @@ public class InitDatabase {
                 case 2:
                     statement.executeUpdate("DROP TABLE progress");
                     statement.executeUpdate("CREATE TABLE progress(id integer PRIMARY KEY,teamQQ integer(8),loop integer(2) ,  serial integer(1), Remnant integer(8), startTime datetime,endTime datetime,deleted integer(1) ,version integer)");
+                case 3:
+                    statement.executeUpdate("alter table tree add column name varchar(20);");
+
+
+
+
                     statement.executeUpdate("update version set version =" + new_version);
                 default:
 

@@ -27,6 +27,8 @@ public interface TeamMemberService extends IService<TeamMember> {
     //获取这个qq的工会成员
     TeamMember getTeamMemberByQQ(long QQ);
 
+    TeamMember getTeamMemberBytoken(String token);
+
     boolean isAdmin(long QQ, long GroupQq);
 
     Long getGroupByQQ(long QQ);

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="stylesheet" href="/X-admin/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal "
+                            onclick="frash() " style="float:right">
+                        <i class="layui-icon">&#xe666;</i>
+                    </button>
+                </div>
+                <div class="layui-card-body ">
+                    <table class="layui-table layui-form" lay-filter="teamList">
+                        <thead>
+                        <tr>
+                            <th lay-fileNames="{ sort:true}">qq</th>
+                            <th>昵称</th>
+                            <th>管理员</th>
+                            <th>会长</th>
+                            <th th:if="${power}>1">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="teamList">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function frash() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/group/list');
+        xhr.send();
+        xhr.onload = function () {
+            var html = '';
+            var date = JSON.parse(xhr.responseText);
+            if ([[${power}]]>1) {
+                for (var i = 0; i < date.length; i++) {
+                    html += "<tr>"
+                        + '<td>' + date[i].userQQ + '</td>'
+                        + '<td>' + date[i].name + '</td>'
+                        + '<td>' + date[i].power + "</td>"
+                        + '<td>' + date[i].superPower + '</td>'
+                        + '<td   class="td-manage">\n' +
+                        '<a title="修改" onclick=member_edi(' + date[i].id + ') href="javascript:;">\n' +
+                        '<i class="layui-icon">&#xe63c;</i></a>\n' +
+                        '<a title="删除" onclick="member_del(this,' + date[i].id + ')" href="javascript:;">\n' +
+                        '<i class="layui-icon">&#xe640;</i></a>\n' +
+                        '</td>'
+                        + '</tr>'
+                }
+            } else {
+                for (var i = 0; i < date.length; i++) {
+                    html += "<tr>"
+                        + '<td>' + date[i].userQQ + '</td>'
+                        + '<td>' + date[i].name + '</td>'
+                        + '<td>' + date[i].power + "</td>"
+                        + '<td>' + date[i].superPower + '</td>'
+                        + '</tr>'
+                }
+            }
+
+            $("#teamList").html(html);
+        }
+    }
+
+    /*用户-删除*/
+    function member_del(obj, id) {
+        layer.confirm('确认要删除吗？',
+            function (index) {
+                //发异步删除数据
+                var xhr1 = new XMLHttpRequest();
+                xhr1.open('post', '/group/delete/' + id);
+                xhr1.send();
+                xhr1.onload = function () {
+                    var date = JSON.parse(xhr1.responseText);
+                    if (date) {
+                        $(obj).parents("tr").remove();
+                        layer.msg('已删除!', {
+                            icon: 1,
+                            time: 1000
+                        });
+                    } else {
+                        layer.msg('删除失败!', {
+                            icon: 1,
+                            time: 1000
+                        });
+                    }
+                }
+            });
+    }
+
+    function member_edi(i) {
+        //iframe层
+        var w = ($(window).width() * 0.5);
+        var h = ($(window).height() * 0.65);
+        parent.layer.open({
+            type: 2,
+            title: '出刀',
+            shade: 0.8,
+            area: [w + 'px', h + 'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            content: ['/group/edit?rowid=' + i, 'yes'] //iframe的url，yes是否有滚动条
+            , btn: ['提交', '取消']
+            , yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                var form = $(layero).find("iframe")[0].contentWindow.document;
+                var QQ = form.getElementById('QQ').value;//这个名字是直接复制下面的，所以和真实的控件名字有一点点点不同
+                var name = form.getElementById('name').value;
+                var powerChange = form.getElementById('powerChange').value;
+                var xhr3 = new XMLHttpRequest();
+                xhr3.open('post', '/group/edit1?QQ=' + QQ + "&name=" + name + "&powerChange=" + powerChange);
+                xhr3.send();
+                xhr3.onload = function () {
+                    if (JSON.parse(xhr3.responseText)) {
+                        layer.msg('修改成功');
+                        frash();
+                    } else {
+                        layer.msg('修改失败')
+                    }
+                }
+                parent.layer.close(index)
+            }
+        });
+    }
+
+    window.onload = frash;//加载数据
+</script>
+
+</body>
+</html>

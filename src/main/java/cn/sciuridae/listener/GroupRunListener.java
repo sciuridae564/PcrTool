@@ -7,11 +7,13 @@ import cn.sciuridae.dataBase.service.TeamMemberService;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.ibatis.binding.BindingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.UncategorizedSQLException;
@@ -358,5 +360,28 @@ public class GroupRunListener {
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
         }
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = "更换token", keywordMatchType = KeywordMatchType.EQUALS)
+    public void startHorse(PrivateMsg msg, MsgSender sender) {
+        String token = teamMemberServiceImpl.getToken(msg.getQQCodeNumber());
+        if (token != null) {
+            do {
+                token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+                try {
+                    Integer tokenNum = teamMemberServiceImpl.getTokenNum(token);
+                    if (tokenNum < 1)
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } while (true);
+            teamMemberServiceImpl.updateToken(msg.getQQCodeNumber(), token);
+        } else {
+
+        }
+
     }
 }

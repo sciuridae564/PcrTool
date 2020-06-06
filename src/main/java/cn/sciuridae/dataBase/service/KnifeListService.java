@@ -34,4 +34,9 @@ public interface KnifeListService extends IService<KnifeList> {
 
     KnifeList getKnifeLast(long Qq, LocalDateTime startdate, LocalDateTime endate);
 
+    List<KnifeList> getKnifeSumQq(long Qq, LocalDateTime startdate, LocalDateTime endate);
+
+    List<KnifeList> getKnifeSumByGroup(long groupQq, LocalDateTime startdate, LocalDateTime endate);
+
+    KnifeList getTopKnife(long groupQq);
 }

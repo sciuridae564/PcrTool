@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="stylesheet" href="/X-admin/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <div class="layui-card-header">boss信息
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal "
+                                onclick="frash() " style="float:right">
+                            <i class="layui-icon">&#xe666;</i>
+                        </button>
+                    </div>
+                    <div class="layui-card-body ">
+                        <div id="progress_boss" lay-filter="progress_boss" class="layui-progress layui-progress-big"
+                             lay-showPercent="yes">
+                            <div class="layui-progress-bar layui-bg-green" lay-percent="0%"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <div class="layui-card-header">数据统计
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal"
+                                style="float:right" onclick="edit_boss()">
+                            <i class="layui-icon">&#xe642;</i>
+                        </button>
+                    </div>
+                    <div class="layui-card-body ">
+                        <ul class="layui-row layui-col-space10 layui-this x-admin-carousel x-admin-backlog">
+                            <li class="layui-col-md2 layui-col-xs6">
+                                <a href="javascript:;" class="x-admin-backlog-body">
+                                    <h3>周目</h3>
+                                    <p>
+                                        <cite id="Loop"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-md2 layui-col-xs6">
+                                <a href="javascript:;" class="x-admin-backlog-body">
+                                    <h3>王位</h3>
+                                    <p>
+                                        <cite id="Serial"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-md2 layui-col-xs6">
+                                <a href="javascript:;" class="x-admin-backlog-body">
+                                    <h3>残余血量</h3>
+                                    <p>
+                                        <cite id="Remnant"></cite></p>
+                                </a>
+                            </li>
+                            <li class="layui-col-md2 layui-col-xs6">
+                                <a href="javascript:;" class="x-admin-backlog-body">
+                                    <h3>开始时间</h3>
+                                    <p>
+                                        <cite id="startTime"></cite>
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="layui-col-md2 layui-col-xs6">
+                                <a href="javascript:;" class="x-admin-backlog-body">
+                                    <h3>结束时间</h3>
+                                    <p>
+                                        <cite id="endTime"></cite>
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-body ">
+                <div class="layui-card-header">我的本日出刀
+                    <button onclick="member_add()" type="button"
+                            class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" style="float:right">
+                        <i class="layui-icon">&#xe654;</i>
+                    </button>
+                </div>
+                <div class="layui-card-body ">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th lay-fileNames="{ sort: true}">出刀序号</th>
+                            <th>周目</th>
+                            <th>王位</th>
+                            <th>伤害</th>
+                        </tr>
+                        </thead>
+                        <tbody id="Knife">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-header">正在出刀</div>
+            <div class="layui-card-body ">
+                <table class="layui-table">
+                    <thead>
+                    <tr>
+                        <th lay-fileNames="{ sort: true}">QQ</th>
+                        <th>昵称</th>
+                    </tr>
+                    </thead>
+                    <tbody id="outKnife">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-header">挂树</div>
+            <div class="layui-card-body ">
+                <table class="layui-table">
+                    <thead>
+                    <tr>
+                        <th lay-fileNames="{ sort: true}">QQ</th>
+                        <th>昵称</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tree">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+    function frash() {
+        //正在出刀
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/Fight/OutKnife');
+        xhr.send();
+        xhr.onload = function () {
+            var html = '';
+            var date = JSON.parse(xhr.responseText);
+            for (var i = 0; i < date.length; i++) {
+                html += '<tr>' + '<td>' + date[i][0] + '</td>' + '<td>' + date[i][1] + '</td>' + '</tr>'
+            }
+            $("#outKnife").html(html);
+        }
+        //boss信息
+        var xhr1 = new XMLHttpRequest();
+        xhr1.open('get', '/Fight/bossFight');
+        xhr1.send();
+        xhr1.onload = function () {
+            var date = JSON.parse(xhr1.responseText);
+            $("#Loop").text(date.loop);
+            $("#Serial").text(date.serial);
+            element.progress('progress_boss', date.dem + '%');
+            $("#Remnant").text(date.remnant);
+            $("#startTime").text(date.startTime)
+            $("#endTime").text(date.endTime)
+        }
+
+
+        //挂树
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open('get', '/Fight/tree');
+        xhr2.send();
+        xhr2.onload = function () {
+            var html = '';
+            var date = JSON.parse(xhr2.responseText);
+            for (var i = 0; i < date.length; i++) {
+                html += '<tr>' + '<td>' + date[i][0] + '</td>' + '<td>' + date[i][0] + '</td>' + '</tr>'
+            }
+            $("#tree").html(html);
+        }
+
+        //自己出刀
+        var xhr3 = new XMLHttpRequest();
+        xhr3.open('get', '/Fight/selfKnife');
+        xhr3.send();
+        xhr3.onload = function () {
+            var html = '';
+            var sum = 0;
+            var date = JSON.parse(xhr3.responseText);
+            for (var i = 0; i < date.length; i++) {
+                html += '<tr>' + '<td>' + date[i].id + '</td>' + '<td>' + (date[i].no - date[i].no % 10) / 10 + '</td>' + '<td>' + date[i].no % 10 + '</td>' + '<td>' + date[i].hurt + '</td>' + '</tr>'
+                if (date[i].complete) {
+                    sum++;
+                }
+            }
+            if (parseInt(sum) > 2) {
+                document.getElementById("addKnife").classList.add('layui-btn-disabled')
+            }
+            $("#Knife").html(html);
+        }
+
+        if ([[${Power}]] < 2) {
+            document.getElementById("edit-boss").classList.add('layui-btn-disabled')
+        }
+    }
+
+    function member_add() {
+        //iframe层
+        var w = ($(window).width() * 0.9);
+        var h = ($(window).height() - 50);
+        parent.layer.open({
+            type: 2,
+            title: '出刀',
+            shade: 0.8,
+            area: [w + 'px', h + 'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            content: ['/Fight/add', 'yes'] //iframe的url，yes是否有滚动条
+            , btn: ['提交', '取消']
+            , yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                var form = $(layero).find("iframe")[0].contentWindow.document;
+                var loop;//这个名字是直接复制下面的，所以和真实的控件名字有一点点点不同
+                var remnant;
+                var serial;
+                var StartTime;
+                var EndTime;
+                if ([[${Power}]] < 2) {
+                    loop = form.getElementById('userQQ').value;
+                    remnant = form.getElementById('hurt').value;
+                    serial = form.getElementById('loop').value;
+                    StartTime = form.getElementById('serial').value;
+                    EndTime = form.getElementById('time').value;
+                } else {
+                    loop = form.getElementById('userQQ1').value;
+                    remnant = form.getElementById('hurt').value;
+                    serial = form.getElementById('loop1').value;
+                    StartTime = form.getElementById('serial1').value;
+                    EndTime = form.getElementById('time1').value;
+                }
+
+                var xhr3 = new XMLHttpRequest();
+                xhr3.open('post', '/Fight/add1?userQQ=' + loop + "&hurt=" + remnant + "&loop=" + serial + "&serial=" + StartTime + "&time=" + EndTime);
+                xhr3.send();
+                xhr3.onload = function () {
+                    if (JSON.parse(xhr3.responseText)) {
+                        layer.msg('出刀成功');
+                        frash();
+                    } else {
+                        layer.msg('出刀失败,\n错误原因：我不知道')
+                    }
+                }
+                parent.layer.close(index)
+            }
+        });
+    }
+
+    function edit_boss() {
+        //iframe层
+        var w = ($(window).width() * 0.9);
+        var h = ($(window).height() - 50);
+        parent.layer.open({
+            type: 2,
+            title: '编辑boss',
+            shade: 0.8,
+            area: [w + 'px', h + 'px'],
+            fix: false, //不固定
+            maxmin: true,
+            shadeClose: true,
+            anim: 3
+            , content: ['/Fight/editBoss', 'yes'] //iframe的url，yes是否有滚动条
+            , btn: ['提交', '取消']
+            , yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                var form = $(layero).find("iframe")[0].contentWindow.document;
+                var loop = form.getElementById('loop').value;
+                var remnant = form.getElementById('remnant').value;
+                var serial = form.getElementById('serial').value;
+                var StartTime = form.getElementById('StartTime').value;
+                var EndTime = form.getElementById('EndTime').value;
+
+                var xhr3 = new XMLHttpRequest();
+                xhr3.open('post', '/Fight/editBoss1?loop=' + loop + "&remnant=" + remnant + "&serial=" + serial + "&StartTime=" + StartTime + "&EndTime=" + EndTime);
+                xhr3.send();
+                xhr3.onload = function () {
+                    if (JSON.parse(xhr3.responseText)) {
+                        layer.msg('修改成功');
+                        frash();
+                    } else {
+                        layer.msg('修改失败,\n错误原因：我不知道')
+                    }
+                }
+                parent.layer.close(index)
+            }
+        });
+    }
+
+    window.onload = frash;//加载数据
+</script>
+</body>
+</html>

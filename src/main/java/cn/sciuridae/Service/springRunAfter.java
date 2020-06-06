@@ -1,5 +1,6 @@
 package cn.sciuridae.Service;
 
+import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.ProgressService;
 import cn.sciuridae.dataBase.service.TreeService;
 import com.forte.qqrobot.bot.BotManager;
@@ -42,11 +43,11 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
 
             for (Long progress : progressList) {
                 stringBuilder.delete(0, stringBuilder.length());
-                List<String> list = treeServiceImpl.deletTreeByGroup(progress);
+                List<Tree> list = treeServiceImpl.deletTreeByGroup(progress);
                 stringBuilder.append("自动重置会战次数拉");
                 if (list != null) {
-                    for (String qq : list) {
-                        stringBuilder.append(cqCodeUtil.getCQCode_At(qq));
+                    for (Tree tree : list) {
+                        stringBuilder.append(cqCodeUtil.getCQCode_At(tree.getTeamQQ().toString()));
                     }
                     stringBuilder.append("强制下树惹");
                 }

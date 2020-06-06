@@ -1,6 +1,7 @@
 package cn.sciuridae.timer;
 
 import cn.sciuridae.dataBase.bean.Progress;
+import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.ProgressService;
 import cn.sciuridae.dataBase.service.TreeService;
 import cn.sciuridae.utils.ExcelWrite;
@@ -35,11 +36,11 @@ public class clearVoidKnife implements TimeJob {
 
         for (Progress progress : progressList) {
             stringBuilder.delete(0, stringBuilder.length());
-            List<String> list = treeServiceImpl.deletTreeByGroup(progress.getTeamQQ());
+            List<Tree> list = treeServiceImpl.deletTreeByGroup(progress.getTeamQQ());
             stringBuilder.append("自动重置会战次数拉");
             if (list != null) {
-                for (String qq : list) {
-                    stringBuilder.append(cqCodeUtil.getCQCode_At(qq));
+                for (Tree tree : list) {
+                    stringBuilder.append(cqCodeUtil.getCQCode_At(tree.getTeamQQ().toString()));
                 }
                 stringBuilder.append("强制下树惹");
             }

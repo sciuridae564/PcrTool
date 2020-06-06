@@ -131,5 +131,28 @@ public class KnifeListServiceImpl extends ServiceImpl<KnifeListMapper, KnifeList
         return null;
     }
 
+    @Override
+    public List<KnifeList> getKnifeSumQq(long Qq, LocalDateTime startdate, LocalDateTime endate) {
+        return knifeListMapper.getSumKnifeByQQ(Qq, startdate, endate);
+    }
+
+    @Override
+    public List<KnifeList> getKnifeSumByGroup(long groupQq, LocalDateTime startdate, LocalDateTime endate) {
+        return knifeListMapper.getSumKnifeBygroupQQ(groupQq, startdate, endate);
+    }
+
+    @Override
+    public KnifeList getTopKnife(long groupQq) {
+        LocalDateTime[] dates = getTodayNoStart(LocalDateTime.now(), false);
+        List<KnifeList> knives = getKnifeSumByGroup(groupQq, dates[0], dates[1]);
+        KnifeList Topknife = knives.get(0);
+        for (int i = 1; i < knives.size(); i++) {
+            if (knives.get(i).getHurt() > Topknife.getHurt()) { //找最高伤害的
+                Topknife = knives.get(i);
+            }
+        }
+        return Topknife;
+    }
+
 
 }

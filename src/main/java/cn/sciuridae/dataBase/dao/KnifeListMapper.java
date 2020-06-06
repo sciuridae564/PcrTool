@@ -27,6 +27,14 @@ public interface KnifeListMapper extends BaseMapper<KnifeList> {
             "where teamMember.groupQQ=#{groupQq} AND date between #{startdate} and #{endate}")
     List<KnifeList> getKnifeBygroupQQ(@Param("groupQq") long groupQq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
+    @Select("select sum(knife.hurt),knife.knifeQQ from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
+            "where teamMember.groupQQ=#{groupQq} AND date between #{startdate} and #{endate}")
+    List<KnifeList> getSumKnifeBygroupQQ(@Param("groupQq") long groupQq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
+
+    @Select("select sum(knife.hurt),knife.knifeQQ from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
+            "where teamMember.userQQ=#{Qq} AND date between #{startdate} and #{endate}")
+    List<KnifeList> getSumKnifeByQQ(@Param("Qq") long Qq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
+
     @Select("select knifeList.* from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
             "where teamMember.groupQQ=#{groupQq}")
     List<KnifeList> getKnife(@Param("groupQq") long groupQq);
