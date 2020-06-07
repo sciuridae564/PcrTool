@@ -1,10 +1,10 @@
 package cn.sciuridae.utils.bean;
 
 public class groupPower {
-    private boolean on = true;//总开关
-    private boolean eggon = true;//扭蛋开关
-    private boolean buton = true;//买药小助手提示
-    private boolean horse = true;//赛马开关
+    private boolean on;//总开关
+    private boolean eggon;//扭蛋开关
+    private boolean buton;//买药小助手提示
+    private boolean horse;//赛马开关
 
     public boolean isOn() {
         return on;

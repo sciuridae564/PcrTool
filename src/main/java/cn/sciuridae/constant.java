@@ -227,8 +227,12 @@ public class constant {
             pro.setProperty("提醒买药小助手图片名", "抽卡.png");
             pro.setProperty("抽卡上限", "1000");
             pro.setProperty("抽卡冷却秒", "30");
+            pro.setProperty("总开关默认开启", "true");
+            pro.setProperty("抽奖默认开启", "true");
+            pro.setProperty("抽卡默认开启", "true");
+            pro.setProperty("赛马默认开启", "true");
             OutputStreamWriter op = null;
-            pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30);
+            pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);
             try {
                 op = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
                 pro.store(op, "the PcrTool configs");
@@ -248,9 +252,16 @@ public class constant {
             try {
                 in = new InputStreamReader(new FileInputStream(file), "utf-8");
                 pro.load(in);
-                pricnessConfig = new PricnessConfig(pro.getProperty("提醒买药小助手图片名"), Integer.parseInt(pro.getProperty("抽卡上限")), Integer.parseInt(pro.getProperty("抽卡冷却秒")));
+                pricnessConfig = new PricnessConfig(pro.getProperty("提醒买药小助手图片名"),
+                        Integer.parseInt(pro.getProperty("抽卡上限")),
+                        Integer.parseInt(pro.getProperty("抽卡冷却秒")),
+                        Boolean.parseBoolean(pro.getProperty("总开关默认开启")),
+                        Boolean.parseBoolean(pro.getProperty("抽奖默认开启")),
+                        Boolean.parseBoolean(pro.getProperty("抽卡默认开启")),
+                        Boolean.parseBoolean(pro.getProperty("赛马默认开启"))
+                );
             } catch (Exception e) {
-                pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30);//没读到就生成一个新的
+                pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);//没读到就生成一个新的
             } finally {
                 try {
                     in.close();

@@ -8,6 +8,7 @@ import com.forte.qqrobot.listener.MsgIntercept;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cn.sciuridae.constant.pricnessConfig;
 import static cn.sciuridae.constant.setjson;
 
 @Beans
@@ -32,11 +33,15 @@ public class prcnessIntercept implements MsgIntercept {
                     return On.get(((GroupMsg) context.getMsgGet()).getGroupCode()).isEggon();
                 }
             } catch (NullPointerException e) {
-                //没这个群的自动都是不通过
+                //没这个群的信息
                 groupPower groupPower = new groupPower();
+                groupPower.setOn(pricnessConfig.isPcrToonon());
+                groupPower.setButon(pricnessConfig.isButon());
+                groupPower.setEggon(pricnessConfig.isEggon());
+                groupPower.setHorse(pricnessConfig.isHorse());
                 On.put(((GroupMsg) context.getMsgGet()).getGroupCode(), groupPower);
                 setjson();
-                return false;
+                return pricnessConfig.isPcrToonon();
             }
         }
         return true;

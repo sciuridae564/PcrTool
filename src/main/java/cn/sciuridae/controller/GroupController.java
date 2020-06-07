@@ -27,7 +27,7 @@ public class GroupController {
     public String base(HttpSession session, Model model) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
 
-        model.addAttribute("power", teamMember.getPower());
+        model.addAttribute("power", teamMember.getIntPower());
         return "team/list";
     }
 

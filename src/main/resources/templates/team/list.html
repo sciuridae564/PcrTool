@@ -62,10 +62,10 @@
             if ([[${power}]]>1) {
                 for (var i = 0; i < date.length; i++) {
                     html += "<tr>"
-                        + '<td>' + date[i].userQQ + '</td>'
+                        + '<td id=dx' + i + '>' + date[i].userQQ + '</td>'
                         + '<td>' + date[i].name + '</td>'
                         + '<td>' + date[i].power + "</td>"
-                        + '<td>' + date[i].superPower + '</td>'
+                        + '<td>' + '还没做' + '</td>'
                         + '<td   class="td-manage">\n' +
                         '<a title="修改" onclick=member_edi(' + date[i].id + ') href="javascript:;">\n' +
                         '<i class="layui-icon">&#xe63c;</i></a>\n' +
