@@ -33,7 +33,7 @@ public class LoginController {
         if (teamMember != null) {
             TeamMemberI teamMemberi = new TeamMemberI(teamMember, pcrUnionServiceImpl.isGroupMaster(teamMember.getUserQQ(), teamMember.getGroupQQ()));
             session.setAttribute("teamMember", teamMemberi);
-            PcrUnion group = pcrUnionServiceImpl.getGroup(teamMember.getUserQQ());
+            PcrUnion group = pcrUnionServiceImpl.getGroup(teamMember.getGroupQQ());
             session.setAttribute("group", group);
             botManager.defaultBot().getSender().SENDER.sendPrivateMsg(String.valueOf(teamMember.getUserQQ()), "登陆了网页" + LocalDateTime.now());
             return true;

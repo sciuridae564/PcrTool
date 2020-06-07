@@ -12,8 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        Object power = httpServletRequest.getSession().getAttribute("teamMember");
-        if (power == null) {
+        Object teamMember = httpServletRequest.getSession().getAttribute("teamMember");
+        Object group = httpServletRequest.getSession().getAttribute("group");
+        if (teamMember == null || group == null) {
             httpServletRequest.setAttribute("msg", "还未登录");
             httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
             return false;

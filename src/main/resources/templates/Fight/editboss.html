@@ -64,8 +64,8 @@
         var laydate = layui.laydate;
         laydate.render({
             elem: '#StartTime', //指定元素
-            type: 'date', //指定元素
-            format: "y:MM:dd",//指定元素
+            type: 'datetime', //指定元素
+            format: "yyyy:MM:dd HH:mm:ss",//指定元素
             value: "[[${fightStatue.getStartTime()}]]"
 
         });
@@ -76,8 +76,8 @@
         var laydate1 = layui.laydate;
         laydate1.render({
             elem: '#EndTime', //指定元素
-            type: 'date', //指定元素
-            format: "y:MM:dd",//指定元素
+            type: 'datetime', //指定元素
+            format: "yyyy:MM:dd HH:mm:ss",//指定元素
             value: "[[${fightStatue.getEndTime()}]]"
 
         });

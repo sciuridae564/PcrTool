@@ -81,11 +81,8 @@ public class KnifeListServiceImpl extends ServiceImpl<KnifeListMapper, KnifeList
 
     @Override
     public List<KnifeList> getKnifeList(long group, LocalDateTime startdate, LocalDateTime endate) {
-        QueryWrapper<KnifeList> wrapper = new QueryWrapper<>();
-        wrapper.apply("knifeQQ", group);
-        wrapper.ge("date", startdate);
-        wrapper.lt("date", endate);
-        return knifeListMapper.selectList(wrapper);
+
+        return knifeListMapper.getKnifeBygroupQQ(group, startdate, endate);
     }
 
     @Override

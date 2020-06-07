@@ -215,7 +215,7 @@ public class constant {
         //通用设定
         File file = new File("通用配置.txt");
         Properties pro = new Properties();
-        ;
+        OutputStreamWriter op = null;
         if (!file.exists() || !file.isFile()) {
             //没有读取到配置文件
             try {
@@ -231,7 +231,7 @@ public class constant {
             pro.setProperty("抽奖默认开启", "true");
             pro.setProperty("抽卡默认开启", "true");
             pro.setProperty("赛马默认开启", "true");
-            OutputStreamWriter op = null;
+
             pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);
             try {
                 op = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
@@ -262,6 +262,19 @@ public class constant {
                 );
             } catch (Exception e) {
                 pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);//没读到就生成一个新的
+                try {
+                    op = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
+                    pro.store(op, "the PcrTool configs");
+
+                } catch (IOException e1) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        op.close();
+                    } catch (IOException e2) {
+                        e.printStackTrace();
+                    }
+                }
             } finally {
                 try {
                     in.close();

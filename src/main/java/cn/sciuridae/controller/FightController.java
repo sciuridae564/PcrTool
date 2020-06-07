@@ -2,27 +2,38 @@ package cn.sciuridae.controller;
 
 import cn.sciuridae.controller.bean.ProgressI;
 import cn.sciuridae.controller.bean.TeamMemberI;
+import cn.sciuridae.controller.bean.showKnife;
 import cn.sciuridae.dataBase.bean.KnifeList;
 import cn.sciuridae.dataBase.bean.PcrUnion;
 import cn.sciuridae.dataBase.bean.Progress;
 import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.KnifeListService;
 import cn.sciuridae.dataBase.service.ProgressService;
+import cn.sciuridae.dataBase.service.TeamMemberService;
 import cn.sciuridae.dataBase.service.TreeService;
-import com.alibaba.fastjson.JSONArray;
+import cn.sciuridae.listener.KnifeState;
 import com.alibaba.fastjson.JSONObject;
+import com.forte.qqrobot.bot.BotManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 import static cn.sciuridae.constant.BossHpLimit;
+import static cn.sciuridae.listener.prcnessListener.toHurt;
 
 @Controller
 public class FightController {
@@ -33,59 +44,54 @@ public class FightController {
     ProgressService ProgressServiceImpl;
     @Autowired
     TreeService treeServiceImpl;
+    @Autowired
+    TeamMemberService teamMemberServiceImpl;
+    @Autowired
+    private BotManager botManager;
 
     @RequestMapping(value = "/Fight/simple")
     public String dosome(HttpSession session, Model model) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        model.addAttribute("Power", teamMember.getIntPower());//设置权限
+        model.addAttribute("power", teamMember.getIntPower());//设置权限
         return "Fight/SimpleFight";
+    }
+
+    @RequestMapping(value = "/Fight/progress")
+    @ResponseBody
+    public ProgressI dosome(HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        Progress progress = ProgressServiceImpl.getProgress(teamMember.getGroupQQ());
+        ProgressI progressI = new ProgressI(progress, (progress.getRemnant() * 100) / BossHpLimit[progress.getSerial() - 1]);
+        return progressI;
+    }
+
+    @RequestMapping(value = "/Fight/tree")
+    @ResponseBody
+    public List<Tree> tree(HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        Tree tree;
+        return treeServiceImpl.getTreeByGroup(teamMember.getGroupQQ());
+    }
+
+    @RequestMapping(value = "/Fight/fight")
+    @ResponseBody
+    public List<Tree> fight(HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        return treeServiceImpl.getFightByGroup(teamMember.getGroupQQ());
+    }
+
+    @RequestMapping(value = "/Fight/knive")
+    @ResponseBody
+    public List<KnifeList> knive(HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        return knifeListServiceImpl.getKnife(teamMember.getUserQQ(), LocalDateTime.now());
     }
 
     @RequestMapping(value = "/Fight/List")
     public String list(HttpSession session, Model model) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        model.addAttribute("Power", teamMember.getIntPower());//设置权限
+        model.addAttribute("power", teamMember.getIntPower());//设置权限
         return "Fight/FightList";
-    }
-
-    //正在出刀数据请求 返回json字符串 { qq：，name：}
-    @GetMapping(value = "/Fight/OutKnife")
-    @ResponseBody
-    public synchronized JSONObject getOutKnife(HttpSession session) {
-        PcrUnion group = (PcrUnion) session.getAttribute("group");
-        List<Tree> list = treeServiceImpl.getTreeByGroup(group.getGroupQQ());
-        JSONArray name = new JSONArray();
-        JSONArray qq = new JSONArray();
-        if (list != null) {
-            for (Tree tree : list) {
-                name.add(tree.getName());
-                qq.add(tree.getTeamQQ());
-            }
-        }
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name", name);
-        jsonObject.put("qq", qq);
-        return jsonObject;
-    }
-
-    //挂树数据查询请求
-    @GetMapping(value = "/Fight/tree")
-    @ResponseBody
-    public synchronized JSONObject gettree(HttpSession session) {
-        PcrUnion group = (PcrUnion) session.getAttribute("group");
-        List<Tree> list = treeServiceImpl.getFightByGroup(group.getGroupQQ());
-        JSONArray name = new JSONArray();
-        JSONArray qq = new JSONArray();
-        if (list != null) {
-            for (Tree tree : list) {
-                name.add(tree.getName());
-                qq.add(tree.getTeamQQ());
-            }
-        }
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name", name);
-        jsonObject.put("qq", qq);
-        return jsonObject;
     }
 
     //自己已出刀数据请求
@@ -112,29 +118,18 @@ public class FightController {
         return jsonObject;
     }
 
-    //获取现在boss状态
-    @GetMapping(value = "/Fight/bossFight")
+
+    @RequestMapping(value = "/Fight/GroupKnifeList")
     @ResponseBody
-    public synchronized ProgressI getFightStatue(HttpSession session) {
-        PcrUnion group = (PcrUnion) session.getAttribute("group");
-        Progress progress = ProgressServiceImpl.getProgress(group.getGroupQQ());
-        ProgressI progressI = new ProgressI(progress, (progress.getRemnant() * 100) / BossHpLimit[progress.getSerial() - 1]);
-
-        //算出血量百分比
-        return progressI;
-    }
-
-
-    @GetMapping(value = "/Fight/GroupKnifeList")
-    @ResponseBody
-    public synchronized JSONObject getGroupKnife(String start, String end, String QQ, HttpSession session) {
+    public synchronized List<showKnife> getGroupKnife(String start, String end, String QQ, HttpSession session) {
         JSONObject jsonObject = new JSONObject();
         LocalDateTime[] dates = new LocalDateTime[2];
         LocalDate now = LocalDate.now();
         PcrUnion group = (PcrUnion) session.getAttribute("group");
         Progress progress = ProgressServiceImpl.getProgress(group.getGroupQQ());
         List<KnifeList> lists;
-        if (start != null) {
+        List<showKnife> list = new ArrayList<>();
+        if (start != null && !Objects.equals(start, "")) {
             LocalDate localDate = LocalDate.parse(start);
             dates[0] = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
         } else {
@@ -147,37 +142,52 @@ public class FightController {
             dates[0] = localDateTime;
         }
 
-        if (end != null) {
+        if (end != null && !Objects.equals(end, "")) {
             if (Objects.equals(start, end)) {
                 LocalDate localDate = LocalDate.parse(end);
-                localDate.plusDays(1);
-                dates[1] = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 0, 0);
+                localDate = localDate.plusDays(1);
+                dates[1] = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
             } else {
                 LocalDate localDate = LocalDate.parse(end);
-                dates[1] = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 0, 0);
+                dates[1] = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
             }
         } else {
             dates[1] = LocalDateTime.now();
         }
 
-        if (null != QQ) {
+        if (null != QQ && !Objects.equals(QQ, "")) {
+            String name = teamMemberServiceImpl.getName(Long.parseLong(QQ));
             lists = knifeListServiceImpl.getKnife(Long.parseLong(QQ), dates[0], dates[1]);
+            for (KnifeList k : lists) {
+                showKnife knife = new showKnife(k.getId(), k.getKnifeQQ(), name, k.getHurt(), k.getDate(), k.getComplete(), k.getLoop(), k.getPosition());
+                list.add(knife);
+            }
         } else {
             lists = knifeListServiceImpl.getKnifeList(group.getGroupQQ(), dates[0], dates[1]);
+            HashMap<Long, String> nameMap = new HashMap<>();
+            for (KnifeList k : lists) {
+                String name = nameMap.get(k.getKnifeQQ());
+                if (name == null) {
+                    name = teamMemberServiceImpl.getName(k.getKnifeQQ());
+                    nameMap.put(k.getKnifeQQ(), name);
+                }
+                showKnife knife = new showKnife(k.getId(), k.getKnifeQQ(), name, k.getHurt(), k.getDate(), k.getComplete(), k.getLoop(), k.getPosition());
+                list.add(knife);
+            }
+
         }
-        jsonObject.put("knife", lists);
-        return jsonObject;
+        return list;
     }
 
-    @PostMapping(value = "/Fight/delete/{rowid}")
+    @RequestMapping(value = "/Fight/delete")
     @ResponseBody
-    public synchronized boolean delete(@PathVariable("rowid") int rowid, HttpSession session) {
+    public synchronized boolean delete(int id, HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
         if (!teamMember.getPower()) {
             return false;
         }
 
-        return knifeListServiceImpl.removeById(rowid);
+        return knifeListServiceImpl.removeById(id);
     }
 
     //添加一个出刀信息
@@ -197,19 +207,59 @@ public class FightController {
     //添加一个出刀信息
     @RequestMapping(value = "/Fight/add1")
     @ResponseBody
-    public synchronized boolean addKnife1(String userQQ, int hurt, int loop, int serial, String time, HttpSession session) {
+    public synchronized KnifeList addKnife1(int hurt, HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        if (teamMember.getUserQQ() != Long.parseLong(userQQ) && !teamMember.getPower()) {
-            return false;
+
+        KnifeState knifeState = toHurt(teamMember.getGroupQQ(), teamMember.getUserQQ(), hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl);
+        if (knifeState.isOk()) {
+            botManager.defaultBot().getSender().SENDER.sendGroupMsg(String.valueOf(teamMember.getGroupQQ()), knifeState.getMsg());
+            return knifeState.getKnifeList();
+        } else {
+            botManager.defaultBot().getSender().SENDER.sendGroupMsg(String.valueOf(teamMember.getGroupQQ()), knifeState.getFailMsg());
+            return null;
+        }
+
+    }
+
+    //添加一个出刀信息
+    @RequestMapping(value = "/Fight/addforce")
+    public synchronized String addKnifeforce(Model model, HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        Progress progress = ProgressServiceImpl.getProgress(teamMember.getGroupQQ());
+        model.addAttribute("fightStatue", progress);
+        model.addAttribute("userQQ", teamMember.getUserQQ());
+        model.addAttribute("time", LocalDate.now());
+        return "/Fight/addforge";
+    }
+
+    //添加一个出刀信息
+    @RequestMapping(value = "/Fight/addforce1")
+    @ResponseBody
+    public synchronized KnifeList addKnifeforce1(String userQQ, int hurt, int loop, int serial, String time, boolean complete, HttpSession session) {
+        TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
+        if (!teamMember.getPower()) {
+            return null;
         }
         KnifeList knifeList = new KnifeList();
         knifeList.setKnifeQQ(Long.parseLong(userQQ));
         knifeList.setHurt(hurt);
         knifeList.setLoop(loop);
         knifeList.setPosition(serial);
+        knifeList.setComplete(complete);
+        try {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(time, dateTimeFormatter);
+            knifeList.setDate(localDateTime);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
 
-        knifeList.setDate(LocalDateTime.now());
-        return knifeListServiceImpl.save(knifeList);
+        if (knifeListServiceImpl.save(knifeList)) {
+            return knifeList;
+        } else {
+            return null;
+        }
+
     }
 
     @RequestMapping(value = "/Fight/edit")
@@ -255,10 +305,9 @@ public class FightController {
             progress.setLoop(loop);
             progress.setRemnant(remnant);
             progress.setSerial(serial);
-            LocalDate startTimelocalDate = LocalDate.parse(StartTime);
-            LocalDate endTimelocalDate = LocalDate.parse(EndTime);
-            LocalDateTime startlocalDateTime = LocalDateTime.of(startTimelocalDate.getYear(), startTimelocalDate.getMonth(), startTimelocalDate.getDayOfMonth(), 5, 0);
-            LocalDateTime endlocalDateTime = LocalDateTime.of(endTimelocalDate.getYear(), endTimelocalDate.getMonth(), endTimelocalDate.getDayOfMonth(), 5, 0);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
+            LocalDateTime startlocalDateTime = LocalDateTime.parse(StartTime, dateTimeFormatter);
+            LocalDateTime endlocalDateTime = LocalDateTime.parse(EndTime, dateTimeFormatter);
 
             progress.setStartTime(startlocalDateTime);
             progress.setEndTime(endlocalDateTime);

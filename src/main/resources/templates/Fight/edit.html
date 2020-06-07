@@ -45,7 +45,7 @@
         <label class="layui-form-label">当前周目</label>
         <div class="layui-input-block">
             <input type="text" id="loop" required autocomplete="off" class="layui-input"
-                   th:value="(${knife.getNo()}-${knife.getNo()}%10)/10">
+                   th:value="${knife.getLoop()}">
         </div>
     </div>
 
@@ -53,7 +53,7 @@
         <label class="layui-form-label">当前王位</label>
         <div class="layui-input-block">
             <input type="text" id="serial" required autocomplete="off" class="layui-input"
-                   th:value="${knife.getNo()}%10">
+                   th:value="${knife.getPosition()}">
         </div>
     </div>
     <div class="layui-form-item">
@@ -68,8 +68,8 @@
             var laydate = layui.laydate;
             laydate.render({
                 elem: '#time', //指定元素
-                type: 'date', //指定元素
-                format: "y:MM:dd",//指定元素
+                type: 'datetime', //指定元素
+                format: "yyyy:MM:dd HH:mm:ss",//指定元素
                 value: "[[${knife.getDate()}]]",
                 max: 0
             });

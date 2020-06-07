@@ -159,26 +159,24 @@
     </div>
 
 </div>
-</div>
-</div>
 
 <script type="text/javascript">
     function frash() {
         //正在出刀
         var xhr = new XMLHttpRequest();
-        xhr.open('get', '/Fight/OutKnife');
+        xhr.open('get', '/Fight/fight');
         xhr.send();
         xhr.onload = function () {
             var html = '';
             var date = JSON.parse(xhr.responseText);
             for (var i = 0; i < date.length; i++) {
-                html += '<tr>' + '<td>' + date[i][0] + '</td>' + '<td>' + date[i][1] + '</td>' + '</tr>'
+                html += '<tr>' + '<td>' + date[i].teamQQ + '</td>' + '<td>' + date[i].name + '</td>' + '</tr>'
             }
             $("#outKnife").html(html);
         }
         //boss信息
         var xhr1 = new XMLHttpRequest();
-        xhr1.open('get', '/Fight/bossFight');
+        xhr1.open('get', '/Fight/progress');
         xhr1.send();
         xhr1.onload = function () {
             var date = JSON.parse(xhr1.responseText);
@@ -186,9 +184,10 @@
             $("#Serial").text(date.serial);
             element.progress('progress_boss', date.dem + '%');
             $("#Remnant").text(date.remnant);
-            $("#startTime").text(date.startTime)
-            $("#endTime").text(date.endTime)
+            $("#startTime").text(date.startTime.substring(0, 10))
+            $("#endTime").text(date.endTime.substring(0, 10))
         }
+
 
 
         //挂树
@@ -199,21 +198,21 @@
             var html = '';
             var date = JSON.parse(xhr2.responseText);
             for (var i = 0; i < date.length; i++) {
-                html += '<tr>' + '<td>' + date[i][0] + '</td>' + '<td>' + date[i][0] + '</td>' + '</tr>'
+                html += '<tr>' + '<td>' + date[i].teamQQ + '</td>' + '<td>' + date[i].name + '</td>' + '</tr>'
             }
             $("#tree").html(html);
         }
 
         //自己出刀
         var xhr3 = new XMLHttpRequest();
-        xhr3.open('get', '/Fight/selfKnife');
+        xhr3.open('get', '/Fight/knive');
         xhr3.send();
         xhr3.onload = function () {
             var html = '';
             var sum = 0;
             var date = JSON.parse(xhr3.responseText);
             for (var i = 0; i < date.length; i++) {
-                html += '<tr>' + '<td>' + date[i].id + '</td>' + '<td>' + (date[i].no - date[i].no % 10) / 10 + '</td>' + '<td>' + date[i].no % 10 + '</td>' + '<td>' + date[i].hurt + '</td>' + '</tr>'
+                html += '<tr>' + '<td>' + date[i].id + '</td>' + '<td>' + date[i].loop + '</td>' + '<td>' + date[i].position + '</td>' + '<td>' + date[i].hurt + '</td>' + '</tr>'
                 if (date[i].complete) {
                     sum++;
                 }
@@ -224,7 +223,7 @@
             $("#Knife").html(html);
         }
 
-        if ([[${Power}]] < 2) {
+        if ([[${power}]] < 2) {
             document.getElementById("edit-boss").classList.add('layui-btn-disabled')
         }
     }
@@ -246,34 +245,17 @@
             , yes: function (index, layero) {
                 //按钮【按钮一】的回调
                 var form = $(layero).find("iframe")[0].contentWindow.document;
-                var loop;//这个名字是直接复制下面的，所以和真实的控件名字有一点点点不同
                 var remnant;
-                var serial;
-                var StartTime;
-                var EndTime;
-                if ([[${Power}]] < 2) {
-                    loop = form.getElementById('userQQ').value;
-                    remnant = form.getElementById('hurt').value;
-                    serial = form.getElementById('loop').value;
-                    StartTime = form.getElementById('serial').value;
-                    EndTime = form.getElementById('time').value;
-                } else {
-                    loop = form.getElementById('userQQ1').value;
-                    remnant = form.getElementById('hurt').value;
-                    serial = form.getElementById('loop1').value;
-                    StartTime = form.getElementById('serial1').value;
-                    EndTime = form.getElementById('time1').value;
-                }
-
+                remnant = form.getElementById('hurt').value;
                 var xhr3 = new XMLHttpRequest();
-                xhr3.open('post', '/Fight/add1?userQQ=' + loop + "&hurt=" + remnant + "&loop=" + serial + "&serial=" + StartTime + "&time=" + EndTime);
+                xhr3.open('post', '/Fight/add1?' + "hurt=" + remnant);
                 xhr3.send();
                 xhr3.onload = function () {
-                    if (JSON.parse(xhr3.responseText)) {
+                    var a = JSON.parse(xhr3.responseText);
+                    if (a != null) {
                         layer.msg('出刀成功');
-                        frash();
                     } else {
-                        layer.msg('出刀失败,\n错误原因：我不知道')
+                        layer.msg('出刀失败')
                     }
                 }
                 parent.layer.close(index)
@@ -313,7 +295,7 @@
                         layer.msg('修改成功');
                         frash();
                     } else {
-                        layer.msg('修改失败,\n错误原因：我不知道')
+                        layer.msg('修改失败')
                     }
                 }
                 parent.layer.close(index)

@@ -47,9 +47,9 @@ public class BaseController {
         Model.addAttribute("username", teamMember.getName());//登陆人名字
         Model.addAttribute("group_teams", teamMemberServiceImpl.getTeamMemberByGroup(teamMember.getGroupQQ()));//登陆人所在组成员列表
         Model.addAttribute("knifeCount", knifeNum);//今日出刀数
-        Model.addAttribute("loop", progress.getLoop());
-        Model.addAttribute("Serial", progress.getSerial());
-        Model.addAttribute("Remnant", progress.getRemnant());
+        Model.addAttribute("loop", progress == null ? 0 : progress.getLoop());
+        Model.addAttribute("Serial", progress == null ? 0 : progress.getSerial());
+        Model.addAttribute("Remnant", progress == null ? 0 : progress.getRemnant());
         Model.addAttribute("knives", knifeList);
         Model.addAttribute("topKnife", topknifename);
 

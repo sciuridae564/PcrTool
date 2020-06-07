@@ -23,16 +23,16 @@ import java.util.List;
 @Mapper
 public interface ProgressMapper extends BaseMapper<Progress> {
 
-    @Select("select Remnant from progress where teamQQ=#{groupQq} ")
+    @Select("select Remnant from progress where teamQQ=#{groupQq} AND deleted=0")
     Integer getFight(@Param("groupQq") long groupQq);
 
-    @Select("select * from progress where teamQQ=#{groupQq} ")
+    @Select("select * from progress where teamQQ=#{groupQq} AND deleted=0")
     Progress getProgress(@Param("groupQq") long groupQq);
 
-    @Select("select teamQQ from progress where endTime < #{endTime} ")
+    @Select("select teamQQ from progress where endTime < #{endTime} AND deleted=0 ")
     List<Long> getEnd(@Param("endTime") LocalDateTime endTime);
 
-    @Update("update progress set loop=#{loop},serial=#{serial},Remnant=#{Remnant},endTime=#{endTime},startTime=#{startTime} where teamQQ < #{teamQQ} ")
+    @Update("update progress set loop=#{loop},serial=#{serial},Remnant=#{Remnant},endTime=#{endTime},startTime=#{startTime} where teamQQ < #{teamQQ} AND deleted=0")
     int updataProgress(@Param("teamQQ") long teamQQ, @Param("loop") int loop, @Param("serial") int serial, @Param("Remnant") long Remnant, @Param("endTime") LocalDateTime endTime, @Param("startTime") LocalDateTime startTime);
 
 }

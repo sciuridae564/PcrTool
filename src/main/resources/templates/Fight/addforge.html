@@ -18,12 +18,14 @@
     <![endif]-->
 </head>
 <body>
-<form class="layui-form">
+<form class="layui-form" id="form">
+    <div class="layui-elem-quote">
+        <p>注意，在此界面提交仅增加出刀信息而不会对boss状态产生任何影响，需要手动调整</p>
+    </div>
     <div class="layui-form-item">
         <label class="layui-form-label">qq</label>
         <div class="layui-input-block">
-            <input type="text" id="userQQ1" required readonly="readonly" autocomplete="off" class="layui-input"
-                   th:value="${userQQ}">
+            <input type="text" id="userQQ" required autocomplete="off" class="layui-input" th:value="${userQQ}">
         </div>
     </div>
     <div class="layui-form-item">
@@ -33,22 +35,58 @@
                    class="layui-input">
         </div>
     </div>
+
     <div class="layui-form-item">
-        <label class="layui-form-label">当前周目</label>
+        <label class="layui-form-label">周目</label>
         <div class="layui-input-block">
-            <input type="text" id="loop1" required readonly="readonly" autocomplete="off" class="layui-input"
+            <input type="text" id="loop" required autocomplete="off" class="layui-input"
                    th:value="${fightStatue.getLoop()}">
         </div>
     </div>
 
     <div class="layui-form-item">
-        <label class="layui-form-label">当前王位</label>
+        <label class="layui-form-label">王位</label>
         <div class="layui-input-block">
-            <input type="text" id="serial1" required readonly="readonly" autocomplete="off" class="layui-input"
+            <input type="text" id="serial" required autocomplete="off" class="layui-input"
                    th:value="${fightStatue.getSerial()}">
         </div>
     </div>
 
+    <div class="layui-form-item">
+        <label class="layui-form-label">日期</label>
+        <div class="layui-input-block">
+            <input type="text" id="time" required autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">是补偿刀</label>
+        <div class="layui-input-block">
+            <input id="complete" type="radio" name="complete">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#time', //指定元素
+                type: 'datetime', //指定元素
+                format: "yyyy:MM:dd HH:mm:ss",//指定元素
+                value: new Date(),
+                max: 0
+            });
+
+        });
+        layui.use('form', function () {
+            var form = layui.form;
+
+            //刷新界面 所有元素
+
+            form.render();
+
+        });
+    </script>
 </form>
 </body>
 </html>

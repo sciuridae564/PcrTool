@@ -1,9 +1,11 @@
 package cn.sciuridae.controller;
 
 import cn.sciuridae.controller.bean.TeamMemberI;
+import cn.sciuridae.controller.bean.showTeamMember;
 import cn.sciuridae.dataBase.bean.TeamMember;
 import cn.sciuridae.dataBase.service.PcrUnionService;
 import cn.sciuridae.dataBase.service.TeamMemberService;
+import com.alibaba.fastjson.JSONArray;
 import com.forte.qqrobot.bot.BotManager;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +35,26 @@ public class GroupController {
 
     @GetMapping(value = "/group/list")
     @ResponseBody
-    public synchronized List<TeamMember> geteam(HttpSession session) {
+    public synchronized String geteam(HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
         List<TeamMember> list = teamMemberServiceImpl.getTeamMemberByGroup(teamMember.getGroupQQ());
-        List<TeamMember> list1 = teamMemberServiceImpl.getTeamMemberByGroup(teamMember.getGroupQQ());
+
+        JSONArray jsonArray = new JSONArray();
         long groupQQ = pcrUnionServiceImpl.getGroupMaster(teamMember.getGroupQQ());
         for (TeamMember t : list) {
+            showTeamMember showTeamMember = new showTeamMember();
+            showTeamMember.setName(t.getName());
+            showTeamMember.setUserQQ(t.getUserQQ());
             if (t.getUserQQ() == groupQQ) {
-                list1.add(new TeamMemberI(t, groupQQ == t.getUserQQ()));
-                break;
+                showTeamMember.setPower("会长");
+            } else if (t.getPower()) {
+                showTeamMember.setPower("管理员");
+            } else {
+                showTeamMember.setPower("组员");
             }
+            jsonArray.add(showTeamMember);
         }
-        return list1;
+        return jsonArray.toJSONString();
     }
 
 

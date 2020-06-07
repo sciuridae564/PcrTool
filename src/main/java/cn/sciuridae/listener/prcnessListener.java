@@ -169,56 +169,107 @@ public class prcnessListener {
         }
     }
 
+    //处理交刀的数据
+    public static KnifeState toHurt(long groupQQ, long QQ, int hurt, KnifeListService knifeListServiceImpl, ProgressService progressServiceImpl, TreeService treeServiceImpl) {
+        StringBuilder stringBuilder = new StringBuilder();
+        Progress progress = progressServiceImpl.getProgress(groupQQ);
+        KnifeList knifeList;
+        KnifeState knifeState = new KnifeState();
+        if (progress != null) {//没有工会boss进度数据
+            if (progress.getStartTime().isBefore(LocalDateTime.now())) { //时间若已过开始则可以上报伤害
+                //会战开启 上报伤害
+                //查询这个人出没出完三刀
+                if (knifeListServiceImpl.getKnifeNum(QQ, LocalDateTime.now(), true) > 2) {
+                    knifeState.setOk(false);
+                    knifeState.setFailMsg("三刀已出完，不可再出了");
+                    return knifeState;
+                }
+
+                try {
+                    treeServiceImpl.removeById(QQ);
+                } catch (Exception e) {
+                }
+
+                knifeList = new KnifeList();//创建刀数据对象
+                knifeList.setKnifeQQ(QQ);
+                knifeList.setLoop(progress.getLoop());
+                knifeList.setPosition(progress.getSerial());
+                knifeList.setDate(LocalDateTime.now());
+                //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
+
+                if (progress.getRemnant() - hurt > 0) {
+                    stringBuilder.delete(0, stringBuilder.length());
+                    knifeList.setComplete(true);
+                    knifeList.setHurt(hurt);
+                    progress.setRemnant(progress.getRemnant() - hurt);
+                    //没打穿boss
+                } else {
+                    //伤害打穿了，进入下一模式
+                    int loop = (progress.getSerial() == 5 ? progress.getLoop() + 1 : progress.getLoop());
+                    int serial = (progress.getSerial() == 5 ? 1 : progress.getSerial() + 1);
+                    progress.setLoop(loop);
+                    progress.setLoop(serial);
+                    progress.setRemnant(BossHpLimit[serial - 1]);
+                    knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
+
+                    //进入救树模式，把树上的人都噜下来
+                    List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
+
+                    List<KnifeList> strins = knifeListServiceImpl.getKnife(QQ, LocalDateTime.now());
+                    //判断是不是补时刀
+                    if (strins.size() != 0 && !strins.get(strins.size() - 1).getComplete()) {
+                        knifeList.setComplete(true);
+                    } else {
+                        knifeList.setComplete(false);
+                    }
+                    if (strings.size() > 0) {
+                        stringBuilder.append("下树啦，下树啦");
+                        for (Tree tree : strings) {
+                            stringBuilder.append("[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
+                        }
+                    }
+                    //这刀打爆了boss
+                }
+                //更新数据库数据
+                progressServiceImpl.updateById(progress);
+                knifeListServiceImpl.save(knifeList);
+
+                stringBuilder.append("现在boss状态:").append(progress.getLoop()).append("-").append(progress.getSerial()).append("\n");
+                stringBuilder.append("血量：").append(progress.getRemnant());
+            } else {
+                //会战还未开启
+                Duration duration = Duration.between(progress.getStartTime(), LocalDateTime.now());
+                knifeState.setOk(false);
+                knifeState.setFailMsg("会战将在" + duration.toDays() + "日" + duration.toHours() + "时后开启，还没有到打boss的时候哦");
+                return knifeState;
+            }
+        } else {
+            knifeState.setOk(false);
+            knifeState.setFailMsg("还没开始为什么就交刀惹");
+            return knifeState;
+        }
+        knifeState.setOk(true);
+        knifeState.setKnifeList(knifeList);
+        knifeState.setMsg(stringBuilder.toString());
+        return knifeState;
+    }
+
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#收刀", "#交刀"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void outKnife(GroupMsg msg, MsgSender sender) {
         try {
             int hurt = getHurt(msg.getMsg(), 1);
 
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), toHurt(msg.getGroupCodeNumber(), msg.getQQCodeNumber(), hurt));
+            KnifeState knifeState = toHurt(msg.getGroupCodeNumber(), msg.getQQCodeNumber(), hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl);
+            if (knifeState.isOk()) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getMsg());
+            } else {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getFailMsg());
+            }
         } catch (NumberFormatException e) {
             //伤害数字转换失败
             e.printStackTrace();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), commandError);
-        }
-    }
-
-    @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#开始会战", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void startFight(GroupMsg msg, MsgSender sender) {
-        try {
-            if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
-                if (ProgressServiceImpl.isFight(msg.getGroupCodeNumber()) != null) {
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), StartFightStartDouble);
-                    return;
-                }
-
-                String time = msg.getMsg().replaceAll(" +", "").substring(5);
-                LocalDateTime startTime = getTodayFive(LocalDateTime.now());
-                DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-                if (!time.equals("")) {
-                    LocalDate localDate = LocalDate.parse(time, df);
-                    startTime = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
-                }
-                ;
-                Progress progress = new Progress();
-                progress.setLoop(1);
-                progress.setSerial(1);
-                progress.setRemnant(BossHpLimit[0]);
-                progress.setTeamQQ(msg.getGroupCodeNumber());
-                progress.setVersion(1);
-                progress.setStartTime(startTime);
-                progress.setEndTime(startTime.plusDays(8));
-
-                ProgressServiceImpl.save(progress);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功记录会战\n" + startTime.format(df) + "到" + startTime.plusDays(8).format(df));
-            } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例 2020-05-04");
         }
     }
 
@@ -284,19 +335,42 @@ public class prcnessListener {
         }
     }
 
-    //代刀 @代刀的那个人 伤害值
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#代刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void sideKnife(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
-            CQCodeUtil cqCodeUtil = CQCodeUtil.build();
-            List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-            int hurt = getHurt(msg.getMsg(), 2);
-            long qq = cqAtoNumber(strings.get(0));
+    @Filter(value = "#开始会战", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void startFight(GroupMsg msg, MsgSender sender) {
+        try {
+            if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+                if (ProgressServiceImpl.isFight(msg.getGroupCodeNumber()) != null) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), StartFightStartDouble);
+                    return;
+                }
 
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), toHurt(msg.getGroupCodeNumber(), qq, hurt));
-        } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+                String time = msg.getMsg().replaceAll(" +", "").substring(5);
+                LocalDateTime startTime = getTodayFive(LocalDateTime.now());
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                System.out.println(time);
+                if (!time.equals("")) {
+                    LocalDate localDate = LocalDate.parse(time, df);
+                    startTime = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
+                }
+                ;
+                Progress progress = new Progress();
+                progress.setLoop(1);
+                progress.setSerial(1);
+                progress.setRemnant(BossHpLimit[0]);
+                progress.setTeamQQ(msg.getGroupCodeNumber());
+                progress.setVersion(1);
+                progress.setStartTime(startTime);
+                progress.setEndTime(startTime.plusDays(8));
+
+                ProgressServiceImpl.save(progress);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功记录会战\n" + startTime.format(df) + "到" + startTime.plusDays(8).format(df));
+            } else {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例 2020-05-04");
         }
     }
 
@@ -409,79 +483,27 @@ public class prcnessListener {
         }
     }
 
-    //处理交刀的数据
-    public String toHurt(long groupQQ, long QQ, int hurt) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Progress progress = ProgressServiceImpl.getProgress(groupQQ);
-        KnifeList knifeList;
-        if (progress != null) {//没有工会boss进度数据
-            if (progress.getStartTime().isBefore(LocalDateTime.now())) { //时间若已过开始则可以上报伤害
-                //会战开启 上报伤害
-                //查询这个人出没出完三刀
-                if (knifeListServiceImpl.getKnifeNum(QQ, LocalDateTime.now(), true) > 2) {
-                    return "三刀已出完，不可再出了";
-                }
+    //代刀 @代刀的那个人 伤害值
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#代刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void sideKnife(GroupMsg msg, MsgSender sender) {
+        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+            CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+            List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+            int hurt = getHurt(msg.getMsg(), 2);
+            long qq = cqAtoNumber(strings.get(0));
 
-                try {
-                    treeServiceImpl.removeById(QQ);
-                } catch (Exception e) {
-                }
-
-                knifeList = new KnifeList();//创建刀数据对象
-                knifeList.setKnifeQQ(QQ);
-                knifeList.setLoop(progress.getLoop());
-                knifeList.setPosition(progress.getSerial());
-                knifeList.setDate(LocalDateTime.now());
-                //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
-
-                if (progress.getRemnant() - hurt > 0) {
-                    stringBuilder.delete(0, stringBuilder.length());
-                    knifeList.setComplete(true);
-                    knifeList.setHurt(hurt);
-                    progress.setRemnant(progress.getRemnant() - hurt);
-                    //没打穿boss
-                } else {
-                    //伤害打穿了，进入下一模式
-                    int loop = (progress.getSerial() == 5 ? progress.getLoop() + 1 : progress.getLoop());
-                    int serial = (progress.getSerial() == 5 ? 1 : progress.getSerial() + 1);
-                    progress.setLoop(loop);
-                    progress.setLoop(serial);
-                    progress.setRemnant(BossHpLimit[serial - 1]);
-                    knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
-
-                    //进入救树模式，把树上的人都噜下来
-                    List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
-
-                    List<KnifeList> strins = knifeListServiceImpl.getKnife(QQ, LocalDateTime.now());
-                    //判断是不是补时刀
-                    if (strins.size() != 0 && !strins.get(strins.size() - 1).getComplete()) {
-                        knifeList.setComplete(true);
-                    } else {
-                        knifeList.setComplete(false);
-                    }
-                    if (strings.size() > 0) {
-                        stringBuilder.append("下树啦，下树啦");
-                        for (Tree tree : strings) {
-                            stringBuilder.append("[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
-                        }
-                    }
-                    //这刀打爆了boss
-                }
-                //更新数据库数据
-                ProgressServiceImpl.updateById(progress);
-                knifeListServiceImpl.save(knifeList);
-
-                stringBuilder.append("现在boss状态:").append(progress.getLoop()).append("-").append(progress.getSerial()).append("\n");
-                stringBuilder.append("血量：").append(progress.getRemnant());
+            KnifeState knifeState = toHurt(msg.getGroupCodeNumber(), qq, hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl);
+            if (knifeState.isOk()) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getMsg());
             } else {
-                //会战还未开启
-                Duration duration = Duration.between(progress.getStartTime(), LocalDateTime.now());
-                stringBuilder.append("会战将在").append(duration.toDays()).append("日").append(duration.toHours()).append("时后开启，还没有到打boss的时候哦");
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getFailMsg());
             }
+
         } else {
-            return "还没开始为什么就交刀惹";
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
         }
-        return stringBuilder.toString();
     }
+
 
 }
