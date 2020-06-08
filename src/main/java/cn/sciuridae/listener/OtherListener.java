@@ -4,14 +4,18 @@ import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
+import com.forte.qqrobot.utils.CQCodeUtil;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -20,6 +24,7 @@ import java.util.*;
 
 import static cn.sciuridae.constant.*;
 import static cn.sciuridae.listener.prcnessIntercept.On;
+import static cn.sciuridae.utils.ImageUtil.composeImg;
 import static cn.sciuridae.utils.stringTool.*;
 
 @Service
@@ -323,21 +328,44 @@ public class OtherListener {
         Set<String> set1 = map1.keySet();
         Set<String> set2 = map2.keySet();
         Set<String> set3 = map3.keySet();
+        ArrayList<String> list = new ArrayList<>();
+        int i = 0;
+        for (String s : set1) {
+            int j = map1.get(s);
+            for (i = 0; i < j; i++) {
+                list.add(s);
+            }
+        }
+
+        //人物图片
+        if (canSendImage) {
+            try {
+                String s = composeImg(list);
+                if (null != s) {
+                    File file = new File(s);
+                    CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + file.getAbsolutePath());
+                    stringBuilder.append(cqCode_image.toString());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (thre != 0) {
-            stringBuilder.append("\n三星角色有：");
+            stringBuilder.append("\n三星：");
             for (String s : set1) {
                 stringBuilder.append(s).append("*").append(map1.get(s)).append(",");
             }
         }
         if (tw != 0) {
-            stringBuilder.append("\n二星角色有：");
+            stringBuilder.append("\n二星：");
             for (String s : set2) {
                 stringBuilder.append(s).append("*").append(map2.get(s)).append(",");
             }
         }
 
         if (on != 0) {
-            stringBuilder.append("\n一星角色有：");
+            stringBuilder.append("\n一星：");
             for (String s : set3) {
                 stringBuilder.append(s).append("*").append(map3.get(s)).append(",");
             }

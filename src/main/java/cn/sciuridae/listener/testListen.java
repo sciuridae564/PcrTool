@@ -30,13 +30,20 @@ public class testListen {
 ////    }
 ////
 //    @Listen(MsgGetTypes.privateMsg)
-//    @Filter("bbb")
 //    public void testListern11(PrivateMsg msg, MsgSender sender) {
-//        Progress progress = ProgressServiceImpl.getProgress(680495962);
-//        if (progress == null) {
-//            sender.SENDER.sendPrivateMsg("1728817446", EngFightStartDouble);
-//            return;
+//        ArrayList<String> ch=new ArrayList<>();
+//        ch.add("冰川镜华");ch.add("11");ch.add("真步");ch.add("璃乃");
+//        ch.add("初音");ch.add("依绪");ch.add("咲恋");
+//        try {
+//            String s = composeImg(ch);
+//            File file = new File(s);
+//
+//            CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + file.getAbsolutePath());
+//            sender.SENDER.sendPrivateMsg(msg.getQQCode(), cqCode_image.toString());
+//        } catch (IOException e) {
+//            e.printStackTrace();
 //        }
+//    }
 //
 //        ProgressServiceImpl.removeById(progress.getId());
 //        sender.SENDER.sendPrivateMsg("1728817446", SuccessEndFight);

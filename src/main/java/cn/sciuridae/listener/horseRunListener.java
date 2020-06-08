@@ -120,7 +120,7 @@ public class horseRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你已经下过注辣");
         } else {
             int[] integers = new int[2];
-            integers[0] = no;
+            integers[0] = no - 1;
             integers[1] = coin;
             maList.get(msg.getGroupCode()).put(msg.getQQCodeNumber(), integers);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成 加油啊" + no + "号马");

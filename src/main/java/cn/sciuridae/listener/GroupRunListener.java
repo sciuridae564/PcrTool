@@ -101,7 +101,7 @@ public class GroupRunListener {
                         }
                     }
                 }
-                pcrUnionServiceImpl.changeVoidSize(msg.getGroupCodeNumber(), num);//更新空位信息
+                pcrUnionServiceImpl.updateVoidSize(msg.getGroupCodeNumber());//更新空位信息
                 StringBuilder stringBuilder = new StringBuilder();
                 if (have.size() > 0) {
                     stringBuilder.append("已经有工会的人：");
@@ -129,7 +129,6 @@ public class GroupRunListener {
                 msg.getGroupCodeNumber(),
                 name.trim().equals("") ? sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName() : name,
                 false);
-        System.out.println(teamMember);
         int num;
         try {
             num = pcrUnionServiceImpl.getVoidSize(msg.getGroupCodeNumber());
@@ -145,7 +144,7 @@ public class GroupRunListener {
 
         try {
             teamMemberServiceImpl.save(teamMember);
-            System.out.println("存储");
+            pcrUnionServiceImpl.updateVoidSize(msg.getGroupCodeNumber());//更新空位信息
         } catch (UncategorizedSQLException e) {
 
             if (e.getSQLException().getErrorCode() == 19) {
@@ -170,6 +169,7 @@ public class GroupRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), successDropGroup);
         } else {
             if (teamMemberServiceImpl.removeById(msg.getQQCodeNumber())) {
+                pcrUnionServiceImpl.updateVoidSize(msg.getGroupCodeNumber());//更新空位信息
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), successOutGroup);
             }
         }
@@ -236,14 +236,26 @@ public class GroupRunListener {
     @Filter(value = "#改名", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void reName(GroupMsg msg, MsgSender sender) {
         String newName = msg.getMsg();
-        newName = newName.replaceAll(" +", "");
-        newName = newName.substring(3);
-        System.out.println(newName.length());
+        Long traget;
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
+        List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
+        if (strings.size() < 1) {
+            //没有at人，给自己改名
+            newName = newName.replaceAll(" +", "");
+            newName = newName.substring(3);
+            traget = msg.getQQCodeNumber();
+        } else {
+            //给别人改名
+            traget = cqAtoNumber(strings.get(0));
+            newName = newName.substring(newName.indexOf("]") + 1).trim();
+        }
+
+
         if (newName.length() > 20) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "那么长的名字，本小姐记不住呢");
             return;
         }
-        Integer integer = teamMemberServiceImpl.setName(msg.getQQCodeNumber(), newName);
+        Integer integer = teamMemberServiceImpl.setName(traget, newName);
         if (integer < 1) {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "还没有进入任何一个工会惹");
         } else {
@@ -355,6 +367,7 @@ public class GroupRunListener {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "阿，竟是中堂大人，失敬失敬。\nだが、断る，想解散用退会阿");
                 }
             } else {
+                pcrUnionServiceImpl.updateVoidSize(msg.getGroupCodeNumber());//更新空位信息
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功踢掉了");
             }
         } else {

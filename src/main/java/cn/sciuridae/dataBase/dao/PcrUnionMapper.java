@@ -32,4 +32,7 @@ public interface PcrUnionMapper extends BaseMapper<PcrUnion> {
     @Update("update pcrUnion set groupName=#{name} where groupQQ=#{groupQq} ")
     int changeTeamName(@Param("groupQq") long groupQq, String name);
 
+    @Update("update pcrUnion set teamSum=(select count(*) from teamMember where groupQQ=#{groupQq}) where groupQQ=#{groupQq} ")
+    int updateTeamSum(@Param("groupQq") long groupQq);
+
 }

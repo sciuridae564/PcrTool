@@ -29,7 +29,7 @@ public interface PcrUnionService extends IService<PcrUnion> {
 
     int getVoidSize(long groupQq);
 
-    int changeVoidSize(long groupQq, int teamSum);
+    int updateVoidSize(long groupQq);
 
     int changeUnionName(long groupQq, String name);
 }

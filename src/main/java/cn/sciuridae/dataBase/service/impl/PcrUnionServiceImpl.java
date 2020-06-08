@@ -77,8 +77,8 @@ public class PcrUnionServiceImpl extends ServiceImpl<PcrUnionMapper, PcrUnion> i
     }
 
     @Override
-    public int changeVoidSize(long groupQq, int teamSum) {
-        return pcrUnionMapper.changeTeamSum(groupQq, teamSum);
+    public int updateVoidSize(long groupQq) {
+        return pcrUnionMapper.updateTeamSum(groupQq);
     }
 
 
