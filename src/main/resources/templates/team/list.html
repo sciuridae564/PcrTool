@@ -41,7 +41,7 @@
                         </tr>
                         </thead>
                         <tbody id="teamList">
-                        <tr v-for=" (team,i) in teamList">
+                        <tr v-for=" (team,i) in teamList" v-cloak>
                             <td>{{team.userQQ}}</td>
                             <td>{{team.name}}</td>
                             <td>{{team.power}}</td>

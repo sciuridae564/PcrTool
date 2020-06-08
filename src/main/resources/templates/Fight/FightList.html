@@ -78,13 +78,16 @@
                         <i class="layui-icon">&#xe654;</i>出刀
                     </button>
                     <button class="layui-btn" @click="member_addforge" th:if="${power}>1">
-                        <i class="layui-icon">&#xe654;</i>强制出刀
+                        <i class="layui-icon">&#xe654;</i>添加出刀记录
                     </button>
                 </div>
                 <div class="layui-card-body ">
                     <table class="layui-table layui-form" lay-filter="knife" id="knifeTable">
                         <thead>
                         <tr>
+                            <th>
+                                <input type="checkbox" name="" lay-skin="primary">
+                            </th>
                             <th lay-fileNames="{ sort:true}">序号</th>
                             <th>出刀人qq</th>
                             <th>昵称</th>
@@ -97,7 +100,10 @@
                         </tr>
                         </thead>
                         <tbody id="knife">
-                        <tr v-for=" (knife,i) in knifeList">
+                        <tr v-for=" (knife,i) in knifeList" v-cloak>
+                            <td>
+                                <input type="checkbox" name="" lay-skin="primary" @change="change(knife.id)">
+                            </td>
                             <td>{{knife.id}}</td>
                             <td>{{knife.knifeQQ}}</td>
                             <td>{{knife.name}}</td>
@@ -128,6 +134,7 @@
     var vm = new Vue({
         el: '#app',
         data: {
+            deleteIDs: {},
             knifeList: null
         },
         mounted: function () {
@@ -301,10 +308,32 @@
                         parent.layer.close(index)
                     }
                 });
+            },
+
+            change(i) {
+                if (this.ckeckVal) {
+                    console.log('选中');
+                    console.log(i);
+                    deleteIDs.push(i);
+                    console.log(this.deleteIDs)
+                } else {
+                    console.log('未选中');
+                    console.log(i);
+                    for (var i = 0; i < this.deleteIDs.length; i++) {
+                        if (this.deleteIDs[i] == i) {
+                            this.deleteIDs.splice(i, 1);
+                        }
+                    }
+                    console.log(this.deleteIDs)
+                }
             }
         }
     })
 
+    layui.use('knife', function () {
+        var form = layui.form;
+        form.render();
+    });
 </script>
 
 </body>

@@ -2,7 +2,9 @@ package cn.sciuridae.timer;
 
 import cn.sciuridae.dataBase.bean.Progress;
 import cn.sciuridae.dataBase.bean.Tree;
+import cn.sciuridae.dataBase.service.KnifeListService;
 import cn.sciuridae.dataBase.service.ProgressService;
+import cn.sciuridae.dataBase.service.TeamMemberService;
 import cn.sciuridae.dataBase.service.TreeService;
 import cn.sciuridae.utils.ExcelWrite;
 import com.forte.qqrobot.anno.timetask.CronTask;
@@ -25,6 +27,10 @@ public class clearVoidKnife implements TimeJob {
     TreeService treeServiceImpl;
     @Autowired
     ProgressService ProgressServiceImpl;
+    @Autowired
+    TeamMemberService teamMemberServiceImpl;
+    @Autowired
+    KnifeListService knifeListServiceImpl;
 
     @Override
     public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
@@ -54,7 +60,10 @@ public class clearVoidKnife implements TimeJob {
             try {
                 ExcelWrite excelWrite = new ExcelWrite(getExcelFileName(progress.getTeamQQ().toString(), localDates.get(0)),
                         localDates,
-                        progress.getTeamQQ());
+                        progress.getTeamQQ(),
+                        teamMemberServiceImpl,
+                        knifeListServiceImpl
+                );
                 excelWrite.writedDate();
                 excelWrite.reflashFile();
             } catch (IOException e) {

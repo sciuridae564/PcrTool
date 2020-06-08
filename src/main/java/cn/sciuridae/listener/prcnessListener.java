@@ -446,9 +446,13 @@ public class prcnessListener {
                 String groupQQ = msg.getGroupCode();//工会qq
                 ExcelWrite excelWrite;
                 if (arrayList.size() > 1) {
-                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(arrayList.size() - 1)), arrayList, msg.getGroupCodeNumber());
+                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(arrayList.size() - 1)), arrayList, msg.getGroupCodeNumber(),
+                            teamMemberServiceImpl,
+                            knifeListServiceImpl);
                 } else {
-                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0)), arrayList, msg.getGroupCodeNumber());
+                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0)), arrayList, msg.getGroupCodeNumber(),
+                            teamMemberServiceImpl,
+                            knifeListServiceImpl);
                 }
 
                 excelWrite.writedDate();
@@ -467,7 +471,7 @@ public class prcnessListener {
         String QQ = msg.getQQCode();
 
         sender.SENDER.sendPrivateMsg(QQ, "你的码是：" + teamMemberServiceImpl.getToken(msg.getQQCodeNumber()));
-        sender.SENDER.sendPrivateMsg(QQ, "会战后台网址：http://" + ip + "/8080");
+        sender.SENDER.sendPrivateMsg(QQ, "会战后台网址：http://" + ip + ":8080");
 
     }
 

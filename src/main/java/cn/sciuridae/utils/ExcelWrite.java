@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,9 +25,7 @@ import static cn.sciuridae.utils.timeUtil.localDateTolocalDateTimes;
 
 public class ExcelWrite {
 
-    @Autowired
     TeamMemberService teamMemberServiceImpl;
-    @Autowired
     KnifeListService knifeListServiceImpl;
     private File file;//文件
     private Workbook workbook = new HSSFWorkbook();//工作簿
@@ -36,14 +33,21 @@ public class ExcelWrite {
     private List<LocalDate> dates;//日期
     private long groupQQ;//工会主键
 
-    public ExcelWrite(String fileName, List<LocalDate> dates, long groupId) throws IOException {
+
+    public ExcelWrite(String fileName, List<LocalDate> dates, long groupId, TeamMemberService teamMemberServiceImpl, KnifeListService knifeListServiceImpl) throws IOException {
         file = new File(fileName);
         System.out.println(fileName);
         if (!file.exists() || !file.isFile()) {
+            File fileParent = file.getParentFile();
+            if (!fileParent.exists()) {
+                fileParent.mkdirs();
+            }
             file.createNewFile();
         }
         this.dates = dates;
         this.groupQQ = groupId;
+        this.knifeListServiceImpl = knifeListServiceImpl;
+        this.teamMemberServiceImpl = teamMemberServiceImpl;
     }
 
     @Override

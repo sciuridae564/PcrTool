@@ -29,6 +29,12 @@
         <thead>
         <tr>
             <th>这就是excel表格辣</th>
+            <th>
+                <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal "
+                        onclick="frash() " style="float:right">
+                    <i class="layui-icon">&#xe666;</i>
+                </button>
+            </th>
         </tr>
         </thead>
         <tbody id="excel">
@@ -45,11 +51,7 @@
         xhr.send();
         xhr.dataType = "json"
         xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            var filename = data.fileNames;
-            var fileAbsolutePaths = data.fileAbsolutePaths;
-            console.log(filename)
-            console.log(fileAbsolutePaths)
+            var filename = JSON.parse(xhr.responseText);
             var html = '';
             for (var i = 0; i < filename.length; i++) {
                 html += '<tr><td>'

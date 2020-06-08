@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,9 +42,6 @@ public interface KnifeListMapper extends BaseMapper<KnifeList> {
             " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate} order by date")
     List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ);
 
-    @Select("select * from knifeList " +
-            " where knifeQQ=#{knifeQQ} AND date =#{localDate} order by date")
-    List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ, @Param("localDate") LocalDate localDate);
 
     @Select("select * from knifeList " +
             " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate} order by date")

@@ -33,13 +33,13 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#帮助.*", at = true)
+    @Filter(value = "#帮助", at = true, keywordMatchType = KeywordMatchType.STARTS_WITH)
     public void testListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), helpMsg);
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = "#帮助", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"帮助", "#帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void testListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, helpMsg);
     }
@@ -347,7 +347,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = ".*老婆.*", at = true)
+    @Filter(value = "老婆", at = true, keywordMatchType = KeywordMatchType.CONTAINS)
     public void kimo(GroupMsg msg, MsgSender sender) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
@@ -536,17 +536,24 @@ public class OtherListener {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "扭蛋池，马事件已更新,现在设置为：\n" +
                 "提醒买药小助手图片名:" + pricnessConfig.getTixingmaiyao() +
                 "\n抽卡上限" + pricnessConfig.getGashaponMax() +
-                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool());
+                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool() +
+                "\n总开关默认：" + pricnessConfig.isPcrToonon() +
+                "\n好像没啥用的开关默认：" + pricnessConfig.isButon() +
+                "\n扭蛋开关默认：" + pricnessConfig.isEggon() +
+                "\n赛马开关默认：" + pricnessConfig.isHorse());
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"通用设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
-        getconfig();
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
                 "提醒买药小助手图片名:" + pricnessConfig.getTixingmaiyao() +
                 "\n抽卡上限" + pricnessConfig.getGashaponMax() +
-                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool());
+                "\n抽卡冷却秒:" + pricnessConfig.getGashaponcool() +
+                "\n总开关默认：" + pricnessConfig.isPcrToonon() +
+                "\n好像没啥用的开关默认：" + pricnessConfig.isButon() +
+                "\n扭蛋开关默认：" + pricnessConfig.isEggon() +
+                "\n赛马开关默认：" + pricnessConfig.isHorse());
     }
 
     /**

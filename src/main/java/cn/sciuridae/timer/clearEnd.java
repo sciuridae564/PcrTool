@@ -2,9 +2,7 @@ package cn.sciuridae.timer;
 
 import cn.sciuridae.dataBase.bean.Progress;
 import cn.sciuridae.dataBase.bean.Tree;
-import cn.sciuridae.dataBase.service.ProgressService;
-import cn.sciuridae.dataBase.service.ScoresService;
-import cn.sciuridae.dataBase.service.TreeService;
+import cn.sciuridae.dataBase.service.*;
 import cn.sciuridae.utils.ExcelWrite;
 import com.forte.qqrobot.anno.timetask.CronTask;
 import com.forte.qqrobot.sender.MsgSender;
@@ -31,6 +29,11 @@ public class clearEnd implements TimeJob {
     ProgressService ProgressServiceImpl;
     @Autowired
     ScoresService scoresServiceImpl;
+    @Autowired
+    TeamMemberService teamMemberServiceImpl;
+    @Autowired
+    KnifeListService knifeListServiceImpl;
+
 
     @Override
     public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
@@ -57,7 +60,9 @@ public class clearEnd implements TimeJob {
             try {
                 Progress progress = ProgressServiceImpl.getProgress(id);
                 List<LocalDate> localDates = new ArrayList<>(getDescDateList(progress.getStartTime().toLocalDate(), progress.getEndTime().toLocalDate().plusDays(-1)));
-                ExcelWrite excelWrite = new ExcelWrite(getExcelFileName(id.toString(), progress.getStartTime().toLocalDate(), progress.getEndTime().toLocalDate()), localDates, id);
+                ExcelWrite excelWrite = new ExcelWrite(getExcelFileName(id.toString(), progress.getStartTime().toLocalDate(), progress.getEndTime().toLocalDate()), localDates, id,
+                        teamMemberServiceImpl,
+                        knifeListServiceImpl);
                 excelWrite.writedDate();
             } catch (IOException e) {
                 e.printStackTrace();

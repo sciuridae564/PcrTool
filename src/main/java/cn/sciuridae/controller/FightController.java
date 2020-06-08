@@ -84,7 +84,13 @@ public class FightController {
     @ResponseBody
     public List<KnifeList> knive(HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        return knifeListServiceImpl.getKnife(teamMember.getUserQQ(), LocalDateTime.now());
+        List<KnifeList> lists = null;
+        try {
+            lists = knifeListServiceImpl.getKnife(teamMember.getUserQQ(), LocalDateTime.now());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lists;
     }
 
     @RequestMapping(value = "/Fight/List")
