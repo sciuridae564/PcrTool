@@ -256,7 +256,6 @@ public class GroupRunListener {
 
         }
 
-
         if (newName.length() > 20) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "那么长的名字，本小姐记不住呢");
             return;
@@ -319,7 +318,7 @@ public class GroupRunListener {
                     stringBuilder.append("\n");
                 }
             }
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), stringBuilder.toString());
         } else {
             stringBuilder.append("还没有创建工会哦");
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), stringBuilder.toString());

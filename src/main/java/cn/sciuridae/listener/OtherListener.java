@@ -1,5 +1,6 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
@@ -12,6 +13,7 @@ import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -29,7 +31,8 @@ import static cn.sciuridae.utils.stringTool.*;
 
 @Service
 public class OtherListener {
-
+    @Autowired
+    ScoresService ScoresServiceImpl;
 
     private static HashMap<String, String> coolDown;//抽卡冷却时间
 
@@ -78,13 +81,13 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"工会帮助", "#工会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"工会帮助", "#工会帮助", "公会帮助", "#公会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void grouphelpListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"工会帮助", "#工会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"工会帮助", "#工会帮助", "#公会帮助", "公会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void grouphelpListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
     }
@@ -641,7 +644,16 @@ public class OtherListener {
                 "\n买马开关：" + groupPower.isHorse());
     }
 
-
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"刷新全部签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void refrashSign(PrivateMsg msg, MsgSender sender) {
+        if (msg.getQQCode().equals(pricnessConfig.getMasterQQ())) {
+            ScoresServiceImpl.clearSign();
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已刷新全部签到");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
+        }
+    }
 
     /**
      * 刷新抽卡冷却时间
