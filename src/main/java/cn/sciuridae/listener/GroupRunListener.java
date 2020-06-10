@@ -246,8 +246,14 @@ public class GroupRunListener {
             traget = msg.getQQCodeNumber();
         } else {
             //给别人改名
-            traget = cqAtoNumber(strings.get(0));
-            newName = newName.substring(newName.indexOf("]") + 1).trim();
+            if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+                traget = cqAtoNumber(strings.get(0));
+                newName = newName.substring(newName.indexOf("]") + 1).trim();
+            } else {
+                sender.SENDER.sendPrivateMsg(msg.getQQCode(), "无权限");
+                return;
+            }
+
         }
 
 
@@ -352,7 +358,12 @@ public class GroupRunListener {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-            long deleteQQ = cqAtoNumber(strings.get(0));
+            long deleteQQ;
+            if (strings.size() > 0) {
+                deleteQQ = cqAtoNumber(strings.get(0));
+            } else {
+                deleteQQ = Long.parseLong(msg.getMsg().substring(3).trim());
+            }
             ;//要被踢掉的那个人
             if (pcrUnionServiceImpl.isGroupMaster(deleteQQ, msg.getGroupCodeNumber())) {
                 num = -2;
@@ -378,23 +389,19 @@ public class GroupRunListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = "更换token", keywordMatchType = KeywordMatchType.EQUALS)
     public void startHorse(PrivateMsg msg, MsgSender sender) {
-        String token = teamMemberServiceImpl.getToken(msg.getQQCodeNumber());
-        if (token != null) {
-            do {
-                token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
-                try {
-                    Integer tokenNum = teamMemberServiceImpl.getTokenNum(token);
-                    if (tokenNum < 1)
-                        break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        String token;
+        do {
+            token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+            try {
+                Integer tokenNum = teamMemberServiceImpl.getTokenNum(token);
+                if (tokenNum < 1)
+                    break;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            } while (true);
-            teamMemberServiceImpl.updateToken(msg.getQQCodeNumber(), token);
-        } else {
-
-        }
-
+        } while (true);
+        teamMemberServiceImpl.updateToken(msg.getQQCodeNumber(), token);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "新的码为: " + token);
     }
 }

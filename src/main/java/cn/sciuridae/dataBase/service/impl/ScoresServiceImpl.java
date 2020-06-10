@@ -24,4 +24,14 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
         scoresMapper.changeTeamSum();
     }
 
+    @Override
+    public Boolean selectSign(long qq) {
+        return scoresMapper.selectSign(qq);
+    }
+
+    @Override
+    public void sign(long qq) {
+        scoresMapper.sign(qq);
+    }
+
 }

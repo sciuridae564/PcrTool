@@ -1,19 +1,21 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class testListen {
-//    @Autowired
-//    TeamMemberService teamMemberServiceImpl;
-//    @Autowired
-//    KnifeListService knifeListServiceImpl;
-//    @Autowired
-//    ProgressService ProgressServiceImpl;
-//    @Autowired
-//    TreeService treeServiceImpl;
-//    @Autowired
-//    PcrUnionService pcrUnionServiceImpl;
+    @Autowired
+    TeamMemberService teamMemberServiceImpl;
+    @Autowired
+    KnifeListService knifeListServiceImpl;
+    @Autowired
+    ProgressService ProgressServiceImpl;
+    @Autowired
+    TreeService treeServiceImpl;
+    @Autowired
+    PcrUnionService pcrUnionServiceImpl;
 //
 ////    @Listen(MsgGetTypes.groupMsg)
 ////    @Filter(value = {"^q[1-5]ss.*$"},keywordMatchType = KeywordMatchType.RE_CQCODE_EQUALS,at = true)
@@ -30,19 +32,10 @@ public class testListen {
 ////    }
 ////
 //    @Listen(MsgGetTypes.privateMsg)
+//    @Filter(value = {"azaz"},keywordMatchType = KeywordMatchType.EQUALS)
 //    public void testListern11(PrivateMsg msg, MsgSender sender) {
-//        ArrayList<String> ch=new ArrayList<>();
-//        ch.add("冰川镜华");ch.add("11");ch.add("真步");ch.add("璃乃");
-//        ch.add("初音");ch.add("依绪");ch.add("咲恋");
-//        try {
-//            String s = composeImg(ch);
-//            File file = new File(s);
-//
-//            CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + file.getAbsolutePath());
-//            sender.SENDER.sendPrivateMsg(msg.getQQCode(), cqCode_image.toString());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+//        List<KnifeList> knife = knifeListServiceImpl.getKnife(522828248L);
+//        knife.forEach(System.out::println);
 //    }
 //
 //        ProgressServiceImpl.removeById(progress.getId());

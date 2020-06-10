@@ -198,7 +198,6 @@ public class prcnessListener {
                 //计算boss血量，分成打爆处理（有救树流程）和没打爆处理
 
                 if (progress.getRemnant() - hurt > 0) {
-                    stringBuilder.delete(0, stringBuilder.length());
                     knifeList.setComplete(true);
                     knifeList.setHurt(hurt);
                     progress.setRemnant(progress.getRemnant() - hurt);
@@ -222,12 +221,14 @@ public class prcnessListener {
                     } else {
                         knifeList.setComplete(false);
                     }
+                    stringBuilder.append("此刀为尾刀，下一刀将自动记为补时刀\n--------------");
                     if (strings.size() > 0) {
                         stringBuilder.append("下树啦，下树啦");
                         for (Tree tree : strings) {
                             stringBuilder.append("[CQ:at,qq=").append(tree.getTeamQQ()).append("] ");
                         }
                     }
+                    //记录这个刀的下一刀为补偿刀
                     //这刀打爆了boss
                 }
                 //更新数据库数据

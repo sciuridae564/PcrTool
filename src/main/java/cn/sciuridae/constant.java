@@ -18,7 +18,10 @@ import static cn.sciuridae.listener.prcnessIntercept.On;
 
 
 public class constant {
-    public static final String helpMsg = "命令总览：\n" +
+    public static final String helpMsg = "1.其他功能帮助\n2.会战帮助\n3.工会帮助\n请选择命令提示菜单";
+
+
+    public static final String GROUP_HELP_MSG = "命令总览：\n" +
             "打*为管理员指令**的为工会长指令 中括号内为指令不需要中括号 小括号内为可选内容\n" +
             "工会基础指令：\n" +
             "\t1.创建工会[#建会 @机器人 工会名 游戏昵称]\n" +
@@ -26,15 +29,16 @@ public class constant {
             "\t3.*批量加入工会[#批量入会 @入会成员1 @入会成员2 ...]\n" +
             "\t4.退出工会，[#退会 @机器人]\n" +
             "\t\t注意：会长退会则为解散工会\n" +
-            "\t5.*将一个人踢出工会[#踢人 @那个人]\n" +
+            "\t5.*将一个人踢出工会[#踢人 @那个人(那个人的qq号)]\n" +
             "\t6.*更改工会名字[#改工会名 更改后的工会名]\n" +
             "    7.更改自己/别人的名字[#改名 (@那个人) 更改后的名字]\n" +
             "\t8.**转让会长权限（保留自己的管理员权限)[转让会长 @那个人]\n" +
             "\t9.**设置一个人为管理员[设置管理 @那个人]\n" +
             "\t10.**撤销他人的管理权限[撤下管理 @那个人]\n" +
             "\t11.查看已加入工会 的成员列表[工会成员列表]\n" +
-            "    12.查看工会一些基本信息[工会信息]\n" +
-            "工会战命令:\n" +
+            "    12.查看工会一些基本信息[工会信息]\n";
+
+    public static final String FIGHT_HELP_MSG = "工会战命令:\n" +
             "\t1.开始进行会战[#开始会战 (时间)]\n" +
             "\t\t时间参数可选，默认为今天\n" +
             "\t\t时间格式举例：2020:05:06\n" +
@@ -59,8 +63,9 @@ public class constant {
             "\t12.查询今日全部成员已出刀情况，[已出刀 (@那个人)]\n" +
             "\t\t没有@其他人的情况下默认查看整个工会\n" +
             "\t13.*调整boss血量，周目等一系列信息[调整boss状态 （调整后的）周目 几王 血量]\\\n" +
-            "\t\t例：调整boss状态 2 4 2554 为调整到二周目4王2554剩余血量\n" +
-            "杂项指令：\n" +
+            "\t\t例：调整boss状态 2 4 2554 为调整到二周目4王2554剩余血量\n";
+
+    public static final String OTHER_HELP_MSG = "杂项指令：\n" +
             "\t1.抽一发井(300抽)[#(up)井]\n" +
             "\t\t带up就是up池，不带up就是白金池\n" +
             "\t2.抽一发十连(10抽)[#(up)十连]\n" +
@@ -84,6 +89,8 @@ public class constant {
             "\t14.开启赌马[#开启赛马]\n" +
             "\t15.每天免费币 [#给xcw上供]\n" +
             "\t查看自己有多少币 [我有多少钱鸭老婆]\n" +
+            "\t查看群内设置 [#查看本群设置]\n" +
+            "\t看漂亮小姐姐 私聊机器人[我要看漂亮小姐姐]\n" +
             "默认设定：\n" +
             "\t这个插件和插件的所有功能都是开启的\n" +
             "\t每天5点检查树上的人，全 部 撸 下\n" +
@@ -96,7 +103,13 @@ public class constant {
             "\t看boss状态不止可以使用上面那个指令，还可以试试boss, boss咋样了, boss还好吗\n" +
             "\t设置管理员同理 设置管理, 设置管理员, 添加管理员, 添加管理\n" +
             "\t输入老婆并@机器人会被机器人顺着网线过来真人格斗\n" +
-            "\t只要是管理员就可以踢掉任何人（不包括工会长）";
+            "\t只要是管理员就可以踢掉任何人（不包括工会长）" +
+            "\t自定义卡池部分：\n" +
+            "\t卡池图片会优先从jar同级文件夹下的image文件夹下找\n" +
+            "\t图片名称为扭蛋.txt文件中的人物名，后缀为png\n" +
+            "\t例：扭蛋.txt中的白金池中有 镜华 则image下有一个镜华.png的图片\n" +
+            "\t\n" +
+            "\t\n";
 
 
     public static final String coolQAt = "[CQ:at,qq=";
@@ -231,8 +244,12 @@ public class constant {
             pro.setProperty("抽奖默认开启", "true");
             pro.setProperty("抽卡默认开启", "true");
             pro.setProperty("赛马默认开启", "true");
+            pro.setProperty("主人qq", "12345");
+            pro.setProperty("发一次色图花费", "500");
+            pro.setProperty("签到一次金币", "2000");
 
-            pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);
+            pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true, "12345", 2000, 500);
+
             try {
                 op = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
                 pro.store(op, "the PcrTool configs");
@@ -258,10 +275,13 @@ public class constant {
                         Boolean.parseBoolean(pro.getProperty("总开关默认开启")),
                         Boolean.parseBoolean(pro.getProperty("抽奖默认开启")),
                         Boolean.parseBoolean(pro.getProperty("抽卡默认开启")),
-                        Boolean.parseBoolean(pro.getProperty("赛马默认开启"))
+                        Boolean.parseBoolean(pro.getProperty("赛马默认开启")),
+                        pro.getProperty("主人qq"),
+                        Integer.parseInt(pro.getProperty("签到一次金币")),
+                        Integer.parseInt(pro.getProperty("发一次色图花费"))
                 );
             } catch (Exception e) {
-                pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true);//没读到就生成一个新的
+                pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true, "12345", 2000, 500);//没读到就生成一个新的
                 try {
                     op = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
                     pro.store(op, "the PcrTool configs");

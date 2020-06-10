@@ -61,8 +61,6 @@ public class InitDatabase {
                 default:
 
             }
-
-
             statement.close();
             conn.close();
         } catch (SQLException e) {

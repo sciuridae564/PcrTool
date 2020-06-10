@@ -8,6 +8,7 @@ public class KnifeState {
     private String failMsg;
     private KnifeList knifeList;
 
+
     public KnifeList getKnifeList() {
         return knifeList;
     }

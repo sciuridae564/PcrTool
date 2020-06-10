@@ -8,11 +8,14 @@ public class PricnessConfig {
     private boolean eggon;//扭蛋开关
     private boolean buton;//买药小助手提示
     private boolean horse;//赛马开关
+    private String masterQQ;//主人qq
+    private int signCoin;//签到一次给的钱
+    private int setuCoin;//发一次图给的钱
 
     public PricnessConfig() {
     }
 
-    public PricnessConfig(String tixingmaiyao, int gashaponMax, int gashaponcool, boolean pcrToonon, boolean eggon, boolean buton, boolean horse) {
+    public PricnessConfig(String tixingmaiyao, int gashaponMax, int gashaponcool, boolean pcrToonon, boolean eggon, boolean buton, boolean horse, String masterQQ, int signCoin, int setuCoin) {
         this.tixingmaiyao = tixingmaiyao;
         this.gashaponMax = gashaponMax;
         this.gashaponcool = gashaponcool;
@@ -20,6 +23,25 @@ public class PricnessConfig {
         this.eggon = eggon;
         this.buton = buton;
         this.horse = horse;
+        this.masterQQ = masterQQ;
+        this.signCoin = signCoin;
+        this.setuCoin = setuCoin;
+    }
+
+    public int getSignCoin() {
+        return signCoin;
+    }
+
+    public void setSignCoin(int signCoin) {
+        this.signCoin = signCoin;
+    }
+
+    public int getSetuCoin() {
+        return setuCoin;
+    }
+
+    public void setSetuCoin(int setuCoin) {
+        this.setuCoin = setuCoin;
     }
 
     public boolean isPcrToonon() {
@@ -32,6 +54,14 @@ public class PricnessConfig {
 
     public boolean isEggon() {
         return eggon;
+    }
+
+    public String getMasterQQ() {
+        return masterQQ;
+    }
+
+    public void setMasterQQ(String masterQQ) {
+        this.masterQQ = masterQQ;
     }
 
     public void setEggon(boolean eggon) {

@@ -114,6 +114,17 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!--爬虫 -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.13.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+        </dependency>
+
         <!--自动代码生成器-->
         <dependency>
             <groupId>com.baomidou</groupId>

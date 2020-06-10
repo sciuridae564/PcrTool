@@ -66,6 +66,7 @@ public class GroupController {
             return false;
         }
         teamMemberServiceImpl.removeById(qq);
+        pcrUnionServiceImpl.updateVoidSize(teamMember.getGroupQQ());
         return true;//只要删了一条管他为什么都认为是删ok了
 
     }

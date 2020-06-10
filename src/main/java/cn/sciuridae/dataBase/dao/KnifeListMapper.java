@@ -39,7 +39,7 @@ public interface KnifeListMapper extends BaseMapper<KnifeList> {
     List<KnifeList> getKnife(@Param("groupQq") long groupQq);
 
     @Select("select * from knifeList " +
-            " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate} order by date")
+            " where knifeQQ=#{knifeQQ}  order by date")
     List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ);
 
 

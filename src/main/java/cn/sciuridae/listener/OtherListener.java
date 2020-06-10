@@ -49,6 +49,51 @@ public class OtherListener {
         sender.SENDER.sendPrivateMsg(msg, helpMsg);
     }
 
+    //---------------------
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"其他功能帮助", "#其他功能帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void otherhelpListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, OTHER_HELP_MSG);
+    }
+
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"会战帮助", "#会战帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void fighthelpListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, FIGHT_HELP_MSG);
+    }
+
+    //------------------------------
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"其他功能帮助", "#其他功能帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void otherhelpListen1(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, OTHER_HELP_MSG);
+    }
+
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"会战帮助", "#会战帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void fighthelpListen1(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, FIGHT_HELP_MSG);
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"工会帮助", "#工会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void grouphelpListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"工会帮助", "#工会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void grouphelpListen1(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
+    }
+
+
+
+
+
+
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#up十连", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon(GroupMsg msg, MsgSender sender) {
@@ -441,7 +486,7 @@ public class OtherListener {
     public void openEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(false));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
                 setjson();
@@ -462,7 +507,7 @@ public class OtherListener {
     public void shutEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(true));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
                 setjson();
@@ -481,7 +526,7 @@ public class OtherListener {
     public void shut(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(false));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭PcrTool");
                 setjson();
@@ -501,7 +546,7 @@ public class OtherListener {
     public void open(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(true));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
                 setjson();
@@ -520,7 +565,7 @@ public class OtherListener {
     public void shutbuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setButon(false));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭提醒买药小助手");
                 setjson();
@@ -541,7 +586,7 @@ public class OtherListener {
     public void openbuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner()) {
+            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setButon(true));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启提醒买药小助手");
                 setjson();
@@ -568,7 +613,8 @@ public class OtherListener {
                 "\n总开关默认：" + pricnessConfig.isPcrToonon() +
                 "\n好像没啥用的开关默认：" + pricnessConfig.isButon() +
                 "\n扭蛋开关默认：" + pricnessConfig.isEggon() +
-                "\n赛马开关默认：" + pricnessConfig.isHorse());
+                "\n赛马开关默认：" + pricnessConfig.isHorse() +
+                "\nmasterQQ：" + pricnessConfig.getMasterQQ());
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -581,8 +627,21 @@ public class OtherListener {
                 "\n总开关默认：" + pricnessConfig.isPcrToonon() +
                 "\n好像没啥用的开关默认：" + pricnessConfig.isButon() +
                 "\n扭蛋开关默认：" + pricnessConfig.isEggon() +
-                "\n赛马开关默认：" + pricnessConfig.isHorse());
+                "\n赛马开关默认：" + pricnessConfig.isHorse() +
+                "\nmasterQQ：" + pricnessConfig.getMasterQQ());
     }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#查看本群设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void groupconfig(GroupMsg msg, MsgSender sender) {
+        groupPower groupPower = On.get(msg.getGroupCode());
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
+                "扭蛋开关:" + groupPower.isEggon() +
+                "\n买药小助手开关" + groupPower.isButon() +
+                "\n买马开关：" + groupPower.isHorse());
+    }
+
+
 
     /**
      * 刷新抽卡冷却时间

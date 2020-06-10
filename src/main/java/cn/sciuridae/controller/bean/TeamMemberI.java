@@ -7,7 +7,7 @@ public class TeamMemberI extends TeamMember {
 
     //1 2 3
     public TeamMemberI(TeamMember teamMember, boolean isSuper) {
-        super(teamMember.getUserQQ(), teamMember.getGroupQQ(), teamMember.getName(), teamMember.getPower());
+        super(teamMember.getUserQQ(), teamMember.getGroupQQ(), teamMember.getName(), teamMember.getPower(), teamMember.getToken());
 
         if (isSuper) {
             this.intPower = 3;
