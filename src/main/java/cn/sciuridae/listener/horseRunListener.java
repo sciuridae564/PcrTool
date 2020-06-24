@@ -130,7 +130,7 @@ public class horseRunListener {
 
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "我有多少钱鸭老婆", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"我有多少钱鸭老婆", "老婆我有多少钱", "我有多少钱", "我有多少钱老婆"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void mycoin(GroupMsg msg, MsgSender sender) {
         Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
         if (byId != null) {
@@ -260,9 +260,7 @@ public class horseRunListener {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println(groupQQ);
                 String s = event();
-                System.out.println(s);
                 sender.SENDER.sendGroupMsg(groupQQ, s);//事件发生器
                 add();//所有马向前跑一格
                 sender.SENDER.sendGroupMsg(groupQQ, drawHorse(horse));
@@ -297,12 +295,12 @@ public class horseRunListener {
                 //好事
                 int i = random.nextInt(horse.getPosition().size());//作用于哪只马
                 horselist.set(i, horselist.get(i) + 1);
-                return horeEvent.getGoodHorseEvent().get(random.nextInt(horeEvent.getGoodHorseEvent().size())).replace("?", String.valueOf(i));
+                return horeEvent.getGoodHorseEvent().get(random.nextInt(horeEvent.getGoodHorseEvent().size())).replace("?", String.valueOf(i + 1));
             } else {
                 //坏事
                 int i = random.nextInt(horse.getPosition().size());
                 horselist.set(i, horselist.get(i) - 1);
-                return horeEvent.getBedHorseEvent().get(random.nextInt(horeEvent.getBedHorseEvent().size())).replace("?", String.valueOf(i));
+                return horeEvent.getBedHorseEvent().get(random.nextInt(horeEvent.getBedHorseEvent().size())).replace("?", String.valueOf(i + 1));
             }
         }
 

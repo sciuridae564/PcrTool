@@ -144,6 +144,19 @@
         <!--<version>2.9.2</version>-->
         <!--</dependency>-->
 
+        <!-- api请求 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.7.2</version>
+        </dependency>
+        <!--  指定kotlin版本，要不然上面这个库会报错  -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>1.3.70</version>
+        </dependency>
+
     </dependencies>
 
 </project>

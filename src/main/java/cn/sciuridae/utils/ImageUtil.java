@@ -15,6 +15,7 @@ public class ImageUtil {
     private static final Integer LINE_SIZE_MAX = 4;//一行最多4个图片
     private static final String OUT = "./temp/";//输出图片的临时文件夹
 
+    //制作抽卡出货的图
     public static String composeImg(ArrayList<String> charas) throws IOException {
         if (charas.size() > 0) {
 

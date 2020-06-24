@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static cn.sciuridae.constant.*;
@@ -34,7 +32,7 @@ public class OtherListener {
     @Autowired
     ScoresService ScoresServiceImpl;
 
-    private static HashMap<String, String> coolDown;//抽卡冷却时间
+    private static HashMap<String, LocalDateTime> coolDown;//抽卡冷却时间
 
     public static void AllCoolDown() {
         coolDown = new HashMap<>();
@@ -47,8 +45,20 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"帮助", "#帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"机器人设置", "#机器人设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void testListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, CONFIG_MES);
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#机器人设置", at = true, keywordMatchType = KeywordMatchType.STARTS_WITH)
+    public void configListen1(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), CONFIG_MES);
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"帮助", "#帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void configListen1(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, helpMsg);
     }
 
@@ -427,8 +437,42 @@ public class OtherListener {
     public void kimo(GroupMsg msg, MsgSender sender) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
+        String send;
+        if (canSendImage && kimo_Definde_image != null) {
+            int i = kimo_Definde.length + kimo_Definde_image.size();
+            int j = random.nextInt(i);
+            if (j > kimo_Definde.length - 1) {
+                send = kimo_Definde_image.get(j - kimo_Definde.length);
+            } else {
+                send = kimo_Definde[random.nextInt(kimo_Definde.length)];
+            }
+        } else {
+            send = kimo_Definde[random.nextInt(kimo_Definde.length)];
+        }
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), send);
+    }
 
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), kimo_Definde[random.nextInt(kimo_Definde.length)]);
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = "挂载变态图片", keywordMatchType = KeywordMatchType.EQUALS)
+    public void kimo(PrivateMsg msg, MsgSender sender) {
+        File file = new File("./heitai");
+
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            if (files.length > 0) {
+                kimo_Definde_image = new ArrayList<>();
+                CQCodeUtil build = CQCodeUtil.build();
+                for (File f : files) {
+                    CQCode cqCode_image = build.getCQCode_Image("file://" + f.getAbsolutePath());
+                    kimo_Definde_image.add(cqCode_image.toString());
+                }
+                sender.SENDER.sendPrivateMsg(msg.getQQCode(), "读取图片成功");
+            } else {
+                sender.SENDER.sendPrivateMsg(msg.getQQCode(), "文件夹里还没有图片哦");
+            }
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "没有检测到有名字叫 heitai 的文件夹哦，图片请放到那里");
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -660,16 +704,12 @@ public class OtherListener {
      */
     public void reFlashCoolDown(String QQ) {
         LocalDateTime localDateTime = LocalDateTime.now();
-        localDateTime.plusSeconds(pricnessConfig.getGashaponcool());
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        String time = localDateTime.format(dateTimeFormatter);
 
         if (coolDown == null) {
-            System.out.println("aaa");
             coolDown = new HashMap<>();
-            coolDown.put(QQ, time);
+            coolDown.put(QQ, localDateTime.plusSeconds(pricnessConfig.getGashaponcool()));
         } else {
-            coolDown.put(QQ, time);
+            coolDown.put(QQ, localDateTime.plusSeconds(pricnessConfig.getGashaponcool()));
         }
     }
 
@@ -685,7 +725,7 @@ public class OtherListener {
             return true;
         } else {
             if (coolDown.get(QQ) != null) {
-                return coolDown.get(QQ).compareTo(new SimpleDateFormat("HH:mm:ss").format(new Date())) < 0;
+                return coolDown.get(QQ).isBefore(LocalDateTime.now());
             } else {
                 return true;
             }

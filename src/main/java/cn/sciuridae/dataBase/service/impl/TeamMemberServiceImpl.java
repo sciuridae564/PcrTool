@@ -90,17 +90,20 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
     @Override
     public String getToken(long QQ) {
         String token;
-        do {
-            token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
-            try {
-                Integer tokenNum = getTokenNum(token);
-                if (tokenNum < 1)
-                    break;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        token = teamMemberMapper.getToken(QQ);
+        if (token == null) {
+            do {
+                token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+                try {
+                    Integer tokenNum = getTokenNum(token);
+                    if (tokenNum < 1)
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-        } while (true);
+            } while (true);
+        }
         return token;
     }
 

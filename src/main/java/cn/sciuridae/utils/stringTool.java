@@ -102,7 +102,7 @@ public class stringTool {
         return cb.array();
     }
 
-    static byte[] toPrimitives(Byte[] oBytes) {
+    private static byte[] toPrimitives(Byte[] oBytes) {
         byte[] bytes = new byte[oBytes.length];
         for (int i = 0; i < oBytes.length; i++) {
             bytes[i] = oBytes[i];

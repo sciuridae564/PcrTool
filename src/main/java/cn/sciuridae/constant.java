@@ -18,8 +18,11 @@ import static cn.sciuridae.listener.prcnessIntercept.On;
 
 
 public class constant {
-    public static final String helpMsg = "1.其他功能帮助\n2.会战帮助\n3.工会帮助\n请选择命令提示菜单";
+    public static final String helpMsg = "1.其他功能帮助\n2.会战帮助\n3.工会帮助\n4.机器人设置\n请选择命令提示菜单";
 
+    public static final String CONFIG_MES = "设置文件均可在机器人运行后自动生成，有些配置项没有自动生成删掉对应的配置文件再[重载设置]即可\n修改配置文件必须使用重载设置命令才可使用编辑后的配置" +
+            "1.各个群内的开关，保存在config.txt中，true为开启，false为关闭\n若要修改则找到对应群号修改对应值即可\n2.扭蛋池信息保存在扭蛋.txt中 概率以千分之整数存储\n例如up三星出率为千分之七，则设置为7\n若要更换抽卡所发送的人物图片资源，则在旁边建以 image 文件夹\n向里面放入人物资源图片，文件以扭蛋.,txt中设置的人物名字为准，格式为png" +
+            "3.赛马事件则为 事件.txt文件 中\n赛马所受影响的马号以?占位\n例如有一个事件为 3号马摔倒了 它是坏事件，将其放入bedHorseEvent后面中括号里面，写入3号马摔倒了";
 
     public static final String GROUP_HELP_MSG = "命令总览：\n" +
             "打*为管理员指令**的为工会长指令 中括号内为指令不需要中括号 小括号内为可选内容\n" +
@@ -93,6 +96,7 @@ public class constant {
             "\t查看群内设置 [#查看本群设置]\n" +
             "\t看漂亮小姐姐 私聊机器人[我要看漂亮小姐姐]\n" +
             "\t使所有人的签到状态为未签[刷新全部签到]\n" +
+            "\t使机器人在对老婆做出反应时发送自定义图片[挂载变态图片]\n" +
             "默认设定：\n" +
             "\t这个插件和插件的所有功能都是开启的\n" +
             "\t每天5点检查树上的人，全 部 撸 下\n" +
@@ -138,6 +142,7 @@ public class constant {
     public static final String StartFightStartDouble = "会战已经开始惹，为什么还要再开一次";
     public static final String SuccessEndFight = "会战结束惹";
     public static final String EngFightStartDouble = "没有正在进行的会战惹";
+    public static List<String> kimo_Definde_image = null;
     public static final String[] kimo_Definde = {"hentai，谁是你老婆啦", "死肥宅一边玩去啦，不要打扰我", "本小姐不想理你，并向你扔了一只胖次",
             "无应答......", "嗷呜%_%", "谁是你老婆啦，哼", "对方无应答", "你是个好人", "对不起!您拨打的用户暂时无法接通,请稍后再拨.Sorry!The subscriber you dialed can not be connected for the moment, please redial later."
             , "傲娇与偏见", "刑法第二百三十六条 强奸罪\n" +

@@ -38,24 +38,21 @@ public class InitDatabase {
                     statement.executeUpdate("DROP TABLE IF EXISTS `Scores`");
 
                     statement.executeUpdate("CREATE TABLE  pcrUnion(id integer PRIMARY KEY AUTOINCREMENT,groupQQ integer(8),groupName varchar(256),groupMasterQQ integer(8),createDate datetime,teamSum integer(1))");
-                    statement.executeUpdate("CREATE TABLE  teamMember(userQQ integer(8) PRIMARY KEY,groupQQ integer(8),name varchar(20),power boolean,token varchar(20))");
+                    statement.executeUpdate("CREATE TABLE  teamMember(userQQ integer(8) PRIMARY KEY,groupQQ integer(8),name varchar(20),power boolean )");
                     statement.executeUpdate("CREATE TABLE  knifeList(id integer PRIMARY KEY AUTOINCREMENT, knifeQQ integer(8), hurt integer,date datetime,complete boolean, version integer ,loop integer(1),position integer(1) )");
                     statement.executeUpdate("CREATE TABLE  tree(teamQQ integer(8) PRIMARY KEY,date datetime, isTree boolean,groupQQ integer(8) );");
                     statement.executeUpdate("CREATE TABLE progress(id integer PRIMARY KEY,teamQQ integer(8),loop integer(2) ,  serial integer(1), Remnant integer(8), startTime datetime,endTime datetime,deleted integer(1) ,version integer)");
                     statement.executeUpdate("CREATE TABLE  Scores(QQ integer PRIMARY KEY ,   iSign boolean default false,  score integer(8) default 0)");
                     statement.executeUpdate("create table  'version'( 'version' integer)");
                     statement.executeUpdate("insert into version values (" + new_version + ")");
-                    break;
                 case 1:
                     statement.executeUpdate("alter table teamMember add column token varchar(20);");
-                case 2:
-                    statement.executeUpdate("DROP TABLE progress");
-                    statement.executeUpdate("CREATE TABLE progress(id integer PRIMARY KEY,teamQQ integer(8),loop integer(2) ,  serial integer(1), Remnant integer(8), startTime datetime,endTime datetime,deleted integer(1) ,version integer)");
                 case 3:
                     statement.executeUpdate("alter table tree add column name varchar(20);");
-
-
-
+//                case 4:
+//                    statement.executeUpdate("alter table Scores add column live1 integer;");
+//                    statement.executeUpdate("alter table Scores add column live1 integer;");
+//                    statement.executeUpdate("alter table Scores add column live1 integer;");
 
                     statement.executeUpdate("update version set version =" + new_version);
                 default:
