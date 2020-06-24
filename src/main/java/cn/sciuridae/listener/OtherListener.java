@@ -45,13 +45,13 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"机器人设置", "#机器人设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"机器人设置", "#机器人设置", "4"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void testListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, CONFIG_MES);
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#机器人设置", at = true, keywordMatchType = KeywordMatchType.STARTS_WITH)
+    @Filter(value = {"#机器人设置"}, at = true, keywordMatchType = KeywordMatchType.STARTS_WITH)
     public void configListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), CONFIG_MES);
     }
@@ -71,7 +71,7 @@ public class OtherListener {
 
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"会战帮助", "#会战帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"会战帮助", "#会战帮助", "2"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void fighthelpListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, FIGHT_HELP_MSG);
     }
@@ -91,7 +91,7 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"工会帮助", "#工会帮助", "公会帮助", "#公会帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"工会帮助", "#工会帮助", "公会帮助", "#公会帮助", "3"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void grouphelpListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
     }
@@ -102,9 +102,17 @@ public class OtherListener {
         sender.SENDER.sendPrivateMsg(msg, GROUP_HELP_MSG);
     }
 
+    @Listen(value = MsgGetTypes.groupMsg)
+    @Filter(value = {"bilibili相关帮助", "#bilibili相关帮助"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void bilibiliListen(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, BilibiliMsg);
+    }
 
-
-
+    @Listen(value = MsgGetTypes.privateMsg)
+    @Filter(value = {"bilibili相关帮助", "#bilibili相关帮助", "5"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void bilibiliListen(PrivateMsg msg, MsgSender sender) {
+        sender.SENDER.sendPrivateMsg(msg, BilibiliMsg);
+    }
 
 
     @Listen(MsgGetTypes.groupMsg)

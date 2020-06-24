@@ -18,7 +18,11 @@ import static cn.sciuridae.listener.prcnessIntercept.On;
 
 
 public class constant {
-    public static final String helpMsg = "1.其他功能帮助\n2.会战帮助\n3.工会帮助\n4.机器人设置\n请选择命令提示菜单";
+    public static final String helpMsg = "1.其他功能帮助\n2.会战帮助\n3.工会帮助\n4.机器人设置\n5.bilibili相关帮助\n请选择命令提示菜单";
+
+    public static final String BilibiliMsg = "以下全部为私聊\n1.获取视频封面图片 [视频封面 av/bv号]\nav与bv需统一大小写\n例: 视频封面 av1145124 \n" +
+            "2.av/bv转换 \n直接输入av/bv号即可 \n例: av11458" +
+            "3.当前up直播状态 [直播 upuid]\n仅仅是b站直播，其他站的已经新建文件夹了";
 
     public static final String CONFIG_MES = "设置文件均可在机器人运行后自动生成，有些配置项没有自动生成删掉对应的配置文件再[重载设置]即可\n修改配置文件必须使用重载设置命令才可使用编辑后的配置" +
             "1.各个群内的开关，保存在config.txt中，true为开启，false为关闭\n若要修改则找到对应群号修改对应值即可\n2.扭蛋池信息保存在扭蛋.txt中 概率以千分之整数存储\n例如up三星出率为千分之七，则设置为7\n若要更换抽卡所发送的人物图片资源，则在旁边建以 image 文件夹\n向里面放入人物资源图片，文件以扭蛋.,txt中设置的人物名字为准，格式为png" +

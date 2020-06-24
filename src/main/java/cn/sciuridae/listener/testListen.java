@@ -17,11 +17,10 @@ public class testListen {
     @Autowired
     PcrUnionService pcrUnionServiceImpl;
 //
-////    @Listen(MsgGetTypes.groupMsg)
-////    @Filter(value = {"^q[1-5]ss.*$"},keywordMatchType = KeywordMatchType.RE_CQCODE_EQUALS,at = true)
-////    public void testListern(GroupMsg msg, MsgSender sender) {
-////        sender.SENDER.sendGroupMsg(msg.getGroupCode(),msg.getMsg());
-////    }
+    /*@Listen(MsgGetTypes.groupMsg)
+    public void testListern(GroupMsg msg, MsgSender sender) {
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(),msg.getMsg());
+    }*/
 //
 //
 ////

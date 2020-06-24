@@ -3,7 +3,7 @@ package cn.sciuridae.utils;
 import java.sql.*;
 
 public class InitDatabase {
-    private static final int new_version = 4;
+    private static final int new_version = 5;
 
     public void InitDB() {
         int version = -1;
@@ -49,13 +49,22 @@ public class InitDatabase {
                     statement.executeUpdate("alter table teamMember add column token varchar(20);");
                 case 3:
                     statement.executeUpdate("alter table tree add column name varchar(20);");
+                case 4:
+                    try {
+                        statement.executeUpdate("alter table tree add column name varchar(20);");
+                    } catch (SQLException e) {
+                        //某一版里好像把这个漏掉了，有的版本又没露
+                    }
+//                case 5:
+//                    statement.executeUpdate("alter table Scores add column live1 integer;");
+//                    statement.executeUpdate("alter table Scores add column live2 integer;");
+//                    statement.executeUpdate("alter table Scores add column live3 integer;");
 //                case 4:
 //                    statement.executeUpdate("alter table Scores add column live1 integer;");
 //                    statement.executeUpdate("alter table Scores add column live1 integer;");
 //                    statement.executeUpdate("alter table Scores add column live1 integer;");
 
                     statement.executeUpdate("update version set version =" + new_version);
-                default:
 
             }
             statement.close();
