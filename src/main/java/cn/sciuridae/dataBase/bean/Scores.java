@@ -25,9 +25,9 @@ public class Scores implements Serializable {
 
     private Integer score;
 
-    private Integer live1;
-    private Integer live2;
-    private Integer live3;
+    private Integer live1 = 0;
+    private Integer live2 = 0;
+    private Integer live3 = 0;
 
     public Long getQQ() {
         return QQ;

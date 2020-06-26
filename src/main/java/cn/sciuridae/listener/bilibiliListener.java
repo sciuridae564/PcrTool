@@ -1,5 +1,7 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.bean.Scores;
+import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.utils.bilibili.BilibiliLive;
 import cn.sciuridae.utils.bilibili.BilibiliVideo;
 import cn.sciuridae.utils.bilibili.BvAndAv;
@@ -11,14 +13,19 @@ import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class bilibiliListener {
 
+    @Autowired
+    ScoresService ScoresServiceImpl;
     private static HashMap<String, BilibiliLive> liveHashMap = new HashMap<>();
 
     //视频封面 av114514
@@ -62,7 +69,7 @@ public class bilibiliListener {
 
     //查询直播状态
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"直播 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"直播"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void searchlive(PrivateMsg msg, MsgSender sender) {
         String mid = msg.getMsg().substring(2).trim();
         BilibiliLive bilibiliLive = liveHashMap.get(mid);
@@ -86,16 +93,75 @@ public class bilibiliListener {
         }
     }
 
-//    @Listen(MsgGetTypes.privateMsg)
-//    @Filter(value = {"设置开播提示 " }, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-//    public void setlive(PrivateMsg msg, MsgSender sender){
-//
-//    }
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"设置开播提示"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void setlive(PrivateMsg msg, MsgSender sender) {
+        Pattern pattern = Pattern.compile("[0-9.]");
+        Matcher matcher = pattern.matcher(msg.getMsg());
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            sb.append(matcher.group(0));
+        }
+        int i = ScoresServiceImpl.setLive(msg.getQQCodeNumber(), sb.toString());
+        if (i == -1) {
+            sender.SENDER.sendPrivateMsg(msg, "槽位已满请去掉一个");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg, "已添加，记录在" + i + "号槽上");
+        }
+        //开始监听直播间
 
-//    @Listen(MsgGetTypes.privateMsg)
-//    @Filter(value = {"查看开播提示 " }, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-//    public void getlive(PrivateMsg msg, MsgSender sender){
-//
-//    }
+    }
 
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"查看开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void getlive(PrivateMsg msg, MsgSender sender) {
+        Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
+        if (byId == null) {
+            sender.SENDER.sendPrivateMsg(msg, "还没有关注的主播哦");
+        }
+        sender.SENDER.sendPrivateMsg(msg, "一号槽：uid" + byId.getLive1() + "\n二号槽：uid" + byId.getLive2() + "\n三号槽：uid" + byId.getLive3());
+
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"清除开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void clearlive(PrivateMsg msg, MsgSender sender) {
+        ScoresServiceImpl.clearLive(msg.getQQCodeNumber(), "live" + msg.getMsg().substring(6).trim());
+
+    }
+
+    public void addLive(String mid) {
+        new AddLive(mid).start();
+        ;
+    }
+
+    class AddLive extends Thread {
+        private String mid;
+
+        public AddLive(String mid) {
+            this.mid = mid;
+        }
+
+        @Override
+        public void run() {
+            if (liveHashMap.get(mid) == null) {
+                //没有则加入一个
+                boolean flag = true;
+                do {
+                    try {
+                        BilibiliLive bilibiliLive = new BilibiliLive(mid);
+                        liveHashMap.put(mid, bilibiliLive);
+                        flag = false;
+                    } catch (IOException e) {
+                        //出现了问题则等一会再加上去
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                } while (flag);
+            }
+        }
+    }
 }

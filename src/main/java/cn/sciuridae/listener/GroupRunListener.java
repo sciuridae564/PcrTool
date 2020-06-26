@@ -4,6 +4,7 @@ import cn.sciuridae.dataBase.bean.PcrUnion;
 import cn.sciuridae.dataBase.bean.TeamMember;
 import cn.sciuridae.dataBase.service.PcrUnionService;
 import cn.sciuridae.dataBase.service.TeamMemberService;
+import cn.sciuridae.utils.stringTool;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
@@ -13,7 +14,6 @@ import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.ibatis.binding.BindingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.UncategorizedSQLException;
@@ -52,11 +52,20 @@ public class GroupRunListener {
             return;
         }
 
-        //已经有一个工会了
+        //本人已经有一个工会了
         if (teamMemberServiceImpl.getTeamMemberByQQ(msg.getQQCodeNumber()) != null) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName() + isHaveGroup);
             return;
         }
+
+        //本群已经有一个工会了
+        PcrUnion group = pcrUnionServiceImpl.getGroup(msg.getGroupCodeNumber());
+        if (group != null) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "本群已经有一个工会了，详情请咨询本群会长,qq: " + group.getGroupMasterQQ());
+            return;
+        }
+
+
 
         //准备工会和人员信息
         PcrUnion pcrUnion = new PcrUnion();
@@ -386,11 +395,27 @@ public class GroupRunListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"获取码"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void getToken(PrivateMsg msg, MsgSender sender) {
+        String QQ = msg.getQQCode();
+
+        String token = teamMemberServiceImpl.getToken(msg.getQQCodeNumber());
+        if (token == null) {
+            sender.SENDER.sendPrivateMsg(QQ, "还没有加入任何一个工会哦");
+        } else {
+            sender.SENDER.sendPrivateMsg(QQ, "你的码是：" + token);
+            sender.SENDER.sendPrivateMsg(QQ, "会战后台网址：http://" + ip + ":8080");
+        }
+
+
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
     @Filter(value = "更换token", keywordMatchType = KeywordMatchType.EQUALS)
     public void startHorse(PrivateMsg msg, MsgSender sender) {
         String token;
         do {
-            token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+            token = stringTool.random(20);//密匙生成
             try {
                 Integer tokenNum = teamMemberServiceImpl.getTokenNum(token);
                 if (tokenNum < 1)

@@ -21,11 +21,17 @@ import org.springframework.stereotype.Repository;
 public interface ScoresMapper extends BaseMapper<Scores> {
 
     @Update("update Scores set iSign=false ")
-    int changeTeamSum();
+    void changeTeamSum();
 
     @Select("select iSign from Scores where QQ=#{qq}")
     Boolean selectSign(@Param("qq") long qq);
 
     @Update("update Scores set iSign=true where QQ=#{qq}")
     int sign(@Param("qq") long qq);
+
+    @Update("update Scores set #{size}=0 where QQ=#{qq}")
+    int clear(@Param("qq") long qq, String size);
+
+    @Update("update Scores set #{size}=#{mid} where QQ=#{qq}")
+    int setLive(@Param("qq") long qq, String size, long mid);
 }

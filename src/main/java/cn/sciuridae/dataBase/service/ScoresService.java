@@ -19,4 +19,10 @@ public interface ScoresService extends IService<Scores> {
 
     void sign(long qq);
 
+    //设置一个直播记录，返回设置的槽位，满了返回-1
+    int setLive(long qq, String live);
+
+    //清除指定位置的直播记录
+    int clearLive(long qq, String size);
+
 }

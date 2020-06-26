@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Random;
 
 import static cn.sciuridae.constant.*;
 
@@ -174,5 +175,48 @@ public class stringTool {
         return "";        //如果都不是，说明输入的内容不属于常见的编码格式。
     }
 
+    private static final Random RANDOM = new Random();
+
+    public static String random(int count) {
+
+        int start;
+        int end;
+        end = 'z' + 1;
+        start = ' ';
+
+        final StringBuilder builder = new StringBuilder(count);
+        final int gap = end - start;
+
+        while (count-- != 0) {
+            int codePoint;
+            codePoint = RANDOM.nextInt(gap) + start;
+
+            switch (Character.getType(codePoint)) {
+                case Character.UNASSIGNED:
+                case Character.PRIVATE_USE:
+                case Character.SURROGATE:
+                    count++;
+                    continue;
+            }
+
+            final int numberOfChars = Character.charCount(codePoint);
+            if (count == 0 && numberOfChars > 1) {
+                count++;
+                continue;
+            }
+
+            if (Character.isLetter(codePoint) || Character.isDigit(codePoint)) {
+                builder.appendCodePoint(codePoint);
+
+                if (numberOfChars == 2) {
+                    count--;
+                }
+
+            } else {
+                count++;
+            }
+        }
+        return builder.toString();
+    }
 
 }

@@ -32,10 +32,6 @@ public interface TeamMemberMapper extends BaseMapper<TeamMember> {
     @Select("select userQQ from teamMember where groupQQ = #{groupQq} ")
     List<Long> userQQs(@Param("groupQq") long groupQq);
 
-
-    @Select("select token from teamMember where userQQ = #{Qq} ")
-    String getToken(@Param("Qq") long Qq);
-
     @Update("update teamMember set power=true where userQQ = #{Qq} ")
     int setAdmin(@Param("Qq") long Qq);
 

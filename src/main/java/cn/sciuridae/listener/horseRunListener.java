@@ -7,6 +7,8 @@ import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.MsgGet;
+import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
@@ -129,19 +131,40 @@ public class horseRunListener {
     }
 
 
-    @Listen(MsgGetTypes.groupMsg)
+    @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})
     @Filter(value = {"我有多少钱鸭老婆", "老婆我有多少钱", "我有多少钱", "我有多少钱老婆"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void mycoin(GroupMsg msg, MsgSender sender) {
-        Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
-        if (byId != null) {
-            if (byId.getiSign()) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQCode() + "] 有" + byId.getScore() + "块钱");
+    public void mycoin(MsgGet msg, MsgSender sender) {
+        Scores byId;
+        GroupMsg groupMsg;
+        PrivateMsg privateMsg;
+        if (msg instanceof GroupMsg) {
+            groupMsg = (GroupMsg) msg;
+            byId = ScoresServiceImpl.getById(groupMsg.getQQCodeNumber());
+            if (byId != null) {
+                if (byId.getiSign()) {
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 有" + byId.getScore() + "块钱");
+                } else {
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 有" + byId.getScore() + "块钱，还没有签到哦");
+                }
             } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQCode() + "] 有" + byId.getScore() + "块钱，还没有签到哦");
+                sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQCode() + "] 锅里没有一滴油");
             }
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQCode() + "] 锅里没有一滴油");
+            privateMsg = (PrivateMsg) msg;
+            byId = ScoresServiceImpl.getById(privateMsg.getQQCodeNumber());
+
+            if (byId != null) {
+                if (byId.getiSign()) {
+                    sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "有" + byId.getScore() + "块钱");
+                } else {
+                    sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), byId.getScore() + "块钱，还没有签到哦");
+                }
+            } else {
+                sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "锅里没有一滴油");
+            }
         }
+
+
     }
 
 

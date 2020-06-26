@@ -3,9 +3,9 @@ package cn.sciuridae.dataBase.service.impl;
 import cn.sciuridae.dataBase.bean.TeamMember;
 import cn.sciuridae.dataBase.dao.TeamMemberMapper;
 import cn.sciuridae.dataBase.service.TeamMemberService;
+import cn.sciuridae.utils.stringTool;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,22 +89,27 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
 
     @Override
     public String getToken(long QQ) {
-        String token;
-        token = teamMemberMapper.getToken(QQ);
-        if (token == null) {
+        TeamMember teamMember = teamMemberMapper.selectById(QQ);
+        if (teamMember == null) {
+            return null;
+        } else if (teamMember.getToken() == null) {
+            String token;
             do {
-                token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+                token = token = stringTool.random(20);
+                ;//密匙生成
                 try {
                     Integer tokenNum = getTokenNum(token);
-                    if (tokenNum < 1)
+                    if (tokenNum < 1) {
+                        teamMemberMapper.updateToken(token, QQ);
+                        teamMember.setToken(token);
                         break;
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    }
+                } catch (Exception ignored) {
                 }
 
             } while (true);
         }
-        return token;
+        return teamMember.getToken();
     }
 
     @Override

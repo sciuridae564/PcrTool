@@ -7,7 +7,6 @@ import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMemberReduce;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
-import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
@@ -466,15 +465,7 @@ public class prcnessListener {
         }
     }
 
-    @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"获取码"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void getToken(PrivateMsg msg, MsgSender sender) {
-        String QQ = msg.getQQCode();
 
-        sender.SENDER.sendPrivateMsg(QQ, "你的码是：" + teamMemberServiceImpl.getToken(msg.getQQCodeNumber()));
-        sender.SENDER.sendPrivateMsg(QQ, "会战后台网址：http://" + ip + ":8080");
-
-    }
 
 
     @Listen(MsgGetTypes.groupMemberReduce)

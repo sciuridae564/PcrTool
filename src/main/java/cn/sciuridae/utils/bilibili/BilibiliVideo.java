@@ -1,21 +1,17 @@
 package cn.sciuridae.utils.bilibili;
 
+import cn.sciuridae.utils.ApiConnect;
 import com.alibaba.fastjson.JSONObject;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BilibiliVideo {
     private static final String TEMP = "./temp/bili/Video/";
-    private static OkHttpClient okHttpClient = new OkHttpClient();
     private String bv;
     private String av;
     private File pic;
@@ -83,24 +79,9 @@ public class BilibiliVideo {
     }
 
     public static String get(String getUrl) {
-        Request request = new Request.Builder()
-                .url(getUrl)
-                .build();
-        return execNewCall(request);
+        return ApiConnect.httpRequest(getUrl);
     }
 
-    //处理请求
-    private static String execNewCall(Request request) {
-        try {
-            Response response = okHttpClient.newCall(request).execute();
-            if (response.isSuccessful()) {
-                return Objects.requireNonNull(response.body()).string();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public void frash() throws IOException {
         String videobyBV = getVideobyBV(bv);

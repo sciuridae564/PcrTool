@@ -1,8 +1,8 @@
 package cn.sciuridae.dataBase.bean;
 
+import cn.sciuridae.utils.stringTool;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.Serializable;
 
@@ -30,7 +30,7 @@ public class TeamMember implements Serializable {
     private String token;
 
     public TeamMember() {
-        token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+        token = stringTool.random(20);//密匙生成
     }
 
     public TeamMember(long userQQ, long groupQQ, String name, Boolean power) {
@@ -38,7 +38,7 @@ public class TeamMember implements Serializable {
         this.groupQQ = groupQQ;
         this.name = name;
         this.power = power;
-        token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+        token = stringTool.random(20);//密匙生成
     }
 
     public TeamMember(long userQQ, long groupQQ, String name, Boolean power, String token) {

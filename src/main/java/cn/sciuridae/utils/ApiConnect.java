@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,7 +79,7 @@ public class ApiConnect {
      * @param requestUrl
      * @return
      */
-    private static String httpRequest(String requestUrl) {
+    public static String httpRequest(String requestUrl) {
         //buffer用于接受返回的字符
         StringBuffer buffer = new StringBuffer();
         try {
@@ -91,9 +92,10 @@ public class ApiConnect {
             httpUrlConn.setRequestMethod("GET");
             httpUrlConn.connect();
 
+
             //获得输入
             InputStream inputStream = httpUrlConn.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
             //将bufferReader的值给放到buffer里

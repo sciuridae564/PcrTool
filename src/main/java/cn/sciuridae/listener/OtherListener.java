@@ -4,9 +4,11 @@ import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
+import com.forte.qqrobot.anno.Ignore;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
@@ -245,13 +247,24 @@ public class OtherListener {
 
     }
 
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"重置扭蛋cd"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void clearniudan(GroupMsg msg, MsgSender sender) {
+        if (pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            coolDown.clear();
+        }
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已清除cd信息");
+    }
+
+
     /**
      * 普通池的概率
      *
      * @param num
      * @return
      */
-    public Gashapon dp_Gashapon(int num) {
+    @Ignore
+    private Gashapon dp_Gashapon(int num) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
@@ -304,7 +317,7 @@ public class OtherListener {
      * @param num
      * @return
      */
-    public Gashapon dp_UpGashapon(int num) {
+    private Gashapon dp_UpGashapon(int num) {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         int on = 0, tw = 0, thre = 0;//抽出来的三心二心有几个
@@ -380,6 +393,7 @@ public class OtherListener {
     /**
      * 组织抽卡结果
      */
+    @Ignore
     private String get_GashaponString(int on, int tw, int thre, HashMap<String, Integer> map1, HashMap<String, Integer> map2, HashMap<String, Integer> map3) {
         StringBuilder stringBuilder = new StringBuilder();
         if (thre != 0) {
@@ -483,9 +497,9 @@ public class OtherListener {
         }
     }
 
-    @Listen(MsgGetTypes.groupMsg)
+    @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})
     @Filter(value = "切噜.*")
-    public void qielu(GroupMsg msg, MsgSender sender) {
+    public void qielu(MsgGet msg, MsgSender sender) {
         String needTran = msg.getMsg().replaceAll(" +", "");
         if (needTran.length() > 2) {
             needTran = needTran.substring(2);
@@ -502,15 +516,24 @@ public class OtherListener {
                 tranled.append(QieLU[cache[0]]);
                 tranled.append(QieLU[cache[1]]);
             }
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), tranled.toString());
+            if (msg instanceof GroupMsg) {
+                sender.SENDER.sendGroupMsg(((GroupMsg) msg).getGroupCode(), tranled.toString());
+            } else {
+                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg).getQQCode(), tranled.toString());
+            }
+
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要翻译的语句哎");
+            if (msg instanceof GroupMsg) {
+                sender.SENDER.sendGroupMsg(((GroupMsg) msg).getGroupCode(), "没有要翻译的语句哎");
+            } else {
+                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg).getQQCode(), "没有要翻译的语句哎");
+            }
         }
     }
 
-    @Listen(MsgGetTypes.groupMsg)
+    @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})
     @Filter(value = "翻译切噜.*")
-    public void reqielu(GroupMsg msg, MsgSender sender) {
+    public void reqielu(MsgGet msg, MsgSender sender) {
         String needTran = msg.getMsg().replaceAll(" +", "");
         needTran = needTran.replaceAll(",", "%%");
         needTran = needTran.replaceAll("扣", "扣扣");
@@ -530,10 +553,21 @@ public class OtherListener {
                 w = reQieLU.get(String.valueOf(cache));
                 bytes.add(respiltByte(q, w));
             }
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), String.valueOf(getChars(bytes.toArray(new Byte[0]))));
+
+            if (msg instanceof GroupMsg) {
+                sender.SENDER.sendGroupMsg(((GroupMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[0]))));
+            } else {
+                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[0]))));
+            }
+
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要翻译的语句哎");
+            if (msg instanceof GroupMsg) {
+                sender.SENDER.sendGroupMsg(((GroupMsg) msg), "没有要翻译的语句哎");
+            } else {
+                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg), "没有要翻译的语句哎");
+            }
         }
+
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -710,7 +744,7 @@ public class OtherListener {
     /**
      * 刷新抽卡冷却时间
      */
-    public void reFlashCoolDown(String QQ) {
+    private void reFlashCoolDown(String QQ) {
         LocalDateTime localDateTime = LocalDateTime.now();
 
         if (coolDown == null) {
@@ -727,7 +761,7 @@ public class OtherListener {
      * @param QQ
      * @return
      */
-    public boolean isCool(String QQ) {
+    private boolean isCool(String QQ) {
         if (coolDown == null) {
             coolDown = new HashMap<>();
             return true;
@@ -739,4 +773,6 @@ public class OtherListener {
             }
         }
     }
+
+
 }

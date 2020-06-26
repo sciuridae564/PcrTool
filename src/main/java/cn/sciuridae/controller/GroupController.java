@@ -5,9 +5,9 @@ import cn.sciuridae.controller.bean.showTeamMember;
 import cn.sciuridae.dataBase.bean.TeamMember;
 import cn.sciuridae.dataBase.service.PcrUnionService;
 import cn.sciuridae.dataBase.service.TeamMemberService;
+import cn.sciuridae.utils.stringTool;
 import com.alibaba.fastjson.JSONArray;
 import com.forte.qqrobot.bot.BotManager;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -140,7 +140,7 @@ public class GroupController {
         if (teamMemberServiceImpl.getGroupByQQ(qq) != group) {
             String token;
             do {
-                token = RandomStringUtils.randomAlphanumeric(20);//密匙生成
+                token = stringTool.random(20);//密匙生成
                 try {
                     Integer tokenNum = teamMemberServiceImpl.getTokenNum(token);
                     if (tokenNum < 1)

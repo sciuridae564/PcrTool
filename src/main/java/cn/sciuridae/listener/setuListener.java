@@ -45,7 +45,7 @@ public class setuListener {
             scores.setScore(0);
             ScoresServiceImpl.save(scores);
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "钱和漂亮小姐姐只能拥有一个");
-        } else if (coin.getScore() > pricnessConfig.getSetuCoin()) {
+        } else if (coin.getScore() >= pricnessConfig.getSetuCoin()) {
             coin.setScore(coin.getScore() - pricnessConfig.getSetuCoin());
             ScoresServiceImpl.updateById(coin);
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "正在搜索图片……………………");
