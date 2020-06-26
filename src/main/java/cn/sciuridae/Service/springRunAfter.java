@@ -1,8 +1,11 @@
 package cn.sciuridae.Service;
 
+import cn.sciuridae.dataBase.bean.Scores;
 import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.ProgressService;
+import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.dataBase.service.TreeService;
+import cn.sciuridae.utils.bilibili.BilibiliLive;
 import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
@@ -11,10 +14,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static cn.sciuridae.listener.bilibiliListener.liveHashMap;
 
 @Service
 public class springRunAfter implements ApplicationListener<ContextRefreshedEvent> {
@@ -22,6 +28,9 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
     TreeService treeServiceImpl;
     @Autowired
     ProgressService ProgressServiceImpl;
+    @Autowired
+    ScoresService ScoresServiceImpl;
+
     /**
      * bot管理器
      */
@@ -55,5 +64,31 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
             }
         }
 
+        //直播监听
+        List<Scores> list = ScoresServiceImpl.getLive();
+
+        for (Scores s : list) {
+            if (s.getLive1() != 0 && liveHashMap.get(s.getLive1().toString()) != null) {
+                try {
+                    liveHashMap.put(String.valueOf(s.getLive1()), new BilibiliLive(String.valueOf(s.getLive1())));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (s.getLive2() != 0 && liveHashMap.get(s.getLive2().toString()) != null) {
+                try {
+                    liveHashMap.put(String.valueOf(s.getLive2()), new BilibiliLive(String.valueOf(s.getLive2())));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (s.getLive3() != 0 && liveHashMap.get(s.getLive3().toString()) != null) {
+                try {
+                    liveHashMap.put(String.valueOf(s.getLive3()), new BilibiliLive(String.valueOf(s.getLive3())));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

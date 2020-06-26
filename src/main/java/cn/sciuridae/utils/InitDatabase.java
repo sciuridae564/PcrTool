@@ -62,6 +62,8 @@ public class InitDatabase {
 
                 case 6:
                     statement.executeUpdate("alter table Scores add column liveON boolean default true ;");
+
+
                     statement.executeUpdate("update version set version =" + new_version);
 
             }
