@@ -26,7 +26,7 @@ public class bilibiliListener {
 
     @Autowired
     ScoresService ScoresServiceImpl;
-    private static HashMap<String, BilibiliLive> liveHashMap = new HashMap<>();
+    public static HashMap<String, BilibiliLive> liveHashMap = new HashMap<>();
 
     //视频封面 av114514
     @Listen(MsgGetTypes.privateMsg)
@@ -119,7 +119,7 @@ public class bilibiliListener {
         if (byId == null) {
             sender.SENDER.sendPrivateMsg(msg, "还没有关注的主播哦");
         }
-        sender.SENDER.sendPrivateMsg(msg, "一号槽：uid" + byId.getLive1() + "\n二号槽：uid" + byId.getLive2() + "\n三号槽：uid" + byId.getLive3());
+        sender.SENDER.sendPrivateMsg(msg, "开启状态:" + byId.getLiveON() + "\n一号槽：uid" + byId.getLive1() + "\n二号槽：uid" + byId.getLive2() + "\n三号槽：uid" + byId.getLive3());
 
     }
 
@@ -130,9 +130,30 @@ public class bilibiliListener {
 
     }
 
-    public void addLive(String mid) {
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"开启开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void openlive(PrivateMsg msg, MsgSender sender) {
+        int i = ScoresServiceImpl.updateLiveOn(msg.getQQCodeNumber(), true);
+        if (i < 1) {
+            sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg, "已开启开播提示功能");
+        }
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"关闭开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void closelive(PrivateMsg msg, MsgSender sender) {
+        int i = ScoresServiceImpl.updateLiveOn(msg.getQQCodeNumber(), false);
+        if (i < 1) {
+            sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg, "已关闭开播提示功能");
+        }
+    }
+
+    private void addLive(String mid) {
         new AddLive(mid).start();
-        ;
     }
 
     class AddLive extends Thread {

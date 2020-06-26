@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 服务实现类
@@ -70,6 +72,19 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
         return scoresMapper.clear(qq, size);
     }
 
+    @Override
+    public List<Scores> getLive() {
+        return scoresMapper.selectlive();
+    }
+
+    @Override
+    public int updateLiveOn(long qq, boolean on) {
+        if (on) {
+            return scoresMapper.openlive(qq);
+        } else {
+            return scoresMapper.closelive(qq);
+        }
+    }
 
 
 }

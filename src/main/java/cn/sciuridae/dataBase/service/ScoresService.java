@@ -3,6 +3,8 @@ package cn.sciuridae.dataBase.service;
 import cn.sciuridae.dataBase.bean.Scores;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 积分服务类
@@ -25,4 +27,8 @@ public interface ScoresService extends IService<Scores> {
     //清除指定位置的直播记录
     int clearLive(long qq, String size);
 
+    //获取数据库中开启直播监听的人的数据
+    List<Scores> getLive();
+
+    int updateLiveOn(long qq, boolean on);
 }

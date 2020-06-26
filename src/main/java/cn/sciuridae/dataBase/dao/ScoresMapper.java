@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * Mapper 接口
@@ -25,6 +27,16 @@ public interface ScoresMapper extends BaseMapper<Scores> {
 
     @Select("select iSign from Scores where QQ=#{qq}")
     Boolean selectSign(@Param("qq") long qq);
+
+    @Select("select live1,live2,live3,QQ from Scores where liveON=true")
+    List<Scores> selectlive();
+
+    @Update("update Scores set liveON=true where QQ=#{qq}")
+    int openlive(@Param("qq") long qq);
+
+    @Update("update Scores set liveON=false where QQ=#{qq}")
+    int closelive(@Param("qq") long qq);
+
 
     @Update("update Scores set iSign=true where QQ=#{qq}")
     int sign(@Param("qq") long qq);

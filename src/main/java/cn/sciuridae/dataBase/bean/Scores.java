@@ -28,6 +28,7 @@ public class Scores implements Serializable {
     private Integer live1 = 0;
     private Integer live2 = 0;
     private Integer live3 = 0;
+    private Boolean liveON = true;
 
     public Long getQQ() {
         return QQ;
@@ -77,6 +78,14 @@ public class Scores implements Serializable {
         this.live3 = live3;
     }
 
+    public Boolean getLiveON() {
+        return liveON;
+    }
+
+    public void setLiveON(Boolean liveON) {
+        this.liveON = liveON;
+    }
+
     @Override
     public String toString() {
         return "Scores{" +
@@ -86,6 +95,7 @@ public class Scores implements Serializable {
                 ", live1=" + live1 +
                 ", live2=" + live2 +
                 ", live3=" + live3 +
+                ", liveON=" + liveON +
                 '}';
     }
 }
