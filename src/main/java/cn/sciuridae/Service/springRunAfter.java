@@ -68,21 +68,21 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
         List<Scores> list = ScoresServiceImpl.getLive();
 
         for (Scores s : list) {
-            if (s.getLive1() != 0 && liveHashMap.get(s.getLive1().toString()) != null) {
+            if (s.getLive1() != 0 && liveHashMap.get(s.getLive1().toString()) == null) {
                 try {
                     liveHashMap.put(String.valueOf(s.getLive1()), new BilibiliLive(String.valueOf(s.getLive1())));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (s.getLive2() != 0 && liveHashMap.get(s.getLive2().toString()) != null) {
+            if (s.getLive2() != 0 && liveHashMap.get(s.getLive2().toString()) == null) {
                 try {
                     liveHashMap.put(String.valueOf(s.getLive2()), new BilibiliLive(String.valueOf(s.getLive2())));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (s.getLive3() != 0 && liveHashMap.get(s.getLive3().toString()) != null) {
+            if (s.getLive3() != 0 && liveHashMap.get(s.getLive3().toString()) == null) {
                 try {
                     liveHashMap.put(String.valueOf(s.getLive3()), new BilibiliLive(String.valueOf(s.getLive3())));
                 } catch (IOException e) {

@@ -110,7 +110,7 @@ public class BilibiliUser {
     }
 
     private String getImageName(String url) {
-        String regex = "http://i0.hdslb.com/bfs/face/(.*).jpg";
+        String regex = "http://i0.hdslb.com/bfs/face/(.*)";
         String result = null;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);

@@ -104,7 +104,7 @@ public class BilibiliVideo {
     }
 
     private String getImageName(String url) {
-        String regex = "http://i1.hdslb.com/bfs/archive/(.*).jpg";
+        String regex = "http://i1.hdslb.com/bfs/archive/(.*)";
         String result = null;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);

@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static cn.sciuridae.constant.canSendImage;
+
 @Service
 public class bilibiliListener {
 
@@ -43,7 +45,9 @@ public class bilibiliListener {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "av号：" + bilibiliVideo.getAv() + "\nbv号：" + bilibiliVideo.getBv() + "\n视频标题:" + bilibiliVideo.getTitle());
 
             CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliVideo.getPic().getAbsolutePath());
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), cqCode_image.toString());
+            if (canSendImage) {
+                sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,7 +93,9 @@ public class bilibiliListener {
         } else {
             CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliLive.getCover().getAbsolutePath());
             sender.SENDER.sendPrivateMsg(msg, "标题:" + bilibiliLive.getTitle() + "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
+            if (canSendImage) {
+                sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
+            }
         }
     }
 
@@ -113,13 +119,13 @@ public class bilibiliListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"查看开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"查看开播提示"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getlive(PrivateMsg msg, MsgSender sender) {
         Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
         if (byId == null) {
             sender.SENDER.sendPrivateMsg(msg, "还没有关注的主播哦");
         }
-        sender.SENDER.sendPrivateMsg(msg, "开启状态:" + byId.getLiveON() + "\n一号槽：uid" + byId.getLive1() + "\n二号槽：uid" + byId.getLive2() + "\n三号槽：uid" + byId.getLive3());
+        sender.SENDER.sendPrivateMsg(msg, "开启状态:" + byId.getLiveON() + "\n一号槽：uid" + byId.getLive1() + "\n二号槽：uid" + byId.getLive2() + "\n三号槽：uid" + byId.getLive3() + "\nuid为0的槽未则为为使用的槽");
 
     }
 
