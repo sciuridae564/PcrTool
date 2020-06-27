@@ -55,7 +55,7 @@ public class BilibiliLive {
             if (people.getLive1() != 0) {
                 live1 = live.get(people.getLive1().toString());
                 if (live1 != null)
-                    stringBuilder.append(live1.getTitle()).append("\n").append(live1.getUrl()).append(build.getCQCode_Image(live1.getCover().getAbsolutePath())).append("\n");
+                    stringBuilder.append("主播开播辣\n标题").append(live1.getTitle()).append("\n链接").append(live1.getUrl()).append("\n").append(build.getCQCode_Image(live1.getCover().getAbsolutePath())).append("\n");
             }
             if (people.getLive2() != 0) {
                 live2 = live.get(people.getLive2().toString());
@@ -71,6 +71,5 @@ public class BilibiliLive {
                 msgSender.SENDER.sendPrivateMsg(String.valueOf(people.getQQ()), stringBuilder.toString());
             }
         }
-        System.out.println(live);
     }
 }

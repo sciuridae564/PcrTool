@@ -47,6 +47,8 @@ public class bilibiliListener {
             CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliVideo.getPic().getAbsolutePath());
             if (canSendImage) {
                 sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
+            } else {
+                sender.SENDER.sendPrivateMsg(msg, "我还不能发图片惹");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,9 +88,16 @@ public class bilibiliListener {
             }
         }
 
+        if (bilibiliLive.getRoomStatus() == 0) {
+            sender.SENDER.sendPrivateMsg(msg, "该用户还未开通直播间");
+            return;
+        }
+
         if (bilibiliLive.getLiveStatus() == 0) {
             if (bilibiliLive.getRoundStatus() == 1) {
                 sender.SENDER.sendPrivateMsg(msg, "在轮播中");
+            } else {
+                sender.SENDER.sendPrivateMsg(msg, "还未开播");
             }
         } else {
             CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliLive.getCover().getAbsolutePath());

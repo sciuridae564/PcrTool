@@ -345,10 +345,10 @@ public class prcnessListener {
                     return;
                 }
 
-                String time = msg.getMsg().replaceAll(" +", "").substring(5);
+                String time = msg.getMsg().replaceAll(" +", "").substring(5).trim();
                 LocalDateTime startTime = getTodayFive(LocalDateTime.now());
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                System.out.println(time);
+
                 if (!time.equals("")) {
                     LocalDate localDate = LocalDate.parse(time, df);
                     startTime = LocalDateTime.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth(), 5, 0);
@@ -368,6 +368,8 @@ public class prcnessListener {
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), notPower);
             }
+        } catch (NullPointerException e) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还未加入或建立工会");
         } catch (Exception e) {
             e.printStackTrace();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误，示例 2020-05-04");

@@ -65,8 +65,6 @@ public class GroupRunListener {
             return;
         }
 
-
-
         //准备工会和人员信息
         PcrUnion pcrUnion = new PcrUnion();
         pcrUnion.setCreateDate(LocalDateTime.now());

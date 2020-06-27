@@ -1,26 +1,28 @@
 package cn.sciuridae.listener;
 
-import cn.sciuridae.dataBase.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class testListen {
-    @Autowired
-    TeamMemberService teamMemberServiceImpl;
-    @Autowired
-    KnifeListService knifeListServiceImpl;
-    @Autowired
-    ProgressService ProgressServiceImpl;
-    @Autowired
-    TreeService treeServiceImpl;
-    @Autowired
-    PcrUnionService pcrUnionServiceImpl;
+//    @Autowired
+//    TeamMemberService teamMemberServiceImpl;
+//    @Autowired
+//    KnifeListService knifeListServiceImpl;
+//    @Autowired
+//    ProgressService ProgressServiceImpl;
+//    @Autowired
+//    TreeService treeServiceImpl;
+//    @Autowired
+//    PcrUnionService pcrUnionServiceImpl;
 //
-    /*@Listen(MsgGetTypes.groupMsg)
-    public void testListern(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(),msg.getMsg());
-    }*/
+//    @Listen(MsgGetTypes.privateMsg)
+//    public void testListern(GroupMsg msg, MsgSender sender) {
+//        try {
+//            boolean admin = teamMemberServiceImpl.isAdmin(1125L, 55426L);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 //
 //
 ////

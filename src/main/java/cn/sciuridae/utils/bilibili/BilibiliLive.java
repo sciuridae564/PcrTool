@@ -82,7 +82,7 @@ public class BilibiliLive {
     }
 
     private String getImageName(String url) {
-        String regex = "http://i0.hdslb.com/bfs/live/(.*)";
+        String regex = "http://i0.hdslb.com/bfs/live/(.*.jpg)";
         String result = null;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(url);
