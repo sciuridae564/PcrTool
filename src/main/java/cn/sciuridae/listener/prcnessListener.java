@@ -206,7 +206,7 @@ public class prcnessListener {
                     int loop = (progress.getSerial() == 5 ? progress.getLoop() + 1 : progress.getLoop());
                     int serial = (progress.getSerial() == 5 ? 1 : progress.getSerial() + 1);
                     progress.setLoop(loop);
-                    progress.setLoop(serial);
+                    progress.setSerial(serial);
                     progress.setRemnant(BossHpLimit[serial - 1]);
                     knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
 
@@ -324,10 +324,9 @@ public class prcnessListener {
             progress.setSerial(serial);
             progress.setRemnant(Integer.valueOf(change[3]));
 
-            ProgressServiceImpl.updateFight(progress);
-            if (is) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "boss调整成功");
-            } else {
+            ProgressServiceImpl.updateById(progress);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "boss调整成功");
+            if (!is) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "变更了周目，将还在出刀的人全部下树");
             }
         } else {
@@ -361,7 +360,7 @@ public class prcnessListener {
                 progress.setTeamQQ(msg.getGroupCodeNumber());
                 progress.setVersion(1);
                 progress.setStartTime(startTime);
-                progress.setEndTime(startTime.plusDays(8));
+                progress.setEndTime(startTime.plusDays(6));
 
                 ProgressServiceImpl.save(progress);
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "成功记录会战\n" + startTime.format(df) + "到" + startTime.plusDays(8).format(df));

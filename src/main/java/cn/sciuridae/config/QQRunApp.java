@@ -18,7 +18,7 @@ import static cn.sciuridae.utils.ApiConnect.getLocalIp4AddressFromNetworkInterfa
  * @author <a href="https://github.com/ForteScarlet"> ForteScarlet </a>
  */
 // resources代表读取/conf.properties配置文件
-@SimpleRobotApplication(resources = "/conf.properties")
+@SimpleRobotApplication(resources = "./conf.properties")
 public class QQRunApp implements CoolQHttpApp {
     private BeanFactory beanFactory;
 
