@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="stylesheet" href="/X-admin/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<script type="text/javascript">
+    //设置日期选择框
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#start', //指定元素
+            type: 'date', //指定元素
+            format: "yyyy-MM-dd",//指定元素
+            value: new Date(),
+            max: 0
+        });
+
+        var laydate1 = layui.laydate;
+        laydate1.render({
+            elem: '#end', //指定元素
+            type: 'date',
+            format: "yyyy-MM-dd",//指定元素
+            value: new Date(),
+            max: 0
+        });
+    });
+
+</script>
+
+
+<div class="layui-fluid" id="app">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <div class="layui-form layui-col-space5">
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <input class="layui-input" placeholder="开始日" name="start" id="start"></div>
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <input class="layui-input" placeholder="截止日" name="end" id="end"></div>
+
+
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <input type="text" id="QQ" name="QQ" placeholder="请输入qq号" autocomplete="off"
+                                   class="layui-input"></div>
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <button class="layui-btn" @click="initData">
+                                <i class="layui-icon">&#xe615;</i></button>
+                        </div>
+                    </div>
+                    <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal "
+                            @click="initData" style="float:right">
+                        <i class="layui-icon">&#xe666;</i>
+                    </button>
+                </div>
+                <div class="layui-card-header">
+                    <button class="layui-btn layui-btn-danger" onclick="">
+                        <i class="layui-icon">&#xe640;</i>批量删除
+                    </button>
+                    <button class="layui-btn" @click="member_add">
+                        <i class="layui-icon">&#xe654;</i>出刀
+                    </button>
+                    <button class="layui-btn" @click="member_addforge" th:if="${power}>1">
+                        <i class="layui-icon">&#xe654;</i>添加出刀记录
+                    </button>
+                </div>
+                <div class="layui-card-body ">
+                    <table class="layui-table layui-form" lay-filter="knife" id="knifeTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" name="" lay-skin="primary">
+                            </th>
+                            <th lay-fileNames="{ sort:true}">序号</th>
+                            <th>出刀人qq</th>
+                            <th>昵称</th>
+                            <th>周目</th>
+                            <th>王位</th>
+                            <th>伤害</th>
+                            <th>出刀时间</th>
+                            <th>不为补时刀</th>
+                            <th th:if="${power}>1">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="knife">
+                        <tr v-for=" (knife,i) in knifeList" v-cloak>
+                            <td>
+                                <input type="checkbox" name="" lay-skin="primary" @change="change(knife.id)">
+                            </td>
+                            <td>{{knife.id}}</td>
+                            <td>{{knife.knifeQQ}}</td>
+                            <td>{{knife.name}}</td>
+                            <td>{{knife.loop}}</td>
+                            <td>{{knife.position}}</td>
+                            <td>{{knife.hurt}}</td>
+                            <td>{{knife.date}}</td>
+                            <td>{{knife.complete}}</td>
+                            <td th:if="${power}>1">
+                                <a title="修改" @click="member_edi(knife.id)" href="javascript:;">
+                                    <i class="layui-icon">&#xe63c;</i>
+                                </a>
+                                <a title="删除" @click="member_del(i,knife.id)" href="javascript:;">
+                                    <i class="layui-icon">&#xe640;</i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            deleteIDs: {},
+            knifeList: null
+        },
+        mounted: function () {
+            this.initData();
+        },
+        methods: {
+            initData() {
+                var _this = this;
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', '/Fight/GroupKnifeList?start=' + document.getElementById("start").value + '&end=' + document.getElementById("end").value + "&QQ=" + document.getElementById("QQ").value);
+                xhr.send();
+                xhr.onload = function () {
+                    console.log(xhr.responseText)
+                    var date = JSON.parse(xhr.responseText);
+                    _this.knifeList = date;
+                }
+            },
+            /*用户-删除*/
+            member_del(rowid, id) {
+                var _this = this;
+                layer.confirm('确认要删除吗？(即使弹出来删除失败其实也有可能是删除成功，刷新一下就好)',
+                    function (index) {
+                        //发异步删除数据
+                        var xhr1 = new XMLHttpRequest();
+                        xhr1.open('post', '/Fight/delete?id=' + id);
+                        xhr1.send();
+                        xhr1.onload = function () {
+                            var date = JSON.parse(xhr1.responseText);
+                            if (date) {
+                                _this.teamList.splice(rowid, 1);
+                                layer.msg('已删除!', {
+                                    icon: 1,
+                                    time: 1000
+                                });
+                            } else {
+                                layer.msg('删除失败!', {
+                                    icon: 1,
+                                    time: 1000
+                                });
+                            }
+                            parent.layer.close(index)
+                        }
+                    });
+            },
+            /*用户-添加*/
+            member_add() {
+                //iframe层
+                var _this = this;
+                var w = ($(window).width() * 0.9);
+                var h = ($(window).height() - 50);
+                parent.layer.open({
+                    type: 2,
+                    title: '出刀',
+                    shade: 0.8,
+                    area: [w + 'px', h + 'px'],
+                    fix: false, //不固定
+                    maxmin: true,
+                    shadeClose: true,
+                    content: ['/Fight/add', 'yes'] //iframe的url，yes是否有滚动条
+                    , btn: ['提交', '取消']
+                    , yes: function (index, layero) {
+                        //按钮【按钮一】的回调
+                        var form = $(layero).find("iframe")[0].contentWindow.document;
+                        var remnant;
+                        remnant = form.getElementById('hurt').value;
+                        var xhr3 = new XMLHttpRequest();
+                        xhr3.open('post', '/Fight/add1?' + "hurt=" + remnant);
+                        xhr3.send();
+                        xhr3.onload = function () {
+                            var a = JSON.parse(xhr3.responseText);
+                            if (a != null) {
+                                layer.msg('出刀成功');
+                                _this.teamList.push(JSON.parse(xhr3.responseText))
+                            } else {
+                                layer.msg('出刀失败')
+                            }
+                        }
+                        parent.layer.close(index)
+                    }
+                });
+            },
+            /*用户-强制添加*/
+            member_addforge() {
+                //iframe层
+                var _this = this;
+                var w = ($(window).width() * 0.9);
+                var h = ($(window).height() - 50);
+                parent.layer.open({
+                    type: 2,
+                    title: '出刀',
+                    shade: 0.8,
+                    area: [w + 'px', h + 'px'],
+                    fix: false, //不固定
+                    maxmin: true,
+                    shadeClose: true,
+                    content: ['/Fight/addforce', 'yes'] //iframe的url，yes是否有滚动条
+                    , btn: ['提交', '取消']
+                    , yes: function (index, layero) {
+                        //按钮【按钮一】的回调
+                        var form = $(layero).find("iframe")[0].contentWindow.document;
+                        var qq;
+                        var loop;//这个名字是直接复制下面的，所以和真实的控件名字有一点点点不同
+                        var hurt;
+                        var serial;
+                        var Time;
+                        var complete;
+
+                        qq = form.getElementById('userQQ').value;
+                        hurt = form.getElementById('hurt').value;
+                        loop = form.getElementById('loop').value;
+                        serial = form.getElementById('serial').value;
+                        Time = form.getElementById('time').value;
+                        complete = form.getElementById('complete').checked;
+                        var xhr3 = new XMLHttpRequest();
+                        xhr3.open('post', '/Fight/addforce1?' + "userQQ=" + qq + "&hurt="
+                            + hurt + "&complete=" + complete + "&time=" + Time + "&serial=" + serial + "&loop=" + loop);
+                        xhr3.send();
+                        xhr3.onload = function () {
+                            var a = JSON.parse(xhr3.responseText);
+                            if (a != null) {
+                                layer.msg('出刀成功');
+                                _this.teamList.push(JSON.parse(xhr3.responseText))
+                            } else {
+                                layer.msg('出刀失败')
+                            }
+                        }
+                        parent.layer.close(index)
+                    }
+                });
+            },
+            member_edi(i) {
+                //iframe层
+                var _this = this;
+                console.log(i);
+                var w = ($(window).width() * 0.9);
+                var h = ($(window).height() - 50);
+                parent.layer.open({
+                    type: 2,
+                    title: '出刀',
+                    shade: 0.8,
+                    area: [w + 'px', h + 'px'],
+                    fix: false, //不固定
+                    maxmin: true,
+                    shadeClose: true,
+                    content: ['/Fight/edit?id=' + i] //iframe的url，yes是否有滚动条
+                    , btn: ['提交', '取消']
+                    , yes: function (index, layero) {
+                        //按钮【按钮一】的回调
+                        var id = _this.teamList[i].id;
+                        var userQQ = _this.teamList[i].userQQ;
+                        var hurt = _this.teamList[i].hurt;
+                        var loop = _this.teamList[i].loop;
+                        var serial = _this.teamList[i].serial;
+                        var time = _this.teamList[i].time;
+                        var xhr3 = new XMLHttpRequest();
+                        xhr3.open('post', '/Fight/edit1?id=' + id + "&userQQ=" + userQQ + "&hurt=" + hurt + "&loop=" + loop + "&serial=" + serial + "&time=" + time);
+                        xhr3.send();
+                        xhr3.onload = function () {
+                            if (JSON.parse(xhr3.responseText)) {
+                                layer.msg('修改成功');
+                                _this.teamList[i].id = id;
+                                _this.teamList[i].userQQ = userQQ;
+                                _this.teamList[i].hurt = hurt;
+                                _this.teamList[i].loop = loop;
+                                _this.teamList[i].serial = serial;
+                                _this.teamList[i].time = time;
+                            } else {
+                                layer.msg('修改失败')
+                            }
+                        }
+                        parent.layer.close(index)
+                    }
+                });
+            },
+
+            change(i) {
+                if (this.ckeckVal) {
+                    deleteIDs.push(i);
+                } else {
+                    for (var i = 0; i < this.deleteIDs.length; i++) {
+                        if (this.deleteIDs[i] == i) {
+                            this.deleteIDs.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    layui.use('knife', function () {
+        var form = layui.form;
+        form.render();
+    });
+</script>
+
+</body>
+</html>
