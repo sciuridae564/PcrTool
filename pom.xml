@@ -12,7 +12,7 @@
 
     <groupId>cn.sciuridae</groupId>
     <artifactId>PcrTool</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.6</version>
 
     <build>
         <plugins>
@@ -24,12 +24,6 @@
     </build>
 
     <dependencies>
-        <!-- CQ HTTP API 组件依赖 -->
-        <!--<dependency>-->
-        <!--<groupId>io.github.ForteScarlet.simple-robot-core</groupId>-->
-        <!--<artifactId>component-forcoolqhttpapi</artifactId>-->
-        <!--<version>0.9.0-BETA-1.9</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>io.github.ForteScarlet.simple-robot-core</groupId>
             <artifactId>component-forcoolqhttpapi</artifactId>

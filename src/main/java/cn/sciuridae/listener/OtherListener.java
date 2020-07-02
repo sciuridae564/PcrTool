@@ -1,12 +1,15 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.bean.qqGroup;
 import cn.sciuridae.dataBase.service.ScoresService;
+import cn.sciuridae.dataBase.service.qqGroupService;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Ignore;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.cqcode.CQCode;
+import com.forte.qqrobot.beans.messages.msgget.GroupMemberIncrease;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
@@ -33,11 +36,23 @@ import static cn.sciuridae.utils.stringTool.*;
 public class OtherListener {
     @Autowired
     ScoresService ScoresServiceImpl;
+    @Autowired
+    qqGroupService qqGroupServiceImpl;
 
     private static HashMap<String, LocalDateTime> coolDown;//抽卡冷却时间
 
     public static void AllCoolDown() {
         coolDown = new HashMap<>();
+    }
+
+    @Listen(MsgGetTypes.groupMemberIncrease)
+    public void groupWelcome(GroupMemberIncrease msg, MsgSender sender) {
+        if (qqGroupServiceImpl.isGroupWelcomOn(msg.getGroupCodeNumber())) {
+            String groupWelcom = qqGroupServiceImpl.getGroupWelcom(msg.getGroupCodeNumber());
+            if (groupWelcom != null) {
+                sender.SENDER.sendPrivateMsg(msg.getGroupCode(), groupWelcom);
+            }
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -689,6 +704,68 @@ public class OtherListener {
         }
     }
 
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#关闭入群欢迎"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void shutwelcome(GroupMsg msg, MsgSender sender) {
+        PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
+        if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            qqGroup byId = qqGroupServiceImpl.getById(msg.getGroupCode());
+            if (byId != null) {
+                byId.setWelcome_tri(false);
+                qqGroupServiceImpl.updateById(byId);
+            } else {
+                byId = new qqGroup();
+                byId.setGroup_number(msg.getGroupCodeNumber());
+                byId.setWelcome_tri(false);
+                byId.setWelcome(Default_Welcome);
+                qqGroupServiceImpl.save(byId);
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭入群欢迎");
+        }
+    }
+
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#设置入群欢迎文本"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void setwelcome(GroupMsg msg, MsgSender sender) {
+        PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
+        if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            String str = msg.getMsg().substring(9).trim();
+            qqGroup byId = qqGroupServiceImpl.getById(msg.getGroupCode());
+            if (byId != null) {
+                byId.setWelcome(str);
+                qqGroupServiceImpl.updateById(byId);
+            } else {
+                byId = new qqGroup();
+                byId.setGroup_number(msg.getGroupCodeNumber());
+                byId.setWelcome_tri(true);
+                byId.setWelcome(str);
+                qqGroupServiceImpl.save(byId);
+            }
+            sender.SENDER.sendGroupMsg(msg, "已更新文本 新文本为：" + str);
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#开启入群欢迎"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void openwelcome(GroupMsg msg, MsgSender sender) {
+        PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
+        if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            qqGroup byId = qqGroupServiceImpl.getById(msg.getGroupCode());
+            if (byId != null) {
+                byId.setWelcome_tri(true);
+                qqGroupServiceImpl.updateById(byId);
+            } else {
+                byId = new qqGroup();
+                byId.setGroup_number(msg.getGroupCodeNumber());
+                byId.setWelcome_tri(true);
+                byId.setWelcome(Default_Welcome);
+                qqGroupServiceImpl.save(byId);
+            }
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启入群欢迎");
+        }
+    }
+
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"重载设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void reloadconfig(PrivateMsg msg, MsgSender sender) {
@@ -740,6 +817,7 @@ public class OtherListener {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
         }
     }
+
 
     /**
      * 刷新抽卡冷却时间

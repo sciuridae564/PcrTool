@@ -14,15 +14,39 @@ public class testListen {
 //    TreeService treeServiceImpl;
 //    @Autowired
 //    PcrUnionService pcrUnionServiceImpl;
-//
+//    @Autowired
+//    qqGroupService qqGroupServiceImpl;
+
 //    @Listen(MsgGetTypes.privateMsg)
-//    public void testListern(GroupMsg msg, MsgSender sender) {
-//        try {
-//            boolean admin = teamMemberServiceImpl.isAdmin(1125L, 55426L);
-//        }catch (Exception e){
-//            e.printStackTrace();
+//    @Filter("aa")
+//    public void testListern(PrivateMsg msg, MsgSender sender) {
+//        qqGroup byId = qqGroupServiceImpl.getById(1125L);
+//        if(byId!=null){
+//            byId.setWelcome_tri(true);
+//            qqGroupServiceImpl.updateById(byId);
+//        }else {
+//            byId=new qqGroup();
+//            byId.setGroup_number(1125L);byId.setWelcome_tri(true);
+//            byId.setWelcome(Default_Welcome);
+//            qqGroupServiceImpl.save(byId);
 //        }
 //    }
+//
+//    @Listen(MsgGetTypes.privateMsg)
+//    @Filter("bb")
+//    public void test1Listern(PrivateMsg msg, MsgSender sender) {
+//        qqGroup byId = qqGroupServiceImpl.getById(1125L);
+//        if(byId!=null){
+//            byId.setWelcome_tri(false);
+//            qqGroupServiceImpl.updateById(byId);
+//        }else {
+//            byId=new qqGroup();
+//            byId.setGroup_number(1125L);byId.setWelcome_tri(false);
+//            byId.setWelcome(Default_Welcome);
+//            qqGroupServiceImpl.save(byId);
+//        }
+//    }
+
 //
 //
 ////

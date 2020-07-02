@@ -202,13 +202,14 @@ public class prcnessListener {
                     progress.setRemnant(progress.getRemnant() - hurt);
                     //没打穿boss
                 } else {
+                    knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
                     //伤害打穿了，进入下一模式
                     int loop = (progress.getSerial() == 5 ? progress.getLoop() + 1 : progress.getLoop());
                     int serial = (progress.getSerial() == 5 ? 1 : progress.getSerial() + 1);
                     progress.setLoop(loop);
                     progress.setSerial(serial);
                     progress.setRemnant(BossHpLimit[serial - 1]);
-                    knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
+
 
                     //进入救树模式，把树上的人都噜下来
                     List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
@@ -296,7 +297,7 @@ public class prcnessListener {
     public void dropKnife(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             try {
-                int id = Integer.valueOf(msg.getMsg().replaceAll(" +", "").substring(2));
+                int id = Integer.valueOf(msg.getMsg().replaceAll(" +", "").substring(3));
                 knifeListServiceImpl.removeById(id);
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "操作成功");
             } catch (NumberFormatException e) {
@@ -315,7 +316,7 @@ public class prcnessListener {
     public void changeBoss(GroupMsg msg, MsgSender sender) {
         if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             String[] change = msg.getMsg().replaceAll(" +", " ").split(" ");
-            boolean is = true;
+            boolean is;
             Progress progress = ProgressServiceImpl.getProgress(msg.getGroupCodeNumber());
             int loop = Integer.valueOf(change[1]);
             int serial = Integer.valueOf(change[2]);

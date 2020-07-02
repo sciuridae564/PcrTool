@@ -3,7 +3,7 @@ package cn.sciuridae.utils;
 import java.sql.*;
 
 public class InitDatabase {
-    private static final int new_version = 7;
+    private static final int new_version = 8;
 
     public void InitDB() {
         int version = -1;
@@ -63,6 +63,8 @@ public class InitDatabase {
                 case 6:
                     statement.executeUpdate("alter table Scores add column liveON boolean default true ;");
 
+                case 7:
+                    statement.executeUpdate("CREATE TABLE  qqGroup(group_number integer PRIMARY KEY ,welcome text,welcome_tri boolean)");
 
                     statement.executeUpdate("update version set version =" + new_version);
 

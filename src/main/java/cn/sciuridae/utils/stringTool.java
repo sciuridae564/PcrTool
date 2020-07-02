@@ -18,6 +18,10 @@ public class stringTool {
         return Long.parseLong(string.substring(10, string.length() - 1));
     }
 
+    public static String cqAt(String string) {
+        return string.substring(10, string.length() - 1);
+    }
+
     //找这个字符串里at人的cq码出现了多少次
     public static int searchAtNumber(String str) {
         int n = 0;

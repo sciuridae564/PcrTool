@@ -39,7 +39,6 @@ public class QQConfig {
      */
     @Bean
     public CQHttpContext startSimpleRobot() {
-        // http://127.0.0.1:5700
         CoolQHttpApplication application = new CoolQHttpApplication();
         // 启动...
         // 核心1.9.x新增的启动方法：runWithApplication，用来执行一个启动器实例的同时，使用注解配置。

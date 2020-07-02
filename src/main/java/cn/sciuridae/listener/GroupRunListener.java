@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cn.sciuridae.constant.*;
-import static cn.sciuridae.utils.stringTool.cqAtoNumber;
-import static cn.sciuridae.utils.stringTool.getVar;
+import static cn.sciuridae.utils.stringTool.*;
 
 @Service
 public class GroupRunListener {
@@ -97,7 +96,7 @@ public class GroupRunListener {
             if (num + strings.size() <= 30) {
                 ArrayList<Long> have = new ArrayList<>();
                 for (String s : strings) {
-                    TeamMember teamMember = new TeamMember(cqAtoNumber(s), msg.getGroupCodeNumber(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getNickname(), false);
+                    TeamMember teamMember = new TeamMember(cqAtoNumber(s), msg.getGroupCodeNumber(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), cqAt(s)).getNickname(), false);
                     try {
                         teamMemberServiceImpl.save(teamMember);
                         num++;

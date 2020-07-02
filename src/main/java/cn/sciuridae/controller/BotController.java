@@ -3,12 +3,9 @@ package cn.sciuridae.controller;
 import com.forte.qqrobot.MsgParser;
 import com.forte.qqrobot.MsgProcessor;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
-import com.forte.qqrobot.bot.BotManager;
-import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.listener.result.ListenResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,12 +33,6 @@ public class BotController {
      */
     @Autowired
     private MsgProcessor processor;
-
-    /**
-     * bot管理器
-     */
-    @Autowired
-    private BotManager botManager;
 
     /**
      * 接收post请求，此处为接收来自酷Q插件的请求，
@@ -72,18 +63,6 @@ public class BotController {
         return null;
     }
 
-    /**
-     * 当访问网页的/coolq路径的时候，由默认bot给你发送一个消息
-     * 即访问：http://127.0.0.1:8877/coolq
-     */
-    @GetMapping("/")
-    @ResponseBody
-    public String index() {
-        final BotSender sender = botManager.defaultBot().getSender();
-        // 将此处的qq号改成你自己的
-        sender.SENDER.sendPrivateMsg("1149159218", "你访问了网页对吧！");
-        return "<h1>i see that.</h1>";
-    }
 
 
 }
