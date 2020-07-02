@@ -3,8 +3,8 @@
   现在已经加入了一些奇奇怪怪的功能
 
 ps：主分支不再维护，v2.0是正在维护的coolq分支
-      mirai是正在维护的mirai版本 
-      coolq需要pro才能发图
+      mirai是正在维护的mirai版本 \n
+      coolq需要pro才能发图 \n
       mirai直接就能发（
       私聊机器人  帮助获得具体帮助（
       
