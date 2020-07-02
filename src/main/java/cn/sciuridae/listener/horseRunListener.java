@@ -58,7 +58,7 @@ public class horseRunListener {
     @Filter(value = "#给xcw上供", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         if (On.get(msg.getGroupCode()).isHorse()) {
-            Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
+            Scores byId = ScoresServiceImpl.getById(msg.getCodeNumber());
             if (byId != null) {
                 if (byId.getiSign()) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "xcw认为奇怪可疑的变态份子只能一天上供一次");
@@ -70,7 +70,7 @@ public class horseRunListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "xcw对奇怪可疑的变态份子表示感谢，马币+5000，现在马币:" + byId.getScore());
             } else {
                 byId = new Scores();
-                byId.setQQ(msg.getQQCodeNumber());
+                byId.setQQ(msg.getCodeNumber());
                 byId.setiSign(true);
                 byId.setScore(signScore);
                 ScoresServiceImpl.save(byId);
@@ -112,19 +112,19 @@ public class horseRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "反向下注不可取");
             return;
         }
-        Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
+        Scores byId = ScoresServiceImpl.getById(msg.getCodeNumber());
         if (byId == null || byId.getScore() - coin < 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没那么多可以下注的币惹");
             return;
         }
 
-        if (maList.get(msg.getGroupCode()).get(msg.getQQCodeNumber()) != null) {
+        if (maList.get(msg.getGroupCode()).get(msg.getCodeNumber()) != null) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你已经下过注辣");
         } else {
             int[] integers = new int[2];
             integers[0] = no - 1;
             integers[1] = coin;
-            maList.get(msg.getGroupCode()).put(msg.getQQCodeNumber(), integers);
+            maList.get(msg.getGroupCode()).put(msg.getCodeNumber(), integers);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成 加油啊" + no + "号马");
         }
 
@@ -139,7 +139,7 @@ public class horseRunListener {
         PrivateMsg privateMsg;
         if (msg instanceof GroupMsg) {
             groupMsg = (GroupMsg) msg;
-            byId = ScoresServiceImpl.getById(groupMsg.getQQCodeNumber());
+            byId = ScoresServiceImpl.getById(groupMsg.getCodeNumber());
             if (byId != null) {
                 if (byId.getiSign()) {
                     sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 有" + byId.getScore() + "块钱");
@@ -151,7 +151,7 @@ public class horseRunListener {
             }
         } else {
             privateMsg = (PrivateMsg) msg;
-            byId = ScoresServiceImpl.getById(privateMsg.getQQCodeNumber());
+            byId = ScoresServiceImpl.getById(privateMsg.getCodeNumber());
 
             if (byId != null) {
                 if (byId.getiSign()) {

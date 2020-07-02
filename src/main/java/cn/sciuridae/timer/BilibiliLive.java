@@ -5,6 +5,7 @@ import cn.sciuridae.dataBase.service.ScoresService;
 import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import com.simplerobot.modules.utils.KQCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +45,6 @@ public class BilibiliLive {
                 live.put(s, cache);
             }
         }
-        CQCodeUtil build = CQCodeUtil.build();
         BotSender msgSender = botManager.defaultBot().getSender();
 
         List<Scores> livepeople = ScoresServiceImpl.getLive();
@@ -55,17 +55,17 @@ public class BilibiliLive {
             if (people.getLive1() != 0) {
                 live1 = live.get(people.getLive1().toString());
                 if (live1 != null)
-                    stringBuilder.append("主播开播辣\n标题").append(live1.getTitle()).append("\n链接").append(live1.getUrl()).append("\n").append(build.getCQCode_Image(live1.getCover().getAbsolutePath())).append("\n");
+                    stringBuilder.append("主播开播辣\n标题").append(live1.getTitle()).append("\n链接").append(live1.getUrl()).append("\n").append(KQCodeUtils.getInstance().toCq("image", "file"+"="+ live1.getCover().getAbsolutePath())).append("\n");
             }
             if (people.getLive2() != 0) {
                 live2 = live.get(people.getLive2().toString());
                 if (live2 != null)
-                    stringBuilder.append(live2.getTitle()).append("\n").append(live2.getUrl()).append(build.getCQCode_Image(live2.getCover().getAbsolutePath())).append("\n");
+                    stringBuilder.append(live2.getTitle()).append("\n").append(live2.getUrl()).append(KQCodeUtils.getInstance().toCq("image", "file"+"="+ live2.getCover().getAbsolutePath())).append("\n");
             }
             if (people.getLive3() != 0) {
                 live3 = live.get(people.getLive3().toString());
                 if (live3 != null)
-                    stringBuilder.append(live3.getTitle()).append("\n").append(live3.getUrl()).append(build.getCQCode_Image(live3.getCover().getAbsolutePath()));
+                    stringBuilder.append(live3.getTitle()).append("\n").append(live3.getUrl()).append(KQCodeUtils.getInstance().toCq("image", "file"+"="+ live3.getCover().getAbsolutePath()));
             }
             if (stringBuilder.length() > 0) {
                 msgSender.SENDER.sendPrivateMsg(String.valueOf(people.getQQ()), stringBuilder.toString());

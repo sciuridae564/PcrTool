@@ -36,12 +36,12 @@ public class setuListener {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "机器人还不能发图片惹");
             return;
         }
-        Scores coin = ScoresServiceImpl.getById(msg.getQQCodeNumber());
+        Scores coin = ScoresServiceImpl.getById(msg.getCodeNumber());
 
         if (coin == null) {
             Scores scores = new Scores();
             scores.setiSign(false);
-            scores.setQQ(msg.getQQCodeNumber());
+            scores.setQQ(msg.getCodeNumber());
             scores.setScore(0);
             ScoresServiceImpl.save(scores);
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "钱和漂亮小姐姐只能拥有一个");

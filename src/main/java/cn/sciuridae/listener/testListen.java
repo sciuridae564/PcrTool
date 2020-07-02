@@ -1,6 +1,26 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.service.*;
+import com.forte.qqrobot.anno.Filter;
+import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.cqcode.CQCode;
+import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
+import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
+import com.forte.qqrobot.beans.types.CQCodeTypes;
+import com.forte.qqrobot.sender.MsgSender;
+import com.forte.qqrobot.utils.CQCodeUtil;
+import com.simplerobot.modules.utils.KQCodeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.util.List;
+
+import static cn.sciuridae.constant.pricnessConfig;
+import static cn.sciuridae.listener.prcnessListener.toHurt;
+import static cn.sciuridae.utils.stringTool.cqAtoNumber;
+import static cn.sciuridae.utils.stringTool.getHurt;
 
 @Service
 public class testListen {
@@ -14,14 +34,12 @@ public class testListen {
 //    TreeService treeServiceImpl;
 //    @Autowired
 //    PcrUnionService pcrUnionServiceImpl;
-//
-//    @Listen(MsgGetTypes.privateMsg)
+
+//    @Listen(MsgGetTypes.groupMsg)
+//    @Filter("qwe")
 //    public void testListern(GroupMsg msg, MsgSender sender) {
-//        try {
-//            boolean admin = teamMemberServiceImpl.isAdmin(1125L, 55426L);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+//         System.out.println(msg.getCodeNumber());
+//        System.out.println(msg.getGroupCodeNumber());
 //    }
 //
 //

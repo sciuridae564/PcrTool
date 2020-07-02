@@ -1,5 +1,6 @@
 package cn.sciuridae;
 
+import cn.sciuridae.utils.SafeProperties;
 import cn.sciuridae.utils.bean.HoreEvent;
 import cn.sciuridae.utils.bean.PricnessConfig;
 import cn.sciuridae.utils.bean.groupPower;
@@ -126,8 +127,6 @@ public class constant {
 
     public static final String coolQAt = "[CQ:at,qq=";
     public static final String dateFormat = "yy:MM:dd";
-    public static final int knifeFrash = 4;//工会战次数刷新在4点
-    public static final String clearTree = "工会刀次数已刷新，强制下树惹 ";//强制下树提示
     public static final String error = "好像发生了点小错误";
     public static final String isHaveGroup = "已经有工会了还想加别的工会，花心大萝卜";
     public static final String isFullGroup = "这个工会已经满员啦，再和会长多py一次吧";
@@ -135,16 +134,13 @@ public class constant {
     public static final String successOutGroup = "成功退出工会啦，记得每天好好男装哦";
     public static final String successDropGroup = "成功销毁工会，一切都已不复存在";
     public static final String successChangeSuperPower = "更换会长成功，为王的诞生献上礼炮";
-    public static final String noGroupOutGroup = "没有工会退什么工会辣";
     public static final String isTree = "已经挂牢了，不要想偷偷从树上溜走了哟♥";
     public static final String commandError = "啊咧咧，这个命令格式我看不懂鸭";
     public static final String noThisGroup = "啊咧咧，本群的工会好像还没有建立呢";
-    public static final String NoGroupFightDate = " 未开启工会战或还未加入工会";
     public static final String notBossOrNotDate = " 工会战还没开启呢";
     public static final String noFindTheOne = "没有找到这个人，是不是还没有入会？";
     public static final int[] BossHpLimit = {6000000, 8000000, 10000000, 12000000, 20000000};//各个boss的血量上限
     public static final String notPower = "权限不足，或未建立工会";
-    public static final String SuccessStartFight = "会战开始惹";
     public static final String StartFightStartDouble = "会战已经开始惹，为什么还要再开一次";
     public static final String SuccessEndFight = "会战结束惹";
     public static final String EngFightStartDouble = "没有正在进行的会战惹";
@@ -237,85 +233,69 @@ public class constant {
         }
     }
 
+    //加载通用配置
     public static void getconfig() {
         //通用设定
-        File file = new File("通用配置.txt");
-        Properties pro = new Properties();
-        OutputStreamWriter op = null;
+        File file = new File("./通用配置.txt");
         if (!file.exists() || !file.isFile()) {
-            //没有读取到配置文件
             try {
-                file.createNewFile();
+                pricnessConfig=loadconfig(file);
+                return;
             } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //生成一个初始文件
-            pro.setProperty("提醒买药小助手图片名", "抽卡.png");
-            pro.setProperty("抽卡上限", "1000");
-            pro.setProperty("抽卡冷却秒", "30");
-            pro.setProperty("总开关默认开启", "true");
-            pro.setProperty("抽奖默认开启", "true");
-            pro.setProperty("抽卡默认开启", "true");
-            pro.setProperty("赛马默认开启", "true");
-            pro.setProperty("主人qq", "12345");
-            pro.setProperty("发一次色图花费", "500");
-            pro.setProperty("签到一次金币", "2000");
 
-            pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true, "12345", 2000, 500);
-
-            try {
-                op = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-                pro.store(op, "the PcrTool configs");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    op.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            //读取到了
-            InputStreamReader in = null;
-            try {
-                in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-                pro.load(in);
-                pricnessConfig = new PricnessConfig(pro.getProperty("提醒买药小助手图片名"),
-                        Integer.parseInt(pro.getProperty("抽卡上限")),
-                        Integer.parseInt(pro.getProperty("抽卡冷却秒")),
-                        Boolean.parseBoolean(pro.getProperty("总开关默认开启")),
-                        Boolean.parseBoolean(pro.getProperty("抽奖默认开启")),
-                        Boolean.parseBoolean(pro.getProperty("抽卡默认开启")),
-                        Boolean.parseBoolean(pro.getProperty("赛马默认开启")),
-                        pro.getProperty("主人qq"),
-                        Integer.parseInt(pro.getProperty("签到一次金币")),
-                        Integer.parseInt(pro.getProperty("发一次色图花费"))
-                );
-            } catch (Exception e) {
-                pricnessConfig = new PricnessConfig("抽卡.png", 1000, 30, true, true, true, true, "12345", 2000, 500);//没读到就生成一个新的
-                try {
-                    op = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-                    pro.store(op, "the PcrTool configs");
-
-                } catch (IOException e1) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        op.close();
-                    } catch (IOException e2) {
-                        e.printStackTrace();
-                    }
-                }
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
+        try {
+            frashconfig(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        pricnessConfig = new PricnessConfig("买药.png", 1000, 30, true, true, true, true, "12345", 2000, 500);
+
+    }
+
+    public static void frashconfig(File file) throws IOException {
+        OutputStreamWriter outputStream = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+        SafeProperties pro = new SafeProperties();
+        pro.addComment("这个图片应和jar在同一文件夹下");
+        pro.setProperty("提醒买药小助手图片名", "买药.png");
+        pro.setProperty("抽卡上限", "1000");
+        pro.addComment("每次抽卡中间所需的冷却时间，单位为秒");
+        pro.setProperty("抽卡冷却", "30");
+        pro.addComment("以下四个为机器人开关的默认设置 true为开，false为关");
+        pro.setProperty("总开关默认开启", "true");
+        pro.setProperty("抽奖默认开启", "true");
+        pro.setProperty("抽卡默认开启", "true");
+        pro.setProperty("赛马默认开启", "true");
+        pro.addComment("主人qq相当于在所有群里对这个机器人有管理员权限");
+        pro.setProperty("主人qq", "12345");
+        pro.addComment("发一次色图所要花费的马币数量，设置为负数可能会越花越多");
+        pro.setProperty("发一次色图花费", "500");
+        pro.addComment("给xcw上供指令的增加马币数目，设置为负数则有可能会越签越少");
+        pro.setProperty("签到一次金币", "2000");
+        pro.store(outputStream, "通用配置");
+        outputStream.close();
+    }
+
+    public static PricnessConfig loadconfig(File file) throws IOException {
+        SafeProperties pro = new SafeProperties();
+        InputStreamReader in = null;
+        in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+        pro.load(in);
+        PricnessConfig pricnessConfig ;
+        pricnessConfig = new PricnessConfig(pro.getProperty("提醒买药小助手图片名"),
+                Integer.parseInt(pro.getProperty("抽卡上限")),
+                Integer.parseInt(pro.getProperty("抽卡冷却秒")),
+                Boolean.parseBoolean(pro.getProperty("总开关默认开启")),
+                Boolean.parseBoolean(pro.getProperty("抽奖默认开启")),
+                Boolean.parseBoolean(pro.getProperty("抽卡默认开启")),
+                Boolean.parseBoolean(pro.getProperty("赛马默认开启")),
+                pro.getProperty("主人qq"),
+                Integer.parseInt(pro.getProperty("签到一次金币")),
+                Integer.parseInt(pro.getProperty("发一次色图花费"))
+        );
+        in.close();
+        return pricnessConfig;
     }
 
     //刷新写入配置文件
@@ -428,5 +408,6 @@ public class constant {
             System.out.println("扭蛋配置文件错误，是否删除了一项？");
         }
     }
+
 
 }

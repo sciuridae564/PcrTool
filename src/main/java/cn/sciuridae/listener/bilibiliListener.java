@@ -13,6 +13,7 @@ import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import com.simplerobot.modules.utils.KQCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +45,7 @@ public class bilibiliListener {
             }
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "av号：" + bilibiliVideo.getAv() + "\nbv号：" + bilibiliVideo.getBv() + "\n视频标题:" + bilibiliVideo.getTitle());
 
-            CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliVideo.getPic().getAbsolutePath());
-            if (canSendImage) {
-                sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
-            } else {
-                sender.SENDER.sendPrivateMsg(msg, "我还不能发图片惹");
-            }
+            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file"+"="+ bilibiliVideo.getPic().getAbsolutePath()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,11 +96,8 @@ public class bilibiliListener {
                 sender.SENDER.sendPrivateMsg(msg, "还未开播");
             }
         } else {
-            CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + bilibiliLive.getCover().getAbsolutePath());
             sender.SENDER.sendPrivateMsg(msg, "标题:" + bilibiliLive.getTitle() + "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            if (canSendImage) {
-                sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
-            }
+            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file"+"="+ bilibiliLive.getCover().getAbsolutePath()));
         }
     }
 
@@ -117,7 +110,7 @@ public class bilibiliListener {
         while (matcher.find()) {
             sb.append(matcher.group(0));
         }
-        int i = ScoresServiceImpl.setLive(msg.getQQCodeNumber(), sb.toString());
+        int i = ScoresServiceImpl.setLive(msg.getCodeNumber(), sb.toString());
         if (i == -1) {
             sender.SENDER.sendPrivateMsg(msg, "槽位已满请去掉一个");
         } else {
@@ -130,7 +123,7 @@ public class bilibiliListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"查看开播提示"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getlive(PrivateMsg msg, MsgSender sender) {
-        Scores byId = ScoresServiceImpl.getById(msg.getQQCodeNumber());
+        Scores byId = ScoresServiceImpl.getById(msg.getCodeNumber());
         if (byId == null) {
             sender.SENDER.sendPrivateMsg(msg, "还没有关注的主播哦");
         }
@@ -141,14 +134,14 @@ public class bilibiliListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"清除开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void clearlive(PrivateMsg msg, MsgSender sender) {
-        ScoresServiceImpl.clearLive(msg.getQQCodeNumber(), "live" + msg.getMsg().substring(6).trim());
+        ScoresServiceImpl.clearLive(msg.getCodeNumber(), "live" + msg.getMsg().substring(6).trim());
 
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"开启开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void openlive(PrivateMsg msg, MsgSender sender) {
-        int i = ScoresServiceImpl.updateLiveOn(msg.getQQCodeNumber(), true);
+        int i = ScoresServiceImpl.updateLiveOn(msg.getCodeNumber(), true);
         if (i < 1) {
             sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
         } else {
@@ -159,7 +152,7 @@ public class bilibiliListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"关闭开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void closelive(PrivateMsg msg, MsgSender sender) {
-        int i = ScoresServiceImpl.updateLiveOn(msg.getQQCodeNumber(), false);
+        int i = ScoresServiceImpl.updateLiveOn(msg.getCodeNumber(), false);
         if (i < 1) {
             sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
         } else {

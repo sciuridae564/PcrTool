@@ -63,7 +63,7 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
                 pro.load(in);
                 profile = pro.getProperty("qq账号");
                 pass = pro.getProperty("密码");
-                if(profile!=null&&pass!=null){
+                if(profile==null||pass==null){
                     System.out.println("账户文件读取失败，请输入所要登陆的qq账号");
                     Scanner scanner=new Scanner(System.in);
                     System.out.print("qq号:  ");

@@ -6,7 +6,7 @@
 
     <groupId>mirai-test</groupId>
     <artifactId>sciuridae</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -145,11 +145,6 @@
          <version>3.3.2</version>
      </dependency>
 
-     <dependency>
-         <groupId>commons-io</groupId>
-         <artifactId>commons-io</artifactId>
-         <version>2.7</version>
-     </dependency>
 
  </dependencies>
 </project>
