@@ -46,7 +46,7 @@ public class OtherListener {
         if (qqGroupServiceImpl.isGroupWelcomOn(msg.getGroupCodeNumber())) {
             String groupWelcom = qqGroupServiceImpl.getGroupWelcom(msg.getGroupCodeNumber());
             if (groupWelcom != null) {
-                sender.SENDER.sendPrivateMsg(msg.getGroupCode(), groupWelcom);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupWelcom);
             }
         }
     }

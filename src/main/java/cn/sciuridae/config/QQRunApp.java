@@ -1,5 +1,6 @@
 package cn.sciuridae.config;
 
+import cn.sciuridae.constant;
 import com.forte.component.forcoolqhttpapi.CoolQHttpApp;
 import com.forte.component.forcoolqhttpapi.CoolQHttpConfiguration;
 import com.forte.qqrobot.SimpleRobotApplication;

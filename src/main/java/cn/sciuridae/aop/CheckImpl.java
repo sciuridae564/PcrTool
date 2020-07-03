@@ -72,7 +72,7 @@ public class CheckImpl {
             case qqAdmin:
                 if (o instanceof GroupMsg) {
                     PowerType powerType = sender.GETTER.getGroupMemberInfo(((GroupMsg) o).getGroupCode(), ((GroupMsg) o).getQQCode()).getPowerType();
-                    if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(((GroupMsg) o).getQQCode())) {
+                    if (!powerType.isAdmin() && !powerType.isOwner() && !pricnessConfig.getMasterQQ().equals(((GroupMsg) o).getQQCode())) {
                         CQCode cqCode_at = CQCodeUtil.build().getCQCode_At(((GroupMsg) o).getQQCode());
                         sender.SENDER.sendGroupMsg(((GroupMsg) o).getGroupCode(), cqCode_at.toString() + " 无管理员权限");
                     }
