@@ -7,11 +7,13 @@ import cn.sciuridae.dataBase.service.ProgressService;
 import cn.sciuridae.dataBase.service.TeamMemberService;
 import cn.sciuridae.dataBase.service.TreeService;
 import cn.sciuridae.utils.ExcelWrite;
-import com.forte.qqrobot.anno.timetask.CronTask;
+import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.sender.MsgSender;
-import com.forte.qqrobot.timetask.TimeJob;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,9 +22,9 @@ import java.util.List;
 
 import static cn.sciuridae.utils.stringTool.getExcelFileName;
 
-
-@CronTask("0 0 5 * * ? *") //每天5点，在线刷新
-public class clearVoidKnife implements TimeJob {
+@Component
+@EnableScheduling
+public class clearVoidKnife {
     @Autowired
     TreeService treeServiceImpl;
     @Autowired
@@ -31,12 +33,15 @@ public class clearVoidKnife implements TimeJob {
     TeamMemberService teamMemberServiceImpl;
     @Autowired
     KnifeListService knifeListServiceImpl;
+    @Autowired
+    BotManager botManager;
 
-    @Override
-    public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
+    @Scheduled(cron = "0 0 5 * * ? ")
+    public void execute() {
+        MsgSender msgSender = botManager.defaultBot().getSender();
+        CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<LocalDate> localDates = new ArrayList<>();
         localDates.add(LocalDate.now().plusDays(-1));
-
         List<Progress> progressList = ProgressServiceImpl.list();
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -54,8 +59,6 @@ public class clearVoidKnife implements TimeJob {
         }
 
         //生成每日报表
-
-
         for (Progress progress : progressList) {
             try {
                 ExcelWrite excelWrite = new ExcelWrite(getExcelFileName(progress.getTeamQQ().toString(), localDates.get(0)),

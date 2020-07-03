@@ -122,7 +122,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#出刀"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getKnife(GroupMsg msg, MsgSender sender) {
-        if (!teamMemberServiceImpl.getGroupByQQ(msg.getCodeNumber()).equals(msg.getGroupCodeNumber())) {
+        if (!teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()).equals(msg.getGroupCodeNumber())) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
         } else {
             try {
@@ -131,8 +131,8 @@ public class prcnessListener {
                     Tree tree = new Tree();
                     tree.setDate(LocalDateTime.now());
                     tree.setGroupQQ(msg.getGroupCodeNumber());
-                    tree.setTeamQQ(msg.getCodeNumber());
-                    tree.setName(teamMemberServiceImpl.getName(msg.getCodeNumber()));
+                    tree.setTeamQQ(msg.getQQCodeNumber());
+                    tree.setName(teamMemberServiceImpl.getName(msg.getQQCodeNumber()));
                     tree.setTree(false);
                     treeServiceImpl.save(tree);
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "出刀已记录，@会长看我表演");
@@ -153,10 +153,10 @@ public class prcnessListener {
     @Filter(value = "#挂树", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getTree(GroupMsg msg, MsgSender sender) {
         try {
-            if (!teamMemberServiceImpl.getGroupByQQ(msg.getCodeNumber()).equals(msg.getGroupCodeNumber())) {
+            if (!teamMemberServiceImpl.getGroupByQQ(msg.getQQCodeNumber()).equals(msg.getGroupCodeNumber())) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "¿,他群间谍发现，建议rbq一周");
             } else {
-                int i = treeServiceImpl.updateTree(msg.getCodeNumber());
+                int i = treeServiceImpl.updateTree(msg.getQQCodeNumber());
                 if (i == 1) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), isTree);
                 } else {
@@ -169,18 +169,31 @@ public class prcnessListener {
     }
 
     //处理交刀的数据
-    public static KnifeState toHurt(long groupQQ, long QQ, int hurt, KnifeListService knifeListServiceImpl, ProgressService progressServiceImpl, TreeService treeServiceImpl) {
-        StringBuilder stringBuilder = new StringBuilder();
+    public static KnifeState toHurt(String groupqq, long QQ, int hurt,
+                                    KnifeListService knifeListServiceImpl,
+                                    ProgressService progressServiceImpl,
+                                    TreeService treeServiceImpl,
+                                    TeamMemberService teamMemberServiceImpl) {
+        StringBuilder stringBuilder = new StringBuilder(CQCodeUtil.build().getCQCode_At(String.valueOf(QQ)) + "\n");
+        KnifeState knifeState = new KnifeState();
+        Long groupQQ = teamMemberServiceImpl.getGroupByQQ(QQ);
+        if (groupQQ == null) {  //如果这个人没有加如任何一个工会
+            knifeState.setOk(false);
+            knifeState.setGroupqq(groupqq);
+            knifeState.setFailMsg(stringBuilder.toString() + "还没有加入任何一个工会");
+            return knifeState;
+        }
+        knifeState.setGroupqq(groupQQ.toString());
         Progress progress = progressServiceImpl.getProgress(groupQQ);
         KnifeList knifeList;
-        KnifeState knifeState = new KnifeState();
+
         if (progress != null) {//没有工会boss进度数据
             if (progress.getStartTime().isBefore(LocalDateTime.now())) { //时间若已过开始则可以上报伤害
                 //会战开启 上报伤害
                 //查询这个人出没出完三刀
                 if (knifeListServiceImpl.getKnifeNum(QQ, LocalDateTime.now(), true) > 2) {
                     knifeState.setOk(false);
-                    knifeState.setFailMsg("三刀已出完，不可再出了");
+                    knifeState.setFailMsg(CQCodeUtil.build().getCQCode_At(String.valueOf(QQ)) + " 三刀已出完，不可再出了");
                     return knifeState;
                 }
 
@@ -202,7 +215,6 @@ public class prcnessListener {
                     progress.setRemnant(progress.getRemnant() - hurt);
                     //没打穿boss
                 } else {
-                    //先记录血量
                     knifeList.setHurt(progress.getRemnant());//伤害值为boss血量
                     //伤害打穿了，进入下一模式
                     int loop = (progress.getSerial() == 5 ? progress.getLoop() + 1 : progress.getLoop());
@@ -210,6 +222,7 @@ public class prcnessListener {
                     progress.setLoop(loop);
                     progress.setSerial(serial);
                     progress.setRemnant(BossHpLimit[serial - 1]);
+
 
                     //进入救树模式，把树上的人都噜下来
                     List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
@@ -261,11 +274,11 @@ public class prcnessListener {
         try {
             int hurt = getHurt(msg.getMsg(), 1);
 
-            KnifeState knifeState = toHurt(msg.getGroupCodeNumber(), msg.getCodeNumber(), hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl);
+            KnifeState knifeState = toHurt(msg.getGroupCode(), msg.getQQCodeNumber(), hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
             if (knifeState.isOk()) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getMsg());
+                sender.SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getMsg());
             } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getFailMsg());
+                sender.SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getFailMsg());
             }
         } catch (NumberFormatException e) {
             //伤害数字转换失败
@@ -277,7 +290,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#结束会战", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void endFight(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
+        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             Progress progress = ProgressServiceImpl.getProgress(msg.getGroupCodeNumber());
             if (progress == null) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), EngFightStartDouble);
@@ -295,7 +308,7 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#撤刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void dropKnife(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
+        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             try {
                 int id = Integer.valueOf(msg.getMsg().replaceAll(" +", "").substring(3));
                 knifeListServiceImpl.removeById(id);
@@ -314,9 +327,9 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#调整boss状态", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void changeBoss(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
+        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             String[] change = msg.getMsg().replaceAll(" +", " ").split(" ");
-            boolean is ;
+            boolean is;
             Progress progress = ProgressServiceImpl.getProgress(msg.getGroupCodeNumber());
             int loop = Integer.valueOf(change[1]);
             int serial = Integer.valueOf(change[2]);
@@ -339,7 +352,7 @@ public class prcnessListener {
     @Filter(value = "#开始会战", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void startFight(GroupMsg msg, MsgSender sender) {
         try {
-            if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
+            if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
                 if (ProgressServiceImpl.isFight(msg.getGroupCodeNumber()) != null) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), StartFightStartDouble);
                     return;
@@ -437,7 +450,7 @@ public class prcnessListener {
                 arrayList.add(LocalDate.now());
             }
         } catch (DateTimeParseException e) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "日期格式错误,应为 2020-05-16");
             return;
         }
 
@@ -448,7 +461,7 @@ public class prcnessListener {
                 String groupQQ = msg.getGroupCode();//工会qq
                 ExcelWrite excelWrite;
                 if (arrayList.size() > 1) {
-                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(arrayList.size() - 1)), arrayList, msg.getGroupCodeNumber(),
+                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(1)), arrayList, msg.getGroupCodeNumber(),
                             teamMemberServiceImpl,
                             knifeListServiceImpl);
                 } else {
@@ -485,13 +498,13 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#代刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void sideKnife(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
+        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
             int hurt = getHurt(msg.getMsg(), 2);
             long qq = cqAtoNumber(strings.get(0));
 
-            KnifeState knifeState = toHurt(msg.getGroupCodeNumber(), qq, hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl);
+            KnifeState knifeState = toHurt(msg.getGroupCode(), qq, hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
             if (knifeState.isOk()) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getMsg());
             } else {

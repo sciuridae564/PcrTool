@@ -5,6 +5,7 @@ import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.CQCodeTypes;
@@ -35,11 +36,14 @@ public class testListen {
 //    @Autowired
 //    PcrUnionService pcrUnionServiceImpl;
 
-//    @Listen(MsgGetTypes.groupMsg)
+//    @Listen({MsgGetTypes.privateMsg,MsgGetTypes.groupMsg})
 //    @Filter("qwe")
-//    public void testListern(GroupMsg msg, MsgSender sender) {
-//         System.out.println(msg.getCodeNumber());
-//        System.out.println(msg.getGroupCodeNumber());
+//    public void testListern(MsgGet msg, MsgSender sender) {
+//        if(msg instanceof PrivateMsg){
+//            System.out.println();
+//        }else if(msg instanceof GroupMsg){
+//            System.out.println();
+//        }
 //    }
 //
 //

@@ -145,6 +145,7 @@ public class constant {
     public static final String SuccessEndFight = "会战结束惹";
     public static final String EngFightStartDouble = "没有正在进行的会战惹";
     public static List<String> kimo_Definde_image = null;
+    public static final String Default_Welcome = "呐,呐~欢迎欧尼酱加入大★家★庭哦(。>V<。) !圆圆最喜欢欧尼酱了!欧尼酱,daisiki !让人家来「侍奉」欧尼酱吧< )";
     public static final String[] kimo_Definde = {"hentai，谁是你老婆啦", "死肥宅一边玩去啦，不要打扰我", "本小姐不想理你，并向你扔了一只胖次",
             "无应答......", "嗷呜%_%", "谁是你老婆啦，哼", "对方无应答", "你是个好人", "对不起!您拨打的用户暂时无法接通,请稍后再拨.Sorry!The subscriber you dialed can not be connected for the moment, please redial later."
             , "傲娇与偏见", "刑法第二百三十六条 强奸罪\n" +
