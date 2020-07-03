@@ -16,19 +16,26 @@ public class testListen {
 //    PcrUnionService pcrUnionServiceImpl;
 //    @Autowired
 //    qqGroupService qqGroupServiceImpl;
-
+//
 //    @Listen(MsgGetTypes.privateMsg)
-//    @Filter("aa")
+//    @Filter("thfgdgr")
 //    public void testListern(PrivateMsg msg, MsgSender sender) {
-//        qqGroup byId = qqGroupServiceImpl.getById(1125L);
-//        if(byId!=null){
-//            byId.setWelcome_tri(true);
-//            qqGroupServiceImpl.updateById(byId);
-//        }else {
-//            byId=new qqGroup();
-//            byId.setGroup_number(1125L);byId.setWelcome_tri(true);
-//            byId.setWelcome(Default_Welcome);
-//            qqGroupServiceImpl.save(byId);
+//        List<Progress> progressList = ProgressServiceImpl.list();
+//        List<LocalDate> localDates = new ArrayList<>();
+//        localDates.add(LocalDate.now());
+//        for (Progress progress : progressList) {
+//            try {
+//                ExcelWrite excelWrite = new ExcelWrite(getExcelFileName(progress.getTeamQQ().toString(), localDates.get(0)),
+//                        localDates,
+//                        progress.getTeamQQ(),
+//                        teamMemberServiceImpl,
+//                        knifeListServiceImpl
+//                );
+//                excelWrite.writedDate();
+//                excelWrite.reflashFile();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 //        }
 //    }
 //

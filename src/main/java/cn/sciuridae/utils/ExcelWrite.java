@@ -4,17 +4,14 @@ import cn.sciuridae.dataBase.bean.KnifeList;
 import cn.sciuridae.dataBase.bean.TeamMember;
 import cn.sciuridae.dataBase.service.KnifeListService;
 import cn.sciuridae.dataBase.service.TeamMemberService;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -105,24 +102,31 @@ public class ExcelWrite {
                 int voidKnife = 3;
                 Row row = sheet.createRow(i);
                 //各个人员出刀信息的循环
-                for (KnifeList knife : knives) {
-                    if (knife.getComplete()) {
-                        voidKnife--;
-                    }//统计空刀数
-                    hurtSum += knife.getHurt();//统计总伤害
-                    //输出伤害
-                    if (knife.getComplete()) {
-                        row.createCell(j * 2 + 1).setCellValue(knife.getHurt());
-                        j++;
-                    } else {
-                        row.createCell(j * 2).setCellValue(knife.getHurt());
-                    }
-                    //输出每个王的伤害统计总额
-                    try {
-                        double q = row.getCell(8 + (knife.getLoop() * 5 + knife.getPosition())).getNumericCellValue();
-                        row.createCell(8 + (knife.getLoop() * 5 + knife.getPosition())).setCellValue(q + knife.getHurt());
-                    } catch (NullPointerException e) {
-                        row.createCell(8 + (knife.getLoop() * 5 + knife.getPosition())).setCellValue(knife.getHurt());
+                if (knives.size() == 0) {
+                    row.createCell(0).setCellValue(teamMember.getUserQQ() + "/" + teamMember.getName());//写第一列 昵称
+                    row.createCell(1).setCellValue(3);//剩余刀数
+                    sumVoidKnife += 3;
+                } else {
+                    for (KnifeList knife : knives) {
+                        if (knife.getComplete()) {
+                            voidKnife--;
+                        }//统计空刀数
+                        hurtSum += knife.getHurt();//统计总伤害
+                        //输出伤害
+                        if (knife.getComplete()) {
+                            row.createCell(j * 2 + 1).setCellValue(knife.getHurt());
+                            j++;
+                        } else {
+                            row.createCell(j * 2).setCellValue(knife.getHurt());
+                        }
+                        //输出这刀对这个王的伤害总额
+                        try {
+                            double q = row.getCell(8 + (knife.getLoop() * 5 - 5 + knife.getPosition())).getNumericCellValue();
+                            row.createCell(8 + (knife.getLoop() * 5 - 5 + knife.getPosition())).setCellValue(q + knife.getHurt());
+                        } catch (NullPointerException e) {
+                            row.createCell(8 + (knife.getLoop() * 5 - 5 + knife.getPosition())).setCellValue(knife.getHurt());
+                        }
+                        sumVoidKnife += voidKnife;
                     }
                     row.createCell(0).setCellValue(teamMember.getUserQQ() + "/" + teamMember.getName());//写第一列 昵称
                     row.createCell(1).setCellValue(voidKnife);//剩余刀数
@@ -135,6 +139,29 @@ public class ExcelWrite {
             Row row = sheet.createRow(i);//现在这个是最后总结的行
             row.createCell(0).setCellValue("总剩刀数");
             row.createCell(1).setCellValue(sumVoidKnife);
+
+            //拜托，你们工会真的很弱哎（笑
+            if (sumVoidKnife > list.size() * 1.5) {
+                BufferedImage bufferImg = null;
+                try {
+                    ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+                    bufferImg = ImageIO.read(ExcelWrite.class.getResourceAsStream("/image/xun.jpg"));
+                    ImageIO.write(bufferImg, "jpg", byteArrayOut);
+
+                    //画图的顶级管理器，一个sheet只能获取一个
+                    Drawing<?> patriarch = sheet.createDrawingPatriarch();
+                    //anchor主要用于设置图片的属性
+                    HSSFClientAnchor anchor = new HSSFClientAnchor(0, 0, 255, 255, (short) 7, 5, (short) 10, 15);
+                    anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE);
+                    //插入图片
+                    patriarch.createPicture(anchor, workbook.addPicture(byteArrayOut.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
             //写入磁盘中
             reflashFile();
         }

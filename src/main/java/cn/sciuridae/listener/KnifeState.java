@@ -3,6 +3,7 @@ package cn.sciuridae.listener;
 import cn.sciuridae.dataBase.bean.KnifeList;
 
 public class KnifeState {
+    private String groupqq;
     private String msg;
     private boolean isOk;
     private String failMsg;
@@ -39,5 +40,13 @@ public class KnifeState {
 
     public void setFailMsg(String failMsg) {
         this.failMsg = failMsg;
+    }
+
+    public String getGroupqq() {
+        return groupqq;
+    }
+
+    public void setGroupqq(String groupqq) {
+        this.groupqq = groupqq;
     }
 }

@@ -6,6 +6,7 @@ import com.forte.qqrobot.anno.timetask.CronTask;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.timetask.TimeJob;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Set;
@@ -14,6 +15,7 @@ import static cn.sciuridae.constant.canSendImage;
 import static cn.sciuridae.constant.pricnessConfig;
 import static cn.sciuridae.listener.prcnessIntercept.On;
 
+@Component
 @CronTask("0 0 0,6,12,18 * * ?")
 public class tixingmaiyao implements TimeJob {
     @Override

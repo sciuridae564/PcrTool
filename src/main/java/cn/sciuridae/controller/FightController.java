@@ -211,12 +211,12 @@ public class FightController {
     @ResponseBody
     public synchronized KnifeList addKnife1(int hurt, HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        KnifeState knifeState = prcnessListener.toHurt(teamMember.getGroupQQ(), teamMember.getUserQQ(), hurt, this.knifeListServiceImpl, this.ProgressServiceImpl, this.treeServiceImpl);
+        KnifeState knifeState = prcnessListener.toHurt(String.valueOf(teamMember.getGroupQQ()), teamMember.getUserQQ(), hurt, this.knifeListServiceImpl, this.ProgressServiceImpl, this.treeServiceImpl, teamMemberServiceImpl);
         if (knifeState.isOk()) {
-            this.botManager.defaultBot().getSender().SENDER.sendGroupMsg(String.valueOf(teamMember.getGroupQQ()), knifeState.getMsg());
+            this.botManager.defaultBot().getSender().SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getMsg());
             return knifeState.getKnifeList();
         } else {
-            this.botManager.defaultBot().getSender().SENDER.sendGroupMsg(String.valueOf(teamMember.getGroupQQ()), knifeState.getFailMsg());
+            this.botManager.defaultBot().getSender().SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getFailMsg());
             return null;
         }
     }

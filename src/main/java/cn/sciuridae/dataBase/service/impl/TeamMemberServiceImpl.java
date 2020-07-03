@@ -61,6 +61,7 @@ public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMem
         return teamMemberMapper.isAdmin(GroupQq, QQ);
     }
 
+
     @Override
     public Long getGroupByQQ(long QQ) {
         return teamMemberMapper.group(QQ);
