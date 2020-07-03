@@ -42,7 +42,6 @@ public class clearVoidKnife {
         CQCodeUtil cqCodeUtil = CQCodeUtil.build();
         List<LocalDate> localDates = new ArrayList<>();
         localDates.add(LocalDate.now().plusDays(-1));
-        System.out.println("a");
         List<Progress> progressList = ProgressServiceImpl.list();
         StringBuilder stringBuilder = new StringBuilder();
 
