@@ -144,7 +144,11 @@
          <artifactId>mybatis-plus-generator</artifactId>
          <version>3.3.2</version>
      </dependency>
-
+     <!--aop相关-->
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-aop</artifactId>
+     </dependency>
 
  </dependencies>
 </project>

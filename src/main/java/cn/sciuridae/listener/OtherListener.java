@@ -1,12 +1,15 @@
 package cn.sciuridae.listener;
 
 import cn.sciuridae.dataBase.service.ScoresService;
+import cn.sciuridae.dataBase.service.impl.qqGroupServiceImpl;
+import cn.sciuridae.dataBase.service.qqGroupService;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Ignore;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.cqcode.CQCode;
+import com.forte.qqrobot.beans.messages.msgget.GroupMemberIncrease;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
@@ -32,12 +35,22 @@ import static cn.sciuridae.utils.stringTool.*;
 @Service
 public class OtherListener {
     @Autowired
-    ScoresService ScoresServiceImpl;
+    qqGroupService qqGroupServiceImpl;
 
     private static HashMap<String, LocalDateTime> coolDown;//抽卡冷却时间
 
     public static void AllCoolDown() {
         coolDown = new HashMap<>();
+    }
+
+    @Listen(MsgGetTypes.groupMemberIncrease)
+    public void groupWelcome(GroupMemberIncrease msg, MsgSender sender) {
+        if (qqGroupServiceImpl.isGroupWelcomOn(msg.getGroupCodeNumber())) {
+            String groupWelcom = qqGroupServiceImpl.getGroupWelcom(msg.getGroupCodeNumber());
+            if (groupWelcom != null) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupWelcom);
+            }
+        }
     }
 
     @Listen(MsgGetTypes.groupMsg)
