@@ -121,5 +121,43 @@ public class BilibiliUser {
 
     }
 
+    public String getMid() {
+        return mid;
+    }
 
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public int getRoom_id() {
+        return room_id;
+    }
+
+    public void setRoom_id(int room_id) {
+        this.room_id = room_id;
+    }
+
+    public File getFace() {
+        return face;
+    }
+
+    public void setFace(File face) {
+        this.face = face;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
 }

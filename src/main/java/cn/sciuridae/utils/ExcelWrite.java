@@ -15,7 +15,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static cn.sciuridae.utils.timeUtil.localDateTolocalDateTimes;
@@ -88,14 +87,23 @@ public class ExcelWrite {
             sheets.add(sheet);
             readyHead(sheet);//写表头
             LocalDateTime[] localDateTimes = localDateTolocalDateTimes(date);
+            CellStyle style1 = workbook.createCellStyle();
+            style1.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            CellStyle style2 = workbook.createCellStyle();
+            style2.setFillForegroundColor(IndexedColors.GOLD.getIndex());
+            style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            CellStyle style3 = workbook.createCellStyle();
+            style3.setFillForegroundColor(IndexedColors.VIOLET.getIndex());
+            style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
             //这个工会所有的成员
             List<TeamMember> list = teamMemberServiceImpl.getTeamMemberByGroup(groupQQ);
             long hurtSum = 0;
             int i = 1;//这个其实代表是第几行
             int j = 1;//j是第几列
-            //输出名字和余刀
-            HashMap<String, Row> stringIntegerHashMap = new HashMap<>();
             //工会人员循环
             for (TeamMember teamMember : list) {
                 List<KnifeList> knives = knifeListServiceImpl.getKnife(teamMember.getUserQQ(), localDateTimes[0], localDateTimes[1]);
@@ -113,12 +121,25 @@ public class ExcelWrite {
                         }//统计空刀数
                         hurtSum += knife.getHurt();//统计总伤害
                         //输出伤害
+                        Cell cell;
                         if (knife.getComplete()) {
-                            row.createCell(j * 2 + 1).setCellValue(knife.getHurt());
+                            cell = row.createCell(j * 2 + 1);
                             j++;
                         } else {
-                            row.createCell(j * 2).setCellValue(knife.getHurt());
+                            cell = row.createCell(j * 2);
                         }
+                        switch (knife.getList()) {
+                            case 1:
+                                cell.setCellStyle(style1);
+                                break;
+                            case 2:
+                                cell.setCellStyle(style2);
+                                break;
+                            case 3:
+                                cell.setCellStyle(style3);
+                                break;
+                        }
+                        cell.setCellValue(knife.getHurt());
                         //输出这刀对这个王的伤害总额
                         try {
                             double q = row.getCell(8 + (knife.getLoop() * 5 - 5 + knife.getPosition())).getNumericCellValue();
@@ -140,9 +161,23 @@ public class ExcelWrite {
             row.createCell(0).setCellValue("总剩刀数");
             row.createCell(1).setCellValue(sumVoidKnife);
 
+            Row row1 = sheet.createRow(i + 3);
+            Cell cell = row.createCell(0);
+            cell.setCellValue("一队刀");
+            cell.setCellStyle(style1);
+            cell = row.createCell(1);
+            cell.setCellValue("二队刀");
+            cell.setCellStyle(style2);
+            cell = row.createCell(2);
+            cell.setCellValue("三队刀");
+            cell.setCellStyle(style3);
+            cell = row.createCell(3);
+            cell.setCellValue("旧版本出刀可能没有区分dd刀和大刀的数据，所以统一就只有红色了");
+
+
             //拜托，你们工会真的很弱哎（笑
             if (sumVoidKnife > list.size() * 1.5) {
-                BufferedImage bufferImg = null;
+                BufferedImage bufferImg;
                 try {
                     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
                     bufferImg = ImageIO.read(ExcelWrite.class.getResourceAsStream("/image/xun.jpg"));

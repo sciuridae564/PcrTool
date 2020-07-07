@@ -169,7 +169,7 @@ public class prcnessListener {
     }
 
     //处理交刀的数据
-    public static KnifeState toHurt(String groupqq, long QQ, int hurt,
+    public static KnifeState toHurt(String groupqq, long QQ, int hurt, int list,
                                     KnifeListService knifeListServiceImpl,
                                     ProgressService progressServiceImpl,
                                     TreeService treeServiceImpl,
@@ -201,9 +201,14 @@ public class prcnessListener {
                     treeServiceImpl.removeById(QQ);
                 } catch (Exception e) {
                 }
-
+                List<KnifeList> strins = knifeListServiceImpl.getKnife(QQ, LocalDateTime.now());
                 knifeList = new KnifeList();//创建刀数据对象
                 knifeList.setKnifeQQ(QQ);
+                if (list < 1) {
+                    knifeList.setList(strins.size() + 1);
+                } else {
+                    knifeList.setList(list);
+                }
                 knifeList.setLoop(progress.getLoop());
                 knifeList.setPosition(progress.getSerial());
                 knifeList.setDate(LocalDateTime.now());
@@ -227,7 +232,7 @@ public class prcnessListener {
                     //进入救树模式，把树上的人都噜下来
                     List<Tree> strings = treeServiceImpl.deletTreeByGroup(groupQQ);
 
-                    List<KnifeList> strins = knifeListServiceImpl.getKnife(QQ, LocalDateTime.now());
+
                     //判断是不是补时刀
                     if (strins.size() != 0 && !strins.get(strins.size() - 1).getComplete()) {
                         knifeList.setComplete(true);
@@ -272,9 +277,17 @@ public class prcnessListener {
     @Filter(value = {"#收刀", "#交刀"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void outKnife(GroupMsg msg, MsgSender sender) {
         try {
-            int hurt = getHurt(msg.getMsg(), 1);
+            int[] hurt = getHurt(msg.getMsg(), 1);
+            if (hurt == null) {
+                sender.SENDER.sendGroupMsg(msg, "指令格式错误：参数过多");
+                return;
+            }
+            if (hurt[1] > 3) {
+                sender.SENDER.sendGroupMsg(msg, "数字越界：队伍数应在1-3之间");
+                return;
+            }
 
-            KnifeState knifeState = toHurt(msg.getGroupCode(), msg.getQQCodeNumber(), hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
+            KnifeState knifeState = toHurt(msg.getGroupCode(), msg.getCodeNumber(), hurt[0], hurt[1], knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
             if (knifeState.isOk()) {
                 sender.SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getMsg());
             } else {
@@ -498,13 +511,16 @@ public class prcnessListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#代刀", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void sideKnife(GroupMsg msg, MsgSender sender) {
-        if (teamMemberServiceImpl.isAdmin(msg.getQQCodeNumber(), msg.getGroupCodeNumber())) {
+        if (teamMemberServiceImpl.isAdmin(msg.getCodeNumber(), msg.getGroupCodeNumber())) {
             CQCodeUtil cqCodeUtil = CQCodeUtil.build();
             List<String> strings = cqCodeUtil.getCQCodeStrFromMsgByType(msg.getMsg(), CQCodeTypes.at);
-            int hurt = getHurt(msg.getMsg(), 2);
+            int[] hurt = getHurt(msg.getMsg(), 2);
             long qq = cqAtoNumber(strings.get(0));
-
-            KnifeState knifeState = toHurt(msg.getGroupCode(), qq, hurt, knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
+            if (hurt[1] > 3) {
+                sender.SENDER.sendGroupMsg(msg, "数字越界：队伍数应在1-3之间");
+                return;
+            }
+            KnifeState knifeState = toHurt(msg.getGroupCode(), qq, hurt[0], hurt[1], knifeListServiceImpl, ProgressServiceImpl, treeServiceImpl, teamMemberServiceImpl);
             if (knifeState.isOk()) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), knifeState.getMsg());
             } else {

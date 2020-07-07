@@ -48,9 +48,11 @@ public class CheckImpl {
                     if (!teamMemberServiceImpl.isAdmin((Long.parseLong(((GroupMsg) o).getQQCode())), (Long.parseLong(((GroupMsg) o).getGroupCode())))) {
                         CQCode cqCode_at = CQCodeUtil.build().getCQCode_At(((GroupMsg) o).getQQCode());
                         sender.SENDER.sendGroupMsg(((GroupMsg) o).getGroupCode(), cqCode_at.toString() + " 无工会管理员权限");
+                        return;
                     }
                 } else if (o instanceof PrivateMsg) {
                     sender.SENDER.sendGroupMsg(((PrivateMsg) o).getQQCode(), "有管理员权限限制的指令只能在相应群里使用");
+                    return;
                 } else {
                     return;
                 }
@@ -60,9 +62,11 @@ public class CheckImpl {
                     if (!pcrUnionServiceImpl.isGroupMaster((Long.parseLong(((GroupMsg) o).getQQCode())), (Long.parseLong(((GroupMsg) o).getGroupCode())))) {
                         CQCode cqCode_at = CQCodeUtil.build().getCQCode_At(((GroupMsg) o).getQQCode());
                         sender.SENDER.sendGroupMsg(((GroupMsg) o).getGroupCode(), cqCode_at.toString() + " 无工会会长权限");
+                        return;
                     }
                 } else if (o instanceof PrivateMsg) {
                     sender.SENDER.sendGroupMsg(((PrivateMsg) o).getQQCode(), "有会长权限限制的指令只能在相应群里使用");
+                    return;
                 } else {
                     return;
                 }
@@ -75,9 +79,11 @@ public class CheckImpl {
                     if (!powerType.isAdmin() && !powerType.isOwner() && !pricnessConfig.getMasterQQ().equals(((GroupMsg) o).getQQCode())) {
                         CQCode cqCode_at = CQCodeUtil.build().getCQCode_At(((GroupMsg) o).getQQCode());
                         sender.SENDER.sendGroupMsg(((GroupMsg) o).getGroupCode(), cqCode_at.toString() + " 无管理员权限");
+                        return;
                     }
                 } else if (o instanceof PrivateMsg) {
                     sender.SENDER.sendGroupMsg(((PrivateMsg) o).getQQCode(), "有管理员权限限制的指令只能在相应群里使用");
+                    return;
                 } else {
                     return;
                 }

@@ -42,12 +42,6 @@ public interface KnifeListMapper extends BaseMapper<KnifeList> {
             " where knifeQQ=#{knifeQQ}  order by date")
     List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ);
 
-
-    @Select("select * from knifeList " +
-            " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate} order by date")
-    List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
-
-
     @Select("select count(id) from knifeList " +
             " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate}")
     int getKnifeNumByUserQQ(@Param("knifeQQ") long knifeQQ, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);

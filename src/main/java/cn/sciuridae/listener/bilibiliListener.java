@@ -57,7 +57,7 @@ public class bilibiliListener {
 
     //avbv转换
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"av", "AV", "bv", "BV"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void avtobv(PrivateMsg msg, MsgSender sender) {
         String substring = msg.getMsg();
         String av;

@@ -36,7 +36,7 @@ public class KnifeList implements Serializable {
 
     private Integer loop;
     private Integer position;
-
+    private Integer list = 1;
 
     public Integer getId() {
         return id;
@@ -102,6 +102,14 @@ public class KnifeList implements Serializable {
         this.position = position;
     }
 
+    public Integer getList() {
+        return list;
+    }
+
+    public void setList(Integer list) {
+        this.list = list;
+    }
+
     @Override
     public String toString() {
         return "KnifeList{" +
@@ -113,6 +121,7 @@ public class KnifeList implements Serializable {
                 ", version=" + version +
                 ", loop=" + loop +
                 ", position=" + position +
+                ", list=" + list +
                 '}';
     }
 }

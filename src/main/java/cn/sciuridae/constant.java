@@ -59,11 +59,12 @@ public class constant {
             "\t2.结束会战[#结束会战]\n" +
             "\t3.表示自己正在出刀[#出刀]\n" +
             "\t4.表示自己因为太菜挂树了[#挂树]\n" +
-            "\t5.出完刀向机器人提交成绩[#收刀 伤害值]\n" +
+            "\t5.出完刀向机器人提交成绩[#收刀 伤害值 （队伍编号）]\n" +
+            "\t这个队伍编号是区分大刀和dd刀的作用，例如1为大刀3为dd刀，可以不填，不填默认以交刀的顺序依次赋值\n" +
             "\t\t如果有自信不会挂树可以直接用这个命令提交伤害\n" +
             "\t\t但是如果挂了请注意不要透露给工会长自己的住宅地址，注意人身安全\n" +
             "\t\t机器人不会接受没有提交出刀请求后的挂树命令\n" +
-            "\t6.*代替别人提交伤害数据[#代刀 @那个人 伤害值]\n" +
+            "\t6.*代替别人提交伤害数据[#代刀 @那个人 伤害值 （队伍编号）]\n" +
             "\t7.*撤除出刀资料[#撤刀 出刀编号]\n" +
             "\t\t这个命令只是删除了出刀信息，但是并不会更改boss信息，防止发生奇奇怪怪的事情\n" +
             "\t\t需要管理手动调整\n" +
@@ -158,13 +159,13 @@ public class constant {
     public static String robotQQ = "0";//机器人qq
     public static String[] one = {"日和莉", "怜", "未奏希", "胡桃", "依里", "由加莉", "铃莓", "碧", "美咲", "莉玛"};
     public static String[] two = {"茜里", "宫子", "雪", "铃奈", "香织", "美美", "惠理子", "忍", "真阳", "栞", "千歌", "空花", "珠希", "美冬", "深月", "铃", "绫音", "美里"};
-    public static String[] Three = {"杏奈", "真步", "璃乃", "初音", "依绪", "咲恋", "望", "妮胧", "秋乃", "真琴", "静流", "莫妮卡", "姬塔", "纯", "亚里莎", "冰川镜华"};
-    public static String[] noUpThree = {"杏奈", "真步", "璃乃", "依绪", "望", "妮胧", "秋乃", "真琴", "静流", "莫妮卡", "姬塔", "纯", "咲恋", "冰川镜华"};
-    public static String[] noUptwo = {"紡希", "绫音", "茜里", "宫子", "雪", "铃奈", "香织", "美美", "惠理子", "忍", "真阳", "栞", "千歌", "空花", "珠希", "美冬", "深月", "铃"};
-    public static String[] noUpone = {"胡桃", "铃莓", "日和莉", "怜", "未奏希", "依里", "由加莉", "美咲", "莉玛", "茉莉"};
-    public static String[] Three_plus = {"初音"};
-    public static String[] two_plus = {"美里"};
-    public static String[] one_plus = {"碧"};
+    public static String[] Three = {"伊莉亚", "杏奈", "真步", "璃乃", "初音", "依绪", "咲恋", "望", "妮胧", "秋乃", "真琴", "静流", "莫妮卡", "姬塔", "纯", "亚里莎", "冰川镜华"};
+    public static String[] noUpThree = {"初音", "杏奈", "真步", "璃乃", "依绪", "望", "妮胧", "秋乃", "真琴", "静流", "莫妮卡", "姬塔", "纯", "咲恋", "冰川镜华"};
+    public static String[] noUptwo = {"美里", "紡希", "绫音", "茜里", "宫子", "雪", "铃奈", "香织", "美美", "惠理子", "忍", "真阳", "栞", "千歌", "空花", "珠希", "美冬", "深月", "铃"};
+    public static String[] noUpone = {"碧", "胡桃", "铃莓", "日和莉", "怜", "未奏希", "依里", "由加莉", "美咲", "莉玛", "茉莉"};
+    public static String[] Three_plus = {"伊莉亚"};
+    public static String[] two_plus = {};
+    public static String[] one_plus = {};
     public static int ThreeChance = 25;
     public static int TwoChance = 180;
     public static int OneChance = 795;
@@ -172,8 +173,8 @@ public class constant {
     public static int baijiTwoChance = 180;
     public static int baijiOneChance = 795;
     public static int upThreeChance = 7;
-    public static int upTwoChance = 30;//30;
-    public static int upOneChance = 100;//200;
+    public static int upTwoChance = 0;//30;
+    public static int upOneChance = 0;//200;
     public static HashMap<String, Integer> reQieLU = new HashMap<>();
     public static boolean canSendImage = false;//这个机器人能不能发送图片的标记
     public static String ip;
