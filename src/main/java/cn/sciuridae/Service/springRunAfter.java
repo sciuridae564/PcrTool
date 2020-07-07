@@ -60,6 +60,7 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
                     }
                     stringBuilder.append("强制下树惹");
                 }
+                ProgressServiceImpl.endFight(progress);
                 sender.SENDER.sendGroupMsg(progress.toString(), stringBuilder.toString());
             }
         }

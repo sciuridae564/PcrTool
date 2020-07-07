@@ -88,7 +88,9 @@ public class KnifeListServiceImpl extends ServiceImpl<KnifeListMapper, KnifeList
     @Override
     public List<KnifeList> getKnife(long Qq, LocalDateTime date) {
         LocalDateTime[] dates = getTodayNoStart(date, false);
-        return knifeListMapper.getKnifeByUserQQ(Qq, dates[0], dates[1]);
+        QueryWrapper<KnifeList> queryWrapper=new QueryWrapper<>();
+        queryWrapper.between("date",dates[0],dates[1]);
+        return knifeListMapper.selectList(queryWrapper);
     }
 
     @Override
@@ -98,7 +100,10 @@ public class KnifeListServiceImpl extends ServiceImpl<KnifeListMapper, KnifeList
 
     @Override
     public List<KnifeList> getKnife(long Qq, LocalDateTime startdate, LocalDateTime endate) {
-        return knifeListMapper.getKnifeByUserQQ(Qq, startdate, endate);
+        QueryWrapper<KnifeList> queryWrapper=new QueryWrapper<>();
+        queryWrapper.between("date",startdate,endate);
+
+        return knifeListMapper.selectList(queryWrapper);
     }
 
     @Override
@@ -135,6 +140,7 @@ public class KnifeListServiceImpl extends ServiceImpl<KnifeListMapper, KnifeList
 
     @Override
     public List<KnifeList> getKnifeSumByGroup(long groupQq, LocalDateTime startdate, LocalDateTime endate) {
+
         return knifeListMapper.getSumKnifeBygroupQQ(groupQq, startdate, endate);
     }
 

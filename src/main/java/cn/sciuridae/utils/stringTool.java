@@ -1,5 +1,7 @@
 package cn.sciuridae.utils;
 
+import com.forte.qqrobot.utils.CQCodeUtil;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -48,30 +50,180 @@ public class stringTool {
      * 将传入的字符转换成伤害值
      *
      * @param s
-     * @param flag 1为自己出刀2为代刀
-     * @return
+     * @param flag 1为自己出刀 #出刀 上海 2为代刀 #代刀 at 上海 list
+     * @return [伤害，list]
      */
-    public static int getHurt(String s, int flag) throws NumberFormatException {
-        String work = s.replaceAll(" +", "");
-        int i = 0;
-        switch (flag) {
-            case 1:
-                if (s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W') {
-                    i = Integer.parseInt(work.substring(3));
-                } else {
-                    i = Integer.parseInt(work.substring(3, work.length() - 1)) * 10000;
+    public static int[] getHurt(String s, int flag) throws NumberFormatException {
+        s=s.trim();
+        String[] works=s.split(" +");
+        int[] i = new int[2];
+        switch (works.length){
+            case 1://只有一个数据，说明是#出刀伤害
+                if(flag==1){
+                    if (s.charAt(s.length() - 2) != 'w' && s.charAt(s.length() - 2) != 'W') {
+                        if(s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W'){//#出刀伤害
+                            i[0] = Integer.parseInt(s.replaceAll(" +","").substring(3));
+                        }else {
+                            String substring = s.replaceAll(" +", "");
+                            i[0] = Integer.parseInt(substring.substring(3,substring.length()-2));
+                        }
+                        i[1]=-1;
+                    } else {//#出刀伤害list
+                        i[0] = Integer.parseInt(s.substring(3, s.length() - 2)) * 10000;
+                        i[1]=s.charAt(s.length()-1)-'0';
+                    }
+
+                }else { //代刀只有一个
+                    if (s.charAt(s.length() - 2) != 'w' && s.charAt(s.length() - 2) != 'W') {
+                        if(s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W'){//#出刀伤害
+                            i[0] = Integer.parseInt(s.substring(s.indexOf(']')+1));
+                        }else {
+                            String substring = s.substring(s.indexOf(']')+1,s.length()-1);
+                            i[0] = Integer.parseInt(substring)*10000;
+                        }
+                        i[1]=-1;
+                    } else {
+                        i[0] = Integer.parseInt(s.substring(s.indexOf(']')+1, s.length() - 2)) * 10000;
+                        i[1]=s.charAt(s.length()-1)-'0';
+                    }
                 }
                 break;
             case 2:
-                if (s.charAt(s.length() - 1) != 'w' && s.charAt(s.length() - 1) != 'W') {
-                    i = Integer.parseInt(work.substring(work.indexOf("]") + 1));
-                } else {
-                    i = Integer.parseInt(work.substring(work.indexOf("]" + 1), work.length() - 1)) * 10000;
+                if(flag==1){//#出刀 ?
+                    if(works[0].length()==3){
+                        if (works[1].charAt(works[1].length() - 2) != 'w' && works[1].charAt(works[1].length() - 2) != 'W') {//#出刀 1121?
+                            if(works[1].charAt(works[1].length()-1)=='W'||works[1].charAt(works[1].length()-1)=='w'){//#出刀 1121
+                                i[0]=Integer.parseInt(works[1].substring(0,works[1].length()-1))*10000;
+                            }else {//#出刀 112w
+                                i[0]=Integer.parseInt(works[1]);
+                            }
+                            i[1]= -1;
+                        } else { //#出刀 112w1
+                            i[0] = Integer.parseInt(works[1].substring(0,works[1].length()-2))*10000  ;
+                            i[1]=works[1].charAt(works[1].length()-1)-'0';
+                        }
+                    }else {//#出刀112 ?
+                        if (works[0].charAt(works[0].length() - 1) != 'w' && works[0].charAt(works[0].length() - 1) != 'W') {//#出刀 112w1
+                            i[0]=Integer.parseInt(works[0].substring(3));
+                        } else {
+                            i[0]=Integer.parseInt(works[0].substring(3,works[0].length()-1))*10000;
+                        }
+                        i[1]=Integer.parseInt(works[1]);
+                    }
+                }else {//代刀
+                    if(works[0].length()==3){ //#代刀 ？
+                        works[1]=works[1].substring(works[1].indexOf(']')+1);//将at排除
+                        if (works[1].charAt(works[1].length() - 2) != 'w' && works[1].charAt(works[1].length() - 2) != 'W') {//#代刀 1121?
+                            if(works[1].charAt(works[1].length()-1)=='W'||works[1].charAt(works[1].length()-1)=='w'){//#代刀 1121
+                                if(works[1].charAt(works[1].length()-1)=='w'||works[1].charAt(works[1].length()-1)=='W'){
+                                    i[0]=Integer.parseInt(works[1].substring(0,works[1].length()-1))*10000;
+                                }else {
+                                    i[0]=Integer.parseInt(works[1]);
+                                }
+                            }else {
+                                i[0]=Integer.parseInt(works[1]);
+                            }
+                            i[1]= -1;
+                        } else { //#代刀 112w1
+                            i[0] = Integer.parseInt(works[1].substring(0,works[1].length()-2))*10000  ;
+                            i[1]=works[1].charAt(works[1].length()-1)-'0';
+                        }
+                    }else {//#代刀? ？
+                        works[0]=works[0].substring(works[0].indexOf(']')+1);//将at排除
+                        if(works[0].length()==0){//?
+                            if (works[1].charAt(works[1].length() - 2) != 'w' && works[1].charAt(works[1].length() - 2) != 'W') {
+                                if(works[1].charAt(works[1].length()-1)=='W'||works[1].charAt(works[1].length()-1)=='w'){
+                                    i[0]=Integer.parseInt(works[1].substring(0,works[1].length()-1))*10000;
+                                }else {
+                                    i[0]=Integer.parseInt(works[1]);
+                                }
+                                i[1]=-1;
+                            } else {
+                                i[0]=Integer.parseInt(works[1].substring(0,works[1].length()-2))*10000;
+                                i[1]=works[1].charAt(works[1].length()-1)-'0';
+                            }
+                        }else {  //? ?
+                            if (works[0].charAt(works[0].length() - 1) != 'w' && works[0].charAt(works[0].length() - 1) != 'W') {//#代刀 112w1
+                                i[0]=Integer.parseInt(works[0]);
+                            } else {
+                                i[0]=Integer.parseInt(works[0].substring(0,works[0].length()-1))*10000;
+                            }
+                            i[1]=Integer.parseInt(works[1]);
+                        }
+                    }
+                }
+                break;
+            case 3:
+                if(flag==1){//标准自己交刀
+                    if (works[1].charAt(works[1].length() - 1) != 'w' && works[1].charAt(works[1].length() - 1) != 'W') {
+                        i[0] = Integer.parseInt(works[1]);
+                    } else {
+                        i[0] = Integer.parseInt(works[1].substring(0,works[1].length()-1)) * 10000;
+                    }
+                    i[1]=Integer.parseInt(works[2]);
+                }else {//代刀
+                    if(works[0].length()==3){//第一个参数是#代刀
+                        if(works[1].charAt(works[1].length()-1)==']'){//#代刀 at? ?
+                            if(works[1].charAt(works[1].length()-1)!=']'){//#代刀 at ?
+                                if(works[2].charAt(works[2].length()-2)=='w'||works[2].charAt(works[2].length()-2)=='W'){
+                                    i[1]=works[2].charAt(works[2].length()-1)-'0';
+                                    if (works[2].charAt(works[2].length() - 1) != 'w' && works[2].charAt(works[2].length() - 1) != 'W') {
+                                        i[0] = Integer.parseInt(works[2]);
+                                    } else {
+                                        i[0] = Integer.parseInt(works[2].substring(0,works[2].length()-1)) * 10000;
+                                    }
+                                }else {  //#代刀 at1122 11
+                                    i[1]=-1;
+                                    i[0] = Integer.parseInt(works[2]);
+                                }
+                            }else {
+                                if(works[2].charAt(works[2].length()-2)=='w'||works[2].charAt(works[2].length()-2)=='W'){
+                                    i[1]=works[2].charAt(works[2].length()-1)-'0';
+                                    i[0] = Integer.parseInt(works[2].substring(0,works[2].length()-2)) * 10000;
+                                }else {  //#代刀 at 1122
+                                    i[1]=-1;
+                                    if(works[2].charAt(works[2].length()-1)=='w'){
+                                        i[0] = Integer.parseInt(works[2].substring(0,works[2].length()-1))*10000;
+                                    }else {
+                                        i[0] = Integer.parseInt(works[2]);
+                                    }
+                                }
+                            }
+                        }else { //#代刀 at ?
+                            works[1]=works[1].substring(works[1].indexOf(']')+1);
+                            if (works[1].charAt(works[1].length() - 1) != 'w' && works[1].charAt(works[1].length() - 1) != 'W') {
+                                i[0] = Integer.parseInt(works[1]);
+                            } else {
+                                i[0] = Integer.parseInt(works[1].substring(0,works[1].length()-1)) * 10000;
+                            }
+                            i[1]=Integer.parseInt(works[2]);
+                        }
+                    }else { //at和指令重合了
+                        if (works[1].charAt(works[1].length() - 1) != 'w' && works[1].charAt(works[1].length() - 1) != 'W') {
+                            i[0] = Integer.parseInt(works[1]);
+                        } else {
+                            i[0] = Integer.parseInt(works[1].substring(0,works[1].length()-1)) * 10000;
+                        }
+                        i[1]=Integer.parseInt(works[2]);
+                    }
+                }
+                break;
+            case 4:
+                if(flag==1){//自己交刀没有三个参数的
+                    i=null;
+                }else { //标准代刀
+                    i[1]=Integer.parseInt(works[3]);
+                    if (works[2].charAt(works[2].length() - 1) != 'w' && works[2].charAt(works[2].length() - 1) != 'W') {
+                        i[0] = Integer.parseInt(works[2]);
+                    } else {
+                        i[0] = Integer.parseInt(works[2].substring(0,works[2].length()-1)) * 10000;
+                    }
                 }
                 break;
         }
         return i;
     }
+
 
     //将byte(8位)分割成俩4位
     public static int[] spiltByte(byte b) {

@@ -23,15 +23,15 @@ import java.util.List;
 public interface KnifeListMapper extends BaseMapper<KnifeList> {
 
     @Select("select knifeList.* from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
-            "where teamMember.groupQQ=#{groupQq} AND date between #{startdate} and #{endate}")
+            "where teamMember.groupQQ=#{groupQq} AND (date between #{startdate} and #{endate})")
     List<KnifeList> getKnifeBygroupQQ(@Param("groupQq") long groupQq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
     @Select("select sum(knifeList.hurt),knifeList.knifeQQ from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
-            "where teamMember.groupQQ=#{groupQq} AND date between #{startdate} and #{endate}")
+            "where teamMember.groupQQ=#{groupQq} AND (date between #{startdate} and #{endate})")
     List<KnifeList> getSumKnifeBygroupQQ(@Param("groupQq") long groupQq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
     @Select("select sum(knifeList.hurt),knifeList.knifeQQ from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
-            "where teamMember.userQQ=#{Qq} AND date between #{startdate} and #{endate}")
+            "where teamMember.userQQ=#{Qq} AND (date between #{startdate} and #{endate})")
     List<KnifeList> getSumKnifeByQQ(@Param("Qq") long Qq, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
     @Select("select knifeList.* from knifeList left join teamMember on teamMember.userQQ=knifeList.knifeQQ " +
@@ -43,17 +43,14 @@ public interface KnifeListMapper extends BaseMapper<KnifeList> {
     List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ);
 
 
-    @Select("select * from knifeList " +
-            " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate} order by date")
-    List<KnifeList> getKnifeByUserQQ(@Param("knifeQQ") long knifeQQ, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
 
     @Select("select count(id) from knifeList " +
-            " where knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate}")
+            " where knifeQQ=#{knifeQQ} AND (date between #{startdate} and #{endate})")
     int getKnifeNumByUserQQ(@Param("knifeQQ") long knifeQQ, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
     @Select("select count(id) from knifeList " +
-            " where complete=true AND knifeQQ=#{knifeQQ} AND date between #{startdate} and #{endate}")
+            " where complete=true AND knifeQQ=#{knifeQQ} AND (date between #{startdate} and #{endate})")
     int getKnifeNumByUserQQNoReward(@Param("knifeQQ") long knifeQQ, @Param("startdate") LocalDateTime startdate, @Param("endate") LocalDateTime endate);
 
 }

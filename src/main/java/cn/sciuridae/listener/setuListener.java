@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import static cn.sciuridae.constant.canSendImage;
 import static cn.sciuridae.constant.pricnessConfig;
 import static cn.sciuridae.utils.getSetu.*;
 
@@ -32,10 +31,6 @@ public class setuListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"我要看漂亮小姐姐"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
-        if (!canSendImage) {
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "机器人还不能发图片惹");
-            return;
-        }
         Scores coin = ScoresServiceImpl.getById(msg.getCodeNumber());
 
         if (coin == null) {

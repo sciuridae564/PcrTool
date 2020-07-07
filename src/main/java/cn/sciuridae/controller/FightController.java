@@ -211,7 +211,7 @@ public class FightController {
     @ResponseBody
     public synchronized KnifeList addKnife1(int hurt, HttpSession session) {
         TeamMemberI teamMember = (TeamMemberI) session.getAttribute("teamMember");
-        KnifeState knifeState = prcnessListener.toHurt(String.valueOf(teamMember.getGroupQQ()), teamMember.getUserQQ(), hurt, this.knifeListServiceImpl, this.ProgressServiceImpl, this.treeServiceImpl, teamMemberServiceImpl);
+        KnifeState knifeState = prcnessListener.toHurt(String.valueOf(teamMember.getGroupQQ()), teamMember.getUserQQ(), hurt,-1, this.knifeListServiceImpl, this.ProgressServiceImpl, this.treeServiceImpl, teamMemberServiceImpl);
         if (knifeState.isOk()) {
             this.botManager.defaultBot().getSender().SENDER.sendGroupMsg(knifeState.getGroupqq(), knifeState.getMsg());
             return knifeState.getKnifeList();

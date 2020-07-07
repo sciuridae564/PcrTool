@@ -7,12 +7,10 @@ import cn.sciuridae.utils.bilibili.BilibiliVideo;
 import cn.sciuridae.utils.bilibili.BvAndAv;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
-import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
-import com.forte.qqrobot.utils.CQCodeUtil;
 import com.simplerobot.modules.utils.KQCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +19,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static cn.sciuridae.constant.canSendImage;
 
 @Service
 public class bilibiliListener {
@@ -45,7 +41,7 @@ public class bilibiliListener {
             }
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "av号：" + bilibiliVideo.getAv() + "\nbv号：" + bilibiliVideo.getBv() + "\n视频标题:" + bilibiliVideo.getTitle());
 
-            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file"+"="+ bilibiliVideo.getPic().getAbsolutePath()));
+            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file="+ bilibiliVideo.getPic().getAbsolutePath()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,17 +49,17 @@ public class bilibiliListener {
 
     //avbv转换
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"av", "AV", "bv", "BV"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void avtobv(PrivateMsg msg, MsgSender sender) {
         String substring = msg.getMsg();
         String av;
         String bv;
-        if (substring.charAt(0) == 'a' || substring.charAt(0) == 'A') {
-            av = "AV" + substring;
+        if ((substring.charAt(0) == 'a' || substring.charAt(0) == 'A')) {
+            av = substring;
             bv = "\nBV" + BvAndAv.v2b(substring.substring(2));
         } else {
             av = "AV" + BvAndAv.b2v(substring.substring(2));
-            bv = "\nBV" + substring;
+            bv = "\n" + substring;
         }
 
         sender.SENDER.sendPrivateMsg(msg, av + bv);
@@ -97,7 +93,7 @@ public class bilibiliListener {
             }
         } else {
             sender.SENDER.sendPrivateMsg(msg, "标题:" + bilibiliLive.getTitle() + "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file"+"="+ bilibiliLive.getCover().getAbsolutePath()));
+            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file="+ bilibiliLive.getCover().getAbsolutePath()));
         }
     }
 

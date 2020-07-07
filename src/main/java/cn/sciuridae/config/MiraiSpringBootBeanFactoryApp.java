@@ -107,9 +107,6 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
     public void after(CQCodeUtil cqCodeUtil, MsgSender sender) {
         constant.robotQQ = sender.GETTER.getLoginQQInfo().getQQ();//获取机器人qq
 
-
-        //获取这个机器人能不能发图片
-        constant.canSendImage = true;
         //获取本机ip地址
         constant.ip = getLocalIp4AddressFromNetworkInterface();
         //读取配置文件

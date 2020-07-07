@@ -16,7 +16,7 @@ public class ImageUtil {
     private static final String OUT = "./temp/";//输出图片的临时文件夹
 
     //制作抽卡出货的图
-    public static String composeImg(ArrayList<String> charas) throws IOException {
+    public static File composeImg(ArrayList<String> charas) throws IOException {
         if (charas.size() > 0) {
 
             int rows = charas.size() >= LINE_SIZE_MAX ? LINE_SIZE_MAX : charas.size();
@@ -57,8 +57,9 @@ public class ImageUtil {
                 exOut.mkdir();
             }
             String formatName = path.substring(path.lastIndexOf(".") + 1);
-            ImageIO.write(thumbImage, /*"GIF"*/ formatName /* format desired */, new File(path) /* target */);
-            return path;
+            File file = new File(path);
+            ImageIO.write(thumbImage,  formatName  , file  );
+            return file;
         } else {
             return null;
         }

@@ -43,9 +43,10 @@ public class TreeServiceImpl extends ServiceImpl<TreeMapper, Tree> implements Tr
 
     @Override
     public List<Tree> deletTreeByGroup(long group) {
-        List<Tree> list = mapper.getTreeByGroup(group);
-        list.addAll(mapper.getFightByGroup(group));
-        mapper.deleteBatchIds(list);
+        QueryWrapper<Tree> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("groupQQ",group);
+        List<Tree> list =mapper.selectList(queryWrapper);
+        mapper.delete(queryWrapper);
         return list;
     }
 

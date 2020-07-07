@@ -22,10 +22,10 @@ import java.util.List;
 @Mapper
 public interface TreeMapper extends BaseMapper<Tree> {
 
-    @Select("SELECT teamQQ,name FROM tree WHERE groupQQ = #{group} AND isTree=true")
+    @Select("SELECT * FROM tree WHERE groupQQ = #{group} AND isTree=true")
     List<Tree> getTreeByGroup(@Param("group") long group);
 
-    @Select("SELECT teamQQ,name FROM tree WHERE groupQQ = #{group} AND isTree=false")
+    @Select("SELECT * FROM tree WHERE groupQQ = #{group} AND isTree=false")
     List<Tree> getFightByGroup(@Param("group") long group);
 
     @Update("update tree set isTree=true WHERE teamQQ = #{teamQQ}")

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class BilibiliLive {
     private static final String TEMP = "./temp/bili/Live/";
     private String mid;//主播uid
+    private String name;//主播昵称
     private int roomStatus;
     private int roundStatus;
     private int liveStatus;
@@ -127,5 +128,49 @@ public class BilibiliLive {
 
     public int getRoomid() {
         return roomid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public void setRoomStatus(int roomStatus) {
+        this.roomStatus = roomStatus;
+    }
+
+    public void setRoundStatus(int roundStatus) {
+        this.roundStatus = roundStatus;
+    }
+
+    public void setLiveStatus(int liveStatus) {
+        this.liveStatus = liveStatus;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setCover(File cover) {
+        this.cover = cover;
+    }
+
+    public void setOnline(int online) {
+        this.online = online;
+    }
+
+    public void setRoomid(int roomid) {
+        this.roomid = roomid;
     }
 }

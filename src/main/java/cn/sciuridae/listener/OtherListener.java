@@ -18,6 +18,7 @@ import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import com.simplerobot.modules.utils.KQCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -431,19 +432,14 @@ public class OtherListener {
         }
 
         //人物图片
-        if (canSendImage) {
-            try {
-                String s = composeImg(list);
-                if (null != s) {
-                    File file = new File(s);
-                    CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image("file://" + file.getAbsolutePath());
-                    stringBuilder.append(cqCode_image.toString());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            File file = composeImg(list);
+            if (file.exists()) {
+                stringBuilder.append(KQCodeUtils.getInstance().toCq("image","file="+file.getAbsolutePath()));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
         if (thre != 0) {
             stringBuilder.append("\n三星：");
             for (String s : set1) {
@@ -473,14 +469,10 @@ public class OtherListener {
         Random random = new Random();
         random.setSeed(new Date().getTime());
         String send;
-        if (canSendImage && kimo_Definde_image != null) {
-            int i = kimo_Definde.length + kimo_Definde_image.size();
-            int j = random.nextInt(i);
-            if (j > kimo_Definde.length - 1) {
-                send = kimo_Definde_image.get(j - kimo_Definde.length);
-            } else {
-                send = kimo_Definde[random.nextInt(kimo_Definde.length)];
-            }
+        int i = kimo_Definde.length + kimo_Definde_image.size();
+        int j = random.nextInt(i);
+        if (j > kimo_Definde.length - 1) {
+            send = kimo_Definde_image.get(j - kimo_Definde.length);
         } else {
             send = kimo_Definde[random.nextInt(kimo_Definde.length)];
         }
