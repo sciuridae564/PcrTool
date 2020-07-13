@@ -54,7 +54,7 @@ public class GroupRunListener {
 
         //本人已经有一个工会了
         if (teamMemberServiceImpl.getTeamMemberByQQ(msg.getCodeNumber()) != null) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName() + isHaveGroup);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getNickname() + isHaveGroup);
             return;
         }
 
@@ -97,7 +97,7 @@ public class GroupRunListener {
             if (num + strings.size() <= 30) {
                 ArrayList<Long> have = new ArrayList<>();
                 for (String s : strings) {
-                    TeamMember teamMember = new TeamMember(cqAtoNumber(s), msg.getGroupCodeNumber(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName(), false);
+                    TeamMember teamMember = new TeamMember(cqAtoNumber(s), msg.getGroupCodeNumber(), sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getNickname(), false);
                     try {
                         teamMemberServiceImpl.save(teamMember);
                         num++;
@@ -134,7 +134,7 @@ public class GroupRunListener {
 
         TeamMember teamMember = new TeamMember(msg.getCodeNumber(),
                 msg.getGroupCodeNumber(),
-                name.trim().equals("") ? sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getName() : name,
+                name.trim().equals("") ? sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getNickname() : name,
                 false);
         int num;
         try {

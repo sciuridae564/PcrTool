@@ -476,7 +476,7 @@ public class prcnessListener {
                 String groupQQ = msg.getGroupCode();//工会qq
                 ExcelWrite excelWrite;
                 if (arrayList.size() > 1) {
-                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(1)), arrayList, msg.getGroupCodeNumber(),
+                    excelWrite = new ExcelWrite(getExcelFileName(groupQQ, arrayList.get(0), arrayList.get(arrayList.size()-1)), arrayList, msg.getGroupCodeNumber(),
                             teamMemberServiceImpl,
                             knifeListServiceImpl);
                 } else {

@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static cn.sciuridae.constant.*;
-import static cn.sciuridae.listener.prcnessIntercept.On;
+import static cn.sciuridae.listener.Intercept.prcnessIntercept.On;
 
 @Service
 public class bot_switch {
@@ -29,7 +29,7 @@ public class bot_switch {
     @Check(need = PermEnum.qqAdmin)
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#开启扭蛋"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void shutEgg(GroupMsg msg, MsgSender sender) {
+    public void openEgg(GroupMsg msg, MsgSender sender) {
         try {
             On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(true));
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
@@ -39,6 +39,23 @@ public class bot_switch {
             groupPower groupPower = new groupPower();
             On.put(msg.getGroupCode(), groupPower);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
+            setjson();
+        }
+    }
+
+    @Check(need = PermEnum.qqAdmin)
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#关闭扭蛋"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void shutEgg(GroupMsg msg, MsgSender sender) {
+        try {
+            On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setEggon(false));
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
+            setjson();
+        } catch (NullPointerException e) {
+            //没这个群的自动都是同意
+            groupPower groupPower = new groupPower();groupPower.setEggon(false);
+            On.put(msg.getGroupCode(), groupPower);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
             setjson();
         }
     }

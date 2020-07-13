@@ -1,4 +1,4 @@
-package cn.sciuridae.listener;
+package cn.sciuridae.listener.Intercept;
 
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.depend.Beans;

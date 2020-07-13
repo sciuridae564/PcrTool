@@ -7,11 +7,12 @@ import cn.sciuridae.utils.bilibili.BilibiliVideo;
 import cn.sciuridae.utils.bilibili.BvAndAv;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
-import com.simplerobot.modules.utils.KQCodeUtils;
+import com.forte.qqrobot.utils.CQCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +41,8 @@ public class bilibiliListener {
                 bilibiliVideo = new BilibiliVideo(av.substring(2), true);
             }
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "av号：" + bilibiliVideo.getAv() + "\nbv号：" + bilibiliVideo.getBv() + "\n视频标题:" + bilibiliVideo.getTitle());
-
-            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file="+ bilibiliVideo.getPic().getAbsolutePath()));
+            CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image(bilibiliVideo.getPic().getAbsolutePath());
+            sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,6 +72,7 @@ public class bilibiliListener {
     public void searchlive(PrivateMsg msg, MsgSender sender) {
         String mid = msg.getMsg().substring(2).trim();
         BilibiliLive bilibiliLive = liveHashMap.get(mid);
+        CQCodeUtil cqCodeUtil=CQCodeUtil.build();
         if (bilibiliLive == null) {
             try {
                 bilibiliLive = new BilibiliLive(mid);
@@ -93,7 +95,8 @@ public class bilibiliListener {
             }
         } else {
             sender.SENDER.sendPrivateMsg(msg, "标题:" + bilibiliLive.getTitle() + "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            sender.SENDER.sendPrivateMsg(msg, KQCodeUtils.getInstance().toCq("image", "file="+ bilibiliLive.getCover().getAbsolutePath()));
+            CQCode cqCode_image = cqCodeUtil.getCQCode_Image(bilibiliLive.getCover().getAbsolutePath());
+            sender.SENDER.sendPrivateMsg(msg, cqCode_image.toString());
         }
     }
 

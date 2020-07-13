@@ -82,10 +82,12 @@ public class ExcelWrite {
 
     //填写表的数据部分
     public void writedDate() throws NullPointerException {
+        int sheet_num=0;
         for (LocalDate date : dates) {
             int sumVoidKnife = 0;
             Sheet sheet = workbook.createSheet();
-            sheets.add(sheet);
+            workbook.setSheetName(sheet_num,date.toString());
+            sheet_num++;
             readyHead(sheet);//写表头
             LocalDateTime[] localDateTimes = localDateTolocalDateTimes(date);
             CellStyle style1 = workbook.createCellStyle();

@@ -1,7 +1,5 @@
 package cn.sciuridae.listener;
 
-import cn.sciuridae.dataBase.service.ScoresService;
-import cn.sciuridae.dataBase.service.impl.qqGroupServiceImpl;
 import cn.sciuridae.dataBase.service.qqGroupService;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
@@ -14,11 +12,9 @@ import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
-import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
-import com.simplerobot.modules.utils.KQCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static cn.sciuridae.constant.*;
-import static cn.sciuridae.listener.prcnessIntercept.On;
+import static cn.sciuridae.listener.Intercept.prcnessIntercept.On;
 import static cn.sciuridae.utils.ImageUtil.composeImg;
 import static cn.sciuridae.utils.stringTool.*;
 
@@ -44,13 +40,13 @@ public class OtherListener {
         coolDown = new HashMap<>();
     }
 
+    //加群提醒
     @Listen(MsgGetTypes.groupMemberIncrease)
     public void groupWelcome(GroupMemberIncrease msg, MsgSender sender) {
         if (qqGroupServiceImpl.isGroupWelcomOn(msg.getGroupCodeNumber())) {
             String groupWelcom = qqGroupServiceImpl.getGroupWelcom(msg.getGroupCodeNumber());
-            if (groupWelcom != null) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupWelcom);
-            }
+            groupWelcom=groupWelcom.replaceAll("\\{bot_name}",sender.bot().getInfo().getName());
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), groupWelcom);
         }
     }
 
@@ -152,7 +148,7 @@ public class OtherListener {
     public void Gashapon_(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gashapon gashapon = dp_Gashapon(10);
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" + gashapon.getData());
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQCodeUtil.build().getCQCode_At(msg.getQQCode())+ gashapon.getData());
             if (gashapon.isBan()) {
                 sender.SETTER.setGroupBan(msg.getGroupCode(), msg.getQQCode(), 1);
             }
@@ -397,7 +393,15 @@ public class OtherListener {
         Gashapon g = new Gashapon();
         g.setData(get_GashaponString(on, tw, thre, map1, map2, map3));
         try {
-            g.setBan(num / thre < 20);
+            if(num>10){
+                g.setBan(num / thre < 20);
+            }else {
+                if(thre>1){
+                    g.setBan(true);
+                }else {
+                    g.setBan(false);
+                }
+            }
         } catch (ArithmeticException e) {
             g.setBan(false);
         }
@@ -432,14 +436,18 @@ public class OtherListener {
         }
 
         //人物图片
-        try {
-            File file = composeImg(list);
-            if (file.exists()) {
-                stringBuilder.append(KQCodeUtils.getInstance().toCq("image","file="+file.getAbsolutePath()));
+        if(list.size()>0){
+            try {
+                File file = composeImg(list);
+                if (file.exists()) {
+                    stringBuilder.append(CQCodeUtil.build().getCQCode_Image(file.getAbsolutePath()).toString());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
+
         if (thre != 0) {
             stringBuilder.append("\n三星：");
             for (String s : set1) {

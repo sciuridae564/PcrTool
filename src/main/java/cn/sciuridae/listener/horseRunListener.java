@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static cn.sciuridae.constant.*;
-import static cn.sciuridae.listener.prcnessIntercept.On;
+import static cn.sciuridae.listener.Intercept.prcnessIntercept.On;
 
 @Service
 public class horseRunListener {

@@ -1,34 +1,15 @@
 package cn.sciuridae.listener;
 
-import cn.sciuridae.dataBase.bean.KnifeList;
-import cn.sciuridae.dataBase.service.*;
-import cn.sciuridae.utils.ExcelWrite;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
-import com.forte.qqrobot.beans.cqcode.CQCode;
-import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
-import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
-import com.forte.qqrobot.beans.types.CQCodeTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
-import com.forte.qqrobot.utils.CQCodeUtil;
-import com.simplerobot.modules.utils.KQCodeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Semaphore;
 
-import static cn.sciuridae.constant.pricnessConfig;
-import static cn.sciuridae.listener.prcnessListener.toHurt;
-import static cn.sciuridae.utils.stringTool.cqAtoNumber;
-import static cn.sciuridae.utils.stringTool.getExcelFileName;
-import static cn.sciuridae.utils.stringTool.getHurt;
 
 @Service
 public class testListen {
@@ -64,21 +45,17 @@ public class testListen {
 //    @Listen(MsgGetTypes.privateMsg)
 //    @Filter(value = {"azaz"},keywordMatchType = KeywordMatchType.EQUALS)
 //    public void testListern11(PrivateMsg msg, MsgSender sender) {
-//        LocalDate localDate=LocalDate.now();
-//        List<LocalDate> localDates=new ArrayList();
-//        localDates.add(localDate);
+//
+//        StringBuilder stringBuilder=new StringBuilder();
 //
 //        try {
-//            ExcelWrite excelWrite = new ExcelWrite(getExcelFileName("680495962", localDates.get(0)),
-//                    localDates,
-//                    680495962,
-//                    teamMemberServiceImpl,
-//                    knifeListServiceImpl
-//            );
-//            excelWrite.writedDate();
-//            excelWrite.reflashFile();
-//        } catch (IOException e) {
-//            e.printStackTrace();
+//            while (true){
+//                stringBuilder.append("好好好好好好好好好好");
+//                sender.SENDER.sendPrivateMsg(msg.getQQCode(),stringBuilder.toString());
+//            }
+//        }catch (Exception e){
+//            System.out.println(stringBuilder.toString().length());
+//            System.out.println(stringBuilder.toString());
 //        }
 //    }
 //

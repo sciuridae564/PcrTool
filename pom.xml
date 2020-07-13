@@ -6,16 +6,12 @@
 
     <groupId>mirai-test</groupId>
     <artifactId>sciuridae</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.8.RELEASE</version>
     </parent>
-    <properties>
-        <core-starter.version>1.14.0</core-starter.version>
-        <component-mirai-starter.version>0.5-1.14</component-mirai-starter.version>
-    </properties>
 
     <build>
         <plugins>
@@ -38,7 +34,7 @@
      <dependency>
          <groupId>love.forte.simple-robot-component</groupId>
          <artifactId>component-mirai</artifactId>
-         <version>${component-mirai-starter.version}</version>
+         <version>0.6.3-1.15</version>
          <exclusions>
              <exclusion>
                  <groupId>io.github.ForteScarlet</groupId>
@@ -51,7 +47,7 @@
      <dependency>
          <groupId>io.github.ForteScarlet.simple-robot</groupId>
          <artifactId>core-spring-boot-starter</artifactId>
-         <version>${core-starter.version}</version>
+         <version>1.15.0</version>
      </dependency>
 
      <dependency>
