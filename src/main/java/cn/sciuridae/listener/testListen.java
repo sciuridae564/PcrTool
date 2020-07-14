@@ -1,13 +1,22 @@
 package cn.sciuridae.listener;
 
+import cn.sciuridae.dataBase.bean.KnifeList;
+import cn.sciuridae.dataBase.bean.PcrUnion;
+import cn.sciuridae.dataBase.service.*;
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
+import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.lang.model.type.UnionType;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 
@@ -27,11 +36,7 @@ public class testListen {
 //    @Listen({MsgGetTypes.privateMsg,MsgGetTypes.groupMsg})
 //    @Filter("qwe")
 //    public void testListern(MsgGet msg, MsgSender sender) {
-//        if(msg instanceof PrivateMsg){
-//            System.out.println();
-//        }else if(msg instanceof GroupMsg){
-//            System.out.println();
-//        }
+//
 //    }
 //
 //
@@ -45,18 +50,14 @@ public class testListen {
 //    @Listen(MsgGetTypes.privateMsg)
 //    @Filter(value = {"azaz"},keywordMatchType = KeywordMatchType.EQUALS)
 //    public void testListern11(PrivateMsg msg, MsgSender sender) {
+//        KnifeList knifeList=new KnifeList();
+//        knifeList.setKnifeQQ(111222L);
+//        knifeList.setComplete(true);
+//        knifeList.setDate(LocalDateTime.now());
+//        knifeListServiceImpl.save(knifeList);
+//        List<KnifeList> knifeList1=knifeListServiceImpl.list();
+//        knifeList1.forEach(System.out::println);
 //
-//        StringBuilder stringBuilder=new StringBuilder();
-//
-//        try {
-//            while (true){
-//                stringBuilder.append("好好好好好好好好好好");
-//                sender.SENDER.sendPrivateMsg(msg.getQQCode(),stringBuilder.toString());
-//            }
-//        }catch (Exception e){
-//            System.out.println(stringBuilder.toString().length());
-//            System.out.println(stringBuilder.toString());
-//        }
 //    }
 //
 //

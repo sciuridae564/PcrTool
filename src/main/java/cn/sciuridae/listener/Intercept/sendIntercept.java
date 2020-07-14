@@ -1,8 +1,6 @@
 package cn.sciuridae.listener.Intercept;
 
 import com.forte.qqrobot.anno.depend.Beans;
-import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
-import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.sender.intercept.SendContext;
 import com.forte.qqrobot.sender.intercept.SenderSendIntercept;
 import com.forte.qqrobot.sender.senderlist.SenderSendList;

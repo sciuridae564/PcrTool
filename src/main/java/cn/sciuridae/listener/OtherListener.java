@@ -1,6 +1,7 @@
 package cn.sciuridae.listener;
 
 import cn.sciuridae.dataBase.service.qqGroupService;
+import cn.sciuridae.utils.ImageUtil;
 import cn.sciuridae.utils.bean.Gashapon;
 import cn.sciuridae.utils.bean.groupPower;
 import com.forte.qqrobot.anno.Filter;
@@ -15,11 +16,13 @@ import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -473,41 +476,35 @@ public class OtherListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "老婆", at = true, keywordMatchType = KeywordMatchType.CONTAINS)
-    public void kimo(GroupMsg msg, MsgSender sender) {
+    public void kimo(GroupMsg msg, MsgSender sender) throws IOException {
         Random random = new Random();
         random.setSeed(new Date().getTime());
-        String send;
-        int i = kimo_Definde.length + kimo_Definde_image.size();
-        int j = random.nextInt(i);
-        if (j > kimo_Definde.length - 1) {
-            send = kimo_Definde_image.get(j - kimo_Definde.length);
-        } else {
+        String send=null;
+        File[] files = HeitaiFile.listFiles();
+
+        if(files!=null){
+            int i = kimo_Definde.length + files.length;
+            int j = random.nextInt(i);
+            if (j > kimo_Definde.length - 1) {
+                CQCodeUtil build = CQCodeUtil.build();
+                CQCode cqCode_image = build.getCQCode_Image(files[j - kimo_Definde.length].getAbsolutePath());
+                send = cqCode_image.toString();
+            } else {
+                send = kimo_Definde[random.nextInt(kimo_Definde.length)];
+            }
+        }else {
+            HeitaiFile.mkdirs();
+            File file=new File(HeitaiFile,"机器人扫描这个文件夹下的图片文件用以作为老婆指令的应答,这个是示例图片文件.jpg");
+            file.createNewFile();
+            InputStream inputStream = ImageUtil.class.getResourceAsStream("/image/laopo.jpg");
+            byte[] b=new byte[1024];
+            while(inputStream.read(b)>0){
+                FileUtils.writeByteArrayToFile(file,b,true);
+            }
             send = kimo_Definde[random.nextInt(kimo_Definde.length)];
+
         }
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), send);
-    }
-
-    @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = "挂载变态图片", keywordMatchType = KeywordMatchType.EQUALS)
-    public void kimo(PrivateMsg msg, MsgSender sender) {
-        File file = new File("./heitai");
-
-        if (file.exists()) {
-            File[] files = file.listFiles();
-            if (files.length > 0) {
-                kimo_Definde_image = new ArrayList<>();
-                CQCodeUtil build = CQCodeUtil.build();
-                for (File f : files) {
-                    CQCode cqCode_image = build.getCQCode_Image("file://" + f.getAbsolutePath());
-                    kimo_Definde_image.add(cqCode_image.toString());
-                }
-                sender.SENDER.sendPrivateMsg(msg.getQQCode(), "读取图片成功");
-            } else {
-                sender.SENDER.sendPrivateMsg(msg.getQQCode(), "文件夹里还没有图片哦");
-            }
-        } else {
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "没有检测到有名字叫 heitai 的文件夹哦，图片请放到那里");
-        }
     }
 
     @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})

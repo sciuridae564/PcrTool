@@ -144,7 +144,7 @@ public class constant {
     public static final String StartFightStartDouble = "会战已经开始惹，为什么还要再开一次";
     public static final String SuccessEndFight = "会战结束惹";
     public static final String EngFightStartDouble = "没有正在进行的会战惹";
-    public static List<String> kimo_Definde_image = null;
+
     public static final String Default_Welcome = "呐,呐~欢迎欧尼酱加入大★家★庭哦(。>V<。) !{bot_name}最喜欢欧尼酱了!欧尼酱,daisiki !让人家来「侍奉」欧尼酱吧< )";
     public static final String[] kimo_Definde = {"hentai，谁是你老婆啦", "死肥宅一边玩去啦，不要打扰我", "本小姐不想理你，并向你扔了一只胖次",
             "无应答......", "嗷呜%_%", "谁是你老婆啦，哼", "对方无应答", "你是个好人", "对不起!您拨打的用户暂时无法接通,请稍后再拨.Sorry!The subscriber you dialed can not be connected for the moment, please redial later."
@@ -180,6 +180,7 @@ public class constant {
     public static PricnessConfig pricnessConfig;
     public static String[] emojis = new String[]{"\uD83E\uDD84", "\uD83D\uDC34", "\uD83D\uDC3A", "\uD83D\uDC02", "\uD83D\uDC04", "\uD83D\uDC0E", "\uD83D\uDC07", "\uD83D\uDC13", "\uD83E\uDD8F", "\uD83D\uDC29", "\uD83D\uDC2E", "\uD83D\uDC35", "\uD83D\uDC19", "\uD83D\uDC80", "\uD83D\uDC24", "\uD83D\uDC28", "\uD83D\uDC2E", "\uD83D\uDC14", "\uD83D\uDC38", "\uD83D\uDC7B", "\uD83D\uDC1B", "\uD83D\uDC20", "\uD83D\uDC36", "\uD83D\uDC2F", "  ", "\uD83D\uDEBD"};
     public static HoreEvent horeEvent;
+    public static File HeitaiFile = new File("./heitai");
 
 
     static {
