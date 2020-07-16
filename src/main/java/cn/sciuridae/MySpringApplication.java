@@ -3,11 +3,13 @@ package cn.sciuridae;
 import cn.sciuridae.utils.InitDatabase;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 启动器
  */
 @SpringBootApplication
+@EnableScheduling
 public class MySpringApplication {
 
     public static void main(String[] args) {

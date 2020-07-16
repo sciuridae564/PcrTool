@@ -15,7 +15,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static cn.sciuridae.utils.timeUtil.localDateTolocalDateTimes;
@@ -174,7 +173,7 @@ public class ExcelWrite {
                 BufferedImage bufferImg ;
                 try {
                     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-                    bufferImg = ImageIO.read(ExcelWrite.class.getResourceAsStream("/image/xun.jpg"));
+                    bufferImg = ImageIO.read(ExcelWrite.class.getResourceAsStream("/otherImage/xun.jpg"));
                     ImageIO.write(bufferImg, "jpg", byteArrayOut);
 
                     //画图的顶级管理器，一个sheet只能获取一个

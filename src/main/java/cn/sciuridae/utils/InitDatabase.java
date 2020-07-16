@@ -3,7 +3,7 @@ package cn.sciuridae.utils;
 import java.sql.*;
 
 public class InitDatabase {
-    private static final int new_version =9;
+    private static final int new_version =10;
 
     public void InitDB() {
         int version = -1;
@@ -65,7 +65,8 @@ public class InitDatabase {
                     statement.executeUpdate("CREATE TABLE  qqGroup(group_number integer PRIMARY KEY ,welcome text,welcome_tri boolean)");
                 case 8:
                     statement.executeUpdate("alter table knifeList add column list integer;");
-
+                case 9:
+                    statement.executeUpdate("CREATE TABLE echoMsg(flag integer PRIMARY KEY AUTOINCREMENT ,group_number integer ,qq_number integer ,msg varchar(1024),time datetime,echoOk boolean)");
 
 
                     statement.executeUpdate("update version set version =" + new_version);

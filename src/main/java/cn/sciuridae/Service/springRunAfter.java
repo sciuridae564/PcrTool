@@ -1,20 +1,27 @@
 package cn.sciuridae.Service;
 
+import ch.qos.logback.core.util.FileUtil;
 import cn.sciuridae.dataBase.bean.Scores;
 import cn.sciuridae.dataBase.bean.Tree;
 import cn.sciuridae.dataBase.service.ProgressService;
 import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.dataBase.service.TreeService;
+import cn.sciuridae.utils.ImageUtil;
 import cn.sciuridae.utils.bilibili.BilibiliLive;
 import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -91,5 +98,19 @@ public class springRunAfter implements ApplicationListener<ContextRefreshedEvent
                 }
             }
         }
+
+        //外部图片资源矫正
+        File file = new File("./image");
+        if(!file.exists()){
+            file.mkdirs();
+            File file1=new File(file,"程序优先使用这个文件夹下的图片文件作为抽卡人物图片,文件需为png格式，文件名则与扭蛋配置文件种对应");
+            try {
+                file1.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
 }

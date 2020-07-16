@@ -139,7 +139,6 @@ public class ApiConnect {
             while ((read = in.readLine()) != null) {
                 inputLine.append(read + "\r\n");
             }
-            //System.out.println(inputLine.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -496,7 +496,7 @@ public class OtherListener {
             HeitaiFile.mkdirs();
             File file=new File(HeitaiFile,"机器人扫描这个文件夹下的图片文件用以作为老婆指令的应答,这个是示例图片文件.jpg");
             file.createNewFile();
-            InputStream inputStream = ImageUtil.class.getResourceAsStream("/image/laopo.jpg");
+            InputStream inputStream = ImageUtil.class.getResourceAsStream("/otherImage/laopo.jpg");
             byte[] b=new byte[1024];
             while(inputStream.read(b)>0){
                 FileUtils.writeByteArrayToFile(file,b,true);

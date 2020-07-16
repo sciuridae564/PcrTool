@@ -23,7 +23,6 @@ import java.util.List;
 import static cn.sciuridae.utils.stringTool.getExcelFileName;
 
 @Component
-@EnableScheduling
 public class clearVoidKnife {
     @Autowired
     TreeService treeServiceImpl;

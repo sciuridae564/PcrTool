@@ -23,7 +23,6 @@ import static cn.sciuridae.utils.stringTool.getExcelFileName;
 import static cn.sciuridae.utils.timeUtil.getDescDateList;
 
 @Component
-@EnableScheduling
 public class clearEnd {
     @Autowired
     TreeService treeServiceImpl;

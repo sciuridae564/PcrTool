@@ -19,7 +19,6 @@ import java.util.Set;
 import static cn.sciuridae.listener.bilibiliListener.liveHashMap;
 
 @Component
-@EnableScheduling//可以在启动类上注解也可以在当前文件
 public class BilibiliLive {
     @Autowired
     ScoresService ScoresServiceImpl;
