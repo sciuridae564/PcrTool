@@ -13,8 +13,4 @@ import java.util.List;
 @Mapper
 public interface echoMsgMapper extends BaseMapper<echoMsg> {
 
-    @Select("select group_number,qq_number from echoMsg where msg=#{msg} and group_number=#{group} order by time")
-    List<echoMsg> search(@Param("msg") String msg,@Param("group") long group);
-
-
 }

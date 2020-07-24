@@ -237,20 +237,27 @@ public class constant {
     public static void getconfig() {
         //通用设定
         File file = new File("./通用配置.txt");
-        if (!file.exists() || !file.isFile()) {
+        if (file.exists() && file.isFile()) {
             try {
                 pricnessConfig=loadconfig(file);
                 return;
             } catch (IOException e) {
-
+                try {
+                    frashconfig(file);
+                } catch (IOException e1) {
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            try {
+                frashconfig(file);
+                pricnessConfig = new PricnessConfig("买药.png", 1000, 30, true, true, true, true, "12345", 2000, 500);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        try {
-            frashconfig(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        pricnessConfig = new PricnessConfig("买药.png", 1000, 30, true, true, true, true, "12345", 2000, 500);
+
+
 
     }
 
@@ -285,7 +292,7 @@ public class constant {
         PricnessConfig pricnessConfig ;
         pricnessConfig = new PricnessConfig(pro.getProperty("提醒买药小助手图片名"),
                 Integer.parseInt(pro.getProperty("抽卡上限")),
-                Integer.parseInt(pro.getProperty("抽卡冷却秒")),
+                Integer.parseInt(pro.getProperty("抽卡冷却")),
                 Boolean.parseBoolean(pro.getProperty("总开关默认开启")),
                 Boolean.parseBoolean(pro.getProperty("抽奖默认开启")),
                 Boolean.parseBoolean(pro.getProperty("抽卡默认开启")),

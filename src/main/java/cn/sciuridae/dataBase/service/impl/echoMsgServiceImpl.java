@@ -20,7 +20,10 @@ public class echoMsgServiceImpl  extends ServiceImpl<echoMsgMapper, echoMsg> imp
 
     @Override
     public List<echoMsg> search(String msg,long group) {
-        return echoMsgMapper.search(msg,group);
+        QueryWrapper<echoMsg> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("msg",msg);
+        queryWrapper.eq("group_number",group);
+        return echoMsgMapper.selectList(queryWrapper);
     }
 
 
