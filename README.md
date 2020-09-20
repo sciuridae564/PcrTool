@@ -5,7 +5,7 @@
 ps：主分支不再维护，v2.0是正在维护的coolq分支  
       mirai是正在维护的mirai版本   
       coolq需要pro才能发图   
-      mirai直接就能发（  
+      mirai直接就能发 
       私聊机器人  帮助获得具体帮助（  
       
 
