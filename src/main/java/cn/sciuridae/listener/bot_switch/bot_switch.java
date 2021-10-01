@@ -6,13 +6,6 @@ import cn.sciuridae.dataBase.bean.qqGroup;
 import cn.sciuridae.dataBase.service.ScoresService;
 import cn.sciuridae.dataBase.service.qqGroupService;
 import cn.sciuridae.utils.bean.groupPower;
-import com.forte.qqrobot.anno.Filter;
-import com.forte.qqrobot.anno.Listen;
-import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
-import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
-import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
-import com.forte.qqrobot.beans.types.KeywordMatchType;
-import com.forte.qqrobot.sender.MsgSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

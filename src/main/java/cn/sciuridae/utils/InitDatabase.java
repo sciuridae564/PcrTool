@@ -67,7 +67,8 @@ public class InitDatabase {
                     statement.executeUpdate("alter table knifeList add column list integer;");
                 case 9:
                     statement.executeUpdate("CREATE TABLE echoMsg(flag integer PRIMARY KEY AUTOINCREMENT ,group_number integer ,qq_number integer ,msg varchar(1024),time datetime,echoOk boolean)");
-
+                case 10:
+                    statement.executeUpdate("drop TABLE echoMsg");
 
                     statement.executeUpdate("update version set version =" + new_version);
 

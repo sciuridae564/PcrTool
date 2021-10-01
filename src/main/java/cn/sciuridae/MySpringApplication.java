@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * 启动器
  */
+
+@EnableSimbot
 @SpringBootApplication
 @EnableScheduling
 public class MySpringApplication {
